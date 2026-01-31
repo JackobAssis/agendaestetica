@@ -7,6 +7,8 @@
  * - Page transitions
  * - Permission-based redirects
  * - Authentication checks
+ * 
+ * Compatible with Vercel static hosting
  */
 
 import { obterUsuarioAtual } from './modules/auth.js';
@@ -22,7 +24,18 @@ const PAGES = {
     PAGINA_PUBLICA: { path: '/agenda/:profissionalId', file: 'pages/pagina-publica.html', public: true, requireAuth: false },
     LINK_AGENDAMENTO: { path: '/agendar/:profissionalId', file: 'pages/agendar-cliente.html', public: true, requireAuth: false },
     CONFIRMACAO: { path: '/confirmacao', file: 'pages/confirmacao.html', public: true, requireAuth: false },
+    HOME: { path: '/', file: 'index.html', public: true, requireAuth: false },
 };
+
+/**
+ * Get current path from browser
+ */
+function getCurrentPath() {
+    // Remove search params and hash
+    const path = window.location.pathname;
+    // Ensure path starts with /
+    return path.startsWith('/') ? path : '/' + path;
+}
 
 /**
  * Navigate to a page
@@ -40,14 +53,14 @@ export async function navigate(path, params = {}) {
     const page = findPageByPath(url);
     
     if (!page) {
-        console.error('Page not found:', url);
-        navigate('/login');
+        console.warn('Page not found, redirecting to login:', url);
+        window.location.href = '/login';
         return;
     }
     
     // Verificar autenticação
     if (page.requireAuth && !obterUsuarioAtual()) {
-        navigate('/login');
+        window.location.href = '/login';
         return;
     }
     
@@ -66,8 +79,20 @@ async function loadPage(path) {
     const page = findPageByPath(path);
     
     if (!page) {
-        console.error('Page not found:', path);
-        navigate('/login');
+        console.warn('Page not found:', path);
+        // Fallback to login or home
+        const fallback = obterUsuarioAtual() ? 'pages/login.html' : 'pages/login.html';
+        const app = document.getElementById('app');
+        if (app) {
+            try {
+                const response = await fetch(fallback);
+                if (response.ok) {
+                    app.innerHTML = await response.text();
+                }
+            } catch (e) {
+                app.innerHTML = '<div class="error-page"><h1>Página não encontrada</h1></div>';
+            }
+        }
         return;
     }
     
@@ -80,30 +105,38 @@ async function loadPage(path) {
         
         // Inject into app
         const app = document.getElementById('app');
-        app.innerHTML = html;
+        if (app) {
+            app.innerHTML = html;
+        }
         
         // Load associated JS
         const jsFile = page.file.replace('.html', '.js');
-        const scriptExists = await checkFileExists(jsFile);
         
-        if (scriptExists) {
-            const moduleScript = document.createElement('script');
-            moduleScript.type = 'module';
-            moduleScript.src = jsFile;
-            document.body.appendChild(moduleScript);
+        // Remove previous script if exists
+        const existingScript = document.querySelector(`script[src="${jsFile}"]`);
+        if (existingScript) {
+            existingScript.remove();
         }
+        
+        const moduleScript = document.createElement('script');
+        moduleScript.type = 'module';
+        moduleScript.src = jsFile;
+        document.body.appendChild(moduleScript);
         
         // Scroll to top
         window.scrollTo(0, 0);
         
     } catch (error) {
         console.error('Error loading page:', error);
-        document.getElementById('app').innerHTML = `
-            <div class="error-page">
-                <h1>Erro ao carregar página</h1>
-                <p>${error.message}</p>
-            </div>
-        `;
+        const app = document.getElementById('app');
+        if (app) {
+            app.innerHTML = `
+                <div class="error-page">
+                    <h1>Erro ao carregar página</h1>
+                    <p>${error.message}</p>
+                </div>
+            `;
+        }
     }
 }
 
@@ -111,13 +144,15 @@ async function loadPage(path) {
  * Find page configuration by path
  */
 function findPageByPath(path) {
+    // Normalize path
+    const normalizedPath = path.split('?')[0].split('#')[0];
+    
     // Direct match
-    if (PAGES[Object.keys(PAGES).find(key => PAGES[key].path === path)]) {
-        return PAGES[Object.keys(PAGES).find(key => PAGES[key].path === path)];
-    }
+    const directMatch = Object.values(PAGES).find(p => p.path === normalizedPath);
+    if (directMatch) return directMatch;
     
     // Check for parameter paths
-    const pathPattern = path.split('/').filter(Boolean);
+    const pathPattern = normalizedPath.split('/').filter(Boolean);
     
     for (const page of Object.values(PAGES)) {
         const pattern = page.path.split('/').filter(Boolean);
@@ -147,24 +182,41 @@ async function checkFileExists(filepath) {
  */
 export async function setupRouter() {
     // Handle browser back/forward
-    window.addEventListener('popstate', () => {
-        loadPage(window.location.pathname);
+    window.addEventListener('popstate', (event) => {
+        if (event.state && event.state.path) {
+            loadPage(event.state.path);
+        } else {
+            loadPage(getCurrentPath());
+        }
     });
     
     // Load initial page based on URL
-    let currentPath = window.location.pathname || '/login';
+    const currentPath = getCurrentPath();
     
     // Se não tem path, redirecionar para login ou dashboard
     if (currentPath === '/' || currentPath === '') {
         const usuario = obterUsuarioAtual();
-        currentPath = usuario ? '/dashboard' : '/login';
+        const targetPath = usuario ? '/dashboard' : '/login';
+        
+        // Use replaceState to avoid history entry for redirect
+        window.history.replaceState({ path: targetPath }, '', targetPath);
+        await loadPage(targetPath);
+        return;
     }
     
     // Verificar permissão
     const page = findPageByPath(currentPath);
     
     if (page && page.requireAuth && !obterUsuarioAtual()) {
-        currentPath = '/login';
+        // Redirect to login
+        window.history.replaceState({ path: '/login' }, '', '/login');
+        await loadPage('/login');
+        return;
+    }
+    
+    // Initialize state
+    if (!window.history.state || !window.history.state.path) {
+        window.history.replaceState({ path: currentPath }, '', currentPath);
     }
     
     await loadPage(currentPath);
