@@ -1,5 +1,5 @@
 {
-  "buildCommand": "./scripts/build.sh",
+  "buildCommand": "mkdir -p public && cp -r src/* public/",
   "devCommand": "npx http-server src -p 8000",
   "installCommand": "npm install",
   "outputDirectory": "public",
