@@ -2,7 +2,6 @@
   "buildCommand": "npm run build",
   "devCommand": "npm run dev",
   "installCommand": "npm install",
-  "framework": "vanilla",
   "outputDirectory": "src",
   "env": {
     "VITE_FIREBASE_API_KEY": "@firebase_api_key",
@@ -16,6 +15,12 @@
     {
       "src": "^/(?!.*\\.).*$",
       "dest": "index.html"
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
     }
   ]
 }
