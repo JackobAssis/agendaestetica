@@ -7,13 +7,22 @@
     "dev": "npx http-server src -p 8000 -c-1 --spa index.html",
     "build": "echo 'Vanilla JS - no build needed'",
     "test": "echo 'Manual testing - see PLANO-MESTRE-TECNICO.md Section 9'",
-    "serve": "npx http-server src -p 8000"
+    "serve": "npx http-server src -p 8000",
+    "emulators:start": "firebase emulators:start --only firestore,auth,functions --project demo-project",
+    "emulators:test": "mocha --timeout 10000 tests/**/*.test.js"
   },
   "dependencies": {
     "firebase": "^10.5.0"
   },
   "devDependencies": {
-    "http-server": "^14.1.1"
+    "http-server": "^14.1.1",
+    "mocha": "^10.2.0",
+    "chai": "^4.3.7",
+    "firebase-tools": "^12.0.0"
+  },
+  "dependencies": {
+    "firebase": "^10.5.0",
+    "firebase-admin": "^11.10.0"
   },
   "engines": {
     "node": ">=18.0.0"

@@ -4,14 +4,24 @@
  * Reference: PLANO-MESTRE-TECNICO.md > Seção 4 Sprint 0
  */
 
-const firebaseConfig = {
-  apiKey: process.env.VITE_FIREBASE_API_KEY || import.meta.env.VITE_FIREBASE_API_KEY,
-  authDomain: process.env.VITE_FIREBASE_AUTH_DOMAIN || import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
-  projectId: process.env.VITE_FIREBASE_PROJECT_ID || import.meta.env.VITE_FIREBASE_PROJECT_ID,
-  storageBucket: process.env.VITE_FIREBASE_STORAGE_BUCKET || import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: process.env.VITE_FIREBASE_MESSAGING_SENDER_ID || import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.VITE_FIREBASE_APP_ID || import.meta.env.VITE_FIREBASE_APP_ID,
-};
+const firebaseConfig = (function(){
+  // Prefer explicit browser config via window.APP_CONFIG.firebase
+  if (typeof window !== 'undefined' && window.APP_CONFIG && window.APP_CONFIG.firebase) {
+    return window.APP_CONFIG.firebase;
+  }
+
+  // Fallback to import.meta.env for bundlers that support it
+  const env = typeof import.meta !== 'undefined' ? (import.meta.env || {}) : {};
+
+  return {
+    apiKey: env.VITE_FIREBASE_API_KEY || null,
+    authDomain: env.VITE_FIREBASE_AUTH_DOMAIN || null,
+    projectId: env.VITE_FIREBASE_PROJECT_ID || null,
+    storageBucket: env.VITE_FIREBASE_STORAGE_BUCKET || null,
+    messagingSenderId: env.VITE_FIREBASE_MESSAGING_SENDER_ID || null,
+    appId: env.VITE_FIREBASE_APP_ID || null,
+  };
+})();
 
 // Validate configuration
 const requiredFields = ['apiKey', 'authDomain', 'projectId', 'storageBucket', 'messagingSenderId', 'appId'];
@@ -19,9 +29,10 @@ const missingFields = requiredFields.filter(field => !firebaseConfig[field]);
 
 if (missingFields.length > 0) {
   console.error('❌ Firebase Configuration Error');
-  console.error('Missing environment variables:', missingFields.join(', '));
-  console.error('See .env.example for required fields');
-  throw new Error('Firebase configuration incomplete');
+  console.error('Missing configuration fields:', missingFields.join(', '));
+  console.error('Provide `window.APP_CONFIG = { firebase: { ... } }` in your HTML or set import.meta.env vars. See .env.example');
+  // Do not throw in browser; let callers handle missing config gracefully
 }
 
 export default firebaseConfig;
+
