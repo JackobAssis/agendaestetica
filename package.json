@@ -1,0 +1,21 @@
+{
+  "name": "agendaestetica",
+  "version": "1.0.0",
+  "description": "SaaS de Agenda Online para Profissionais Estéticos",
+  "type": "module",
+  "scripts": {
+    "dev": "npx http-server src -p 8000 -c-1 --spa index.html",
+    "build": "echo 'Vanilla JS - no build needed'",
+    "test": "echo 'Manual testing - see PLANO-MESTRE-TECNICO.md Section 9'",
+    "serve": "npx http-server src -p 8000"
+  },
+  "dependencies": {
+    "firebase": "^10.5.0"
+  },
+  "devDependencies": {
+    "http-server": "^14.1.1"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

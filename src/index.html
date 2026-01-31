@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="AgendaEstética - SaaS de Agenda Online para Profissionais Estéticos">
+    <meta name="theme-color" content="#6B46C1">
+    
+    <title>AgendaEstética - Login</title>
+    
+    <link rel="stylesheet" href="styles/global.css">
+    <link rel="stylesheet" href="styles/login.css">
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-storage.js"></script>
+</head>
+<body>
+    <div id="app"></div>
+    
+    <script type="module">
+        import firebaseConfig from './config.js';
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.5.0/firebase-app.js';
+        import { getAuth, setPersistence, browserLocalPersistence } from 'https://www.gstatic.com/firebasejs/10.5.0/firebase-auth.js';
+        import { getFirestore } from 'https://www.gstatic.com/firebasejs/10.5.0/firebase-firestore.js';
+        import { getStorage } from 'https://www.gstatic.com/firebasejs/10.5.0/firebase-storage.js';
+        import { setupRouter } from './router.js';
+        import { verificarSessao } from './modules/auth.js';
+        
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const storage = getStorage(app);
+        
+        // Enable persistence
+        setPersistence(auth, browserLocalPersistence)
+            .catch(error => console.warn('Persistence error:', error.message));
+        
+        // Make Firebase services globally available
+        window.firebase = {
+            app,
+            auth,
+            db,
+            storage,
+        };
+        
+        // Setup router and check session on load
+        document.addEventListener('DOMContentLoaded', async () => {
+            await setupRouter();
+            await verificarSessao();
+        });
+    </script>
+</body>
+</html>
