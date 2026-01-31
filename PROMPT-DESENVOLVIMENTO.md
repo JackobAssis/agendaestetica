@@ -147,10 +147,6 @@ Para cada fase, entregue:
 3. 🧪 O que deve ser testado manualmente
 4. ⏭️ Confirmação para avançar para a próxima fase
 
-⚠️ NÃO pule fases.
-⚠️ NÃO entregue tudo de uma vez.
-⚠️ Aguarde confirmação antes de seguir para a próxima fase.
-
 ---
 
 ## REGRA FINAL

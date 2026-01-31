@@ -44,6 +44,18 @@ service cloud.firestore {
 
         allow delete: if request.auth != null && get(/databases/$(database)/documents/empresas/$(empresaId)).data.proprietarioUid == request.auth.uid;
       }
+
+      // Clientes: creation via Cloud Function only (remove public create); reads/updates/deletes restricted to proprietario only.
+      match /clientes/{clienteId} {
+        // Only proprietario can read the clients list/details
+        allow read: if request.auth != null && get(/databases/$(database)/documents/empresas/$(empresaId)).data.proprietarioUid == request.auth.uid;
+
+        // Disallow public create - only owner or admin SDK should create clients.
+        allow create: if false;
+
+        // Only proprietario can modify or delete clients
+        allow update, delete: if request.auth != null && get(/databases/$(database)/documents/empresas/$(empresaId)).data.proprietarioUid == request.auth.uid;
+      }
     }
 
     // Usuários: owner only

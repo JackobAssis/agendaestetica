@@ -5,6 +5,7 @@
 
 import { obterUsuarioAtual, logout } from '../modules/auth.js';
 import { obterPlano } from '../modules/permissions.js';
+import { applyTheme, getTheme, setTheme } from '../modules/theme.js';
 
 /**
  * Inicializar dashboard
@@ -30,6 +31,17 @@ async function inicializar() {
         // Obter plano
         const plano = await obterPlano();
         document.getElementById('plano-atual').textContent = plano.charAt(0).toUpperCase() + plano.slice(1);
+
+            // Apply theme preference
+            const themeSelect = document.getElementById('theme-select');
+            const currentTheme = await getTheme(usuario.empresaId);
+            applyTheme(currentTheme);
+            if (themeSelect) themeSelect.value = currentTheme;
+            if (themeSelect) themeSelect.addEventListener('change', async (e) => {
+                const newTheme = e.target.value;
+                applyTheme(newTheme);
+                await setTheme(usuario.empresaId, newTheme);
+            });
         
         // Carregar dados do Firebase (será implementado em FASE 3+)
         carregarDados(usuario.empresaId);

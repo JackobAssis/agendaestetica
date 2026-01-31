@@ -26,6 +26,15 @@ firebase deploy --only functions:confirmAgendamento --project YOUR_FIREBASE_PROJ
 
 Set `window.APP_CONFIG.confirmAgendamentoFunctionUrl` in your production HTML or environment to the deployed function URL, e.g. `https://us-central1-PROJECT.cloudfunctions.net/confirmAgendamento`.
 
+Set `window.APP_CONFIG.createClienteFunctionUrl` to the deployed `createCliente` function URL if you want the frontend to create/deduplicate clients via the Cloud Function (recommended). Example:
+
+```js
+window.APP_CONFIG = {
+  confirmAgendamentoFunctionUrl: 'https://us-central1-PROJECT.cloudfunctions.net/confirmAgendamento',
+  createClienteFunctionUrl: 'https://us-central1-PROJECT.cloudfunctions.net/createCliente'
+}
+```
+
 4. Test example (curl):
 
 Obtain an ID token for a proprietario (use firebase admin SDK or perform client sign-in and getIdToken()). Then call:
@@ -40,3 +49,6 @@ curl -X POST https://<REGION>-<PROJECT>.cloudfunctions.net/confirmAgendamento \
 Notes:
 - The Cloud Function validates the ID token and checks that the caller is the `proprietarioUid` of the empresa.
 - Firestore Rules were written to allow public creation of `agendamentos` with `status == 'solicitado'` and restrict updates/deletes to the owner or the creating cliente.
+
+- Firestore Rules also enforce that creation of `empresas/{empresaId}/clientes` is NOT allowed publicly; instead, use the Cloud Function `createCliente` to create/deduplicate clients. This function runs with Admin privileges and bypasses Firestore Rules, providing a safe channel to validate and deduplicate client records before insertion.
+

@@ -11,10 +11,10 @@ fi
 echo "Deploying Firestore rules to project: $PROJECT_ID"
 firebase deploy --only firestore:rules --project "$PROJECT_ID"
 
-echo "Installing functions dependencies and deploying Cloud Function..."
+echo "Installing functions dependencies and deploying Cloud Functions..."
 pushd functions >/dev/null
 npm install --no-audit --no-fund
-firebase deploy --only functions:confirmAgendamento --project "$PROJECT_ID"
+firebase deploy --only functions:confirmAgendamento,functions:createCliente --project "$PROJECT_ID"
 popd >/dev/null
 
 echo "Deploy complete."

@@ -1,6 +1,7 @@
 import { generateSlotsForDate } from '../modules/agenda.js';
 import { solicitarAgendamento } from '../modules/agendamentos.js';
 import { notifyInApp, sendWebhook } from '../modules/notifications.js';
+import { findOrCreateClienteByEmail } from '../modules/clientes.js';
 
 // Extract profissionalId from path /agendar/:profissionalId
 function getProfissionalIdFromPath(){
@@ -83,7 +84,26 @@ async function solicitarSlot(slot){
   if(!nome || !email){ showMsg('Nome e email são obrigatórios', 'error'); return; }
 
   try{
-    const payload = { inicioISO: slot.inicioISO, fimISO: slot.fimISO, nomeCliente: nome, telefone: tel, servico };
+    // Ensure cliente exists and get clienteId - prefer Cloud Function if configured
+    let cliente = null;
+    try{
+      const createClienteUrl = window.APP_CONFIG && window.APP_CONFIG.createClienteFunctionUrl;
+      if (createClienteUrl) {
+        const resp = await fetch(createClienteUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ empresaId: profissionalId, nome, email, telefone: tel })
+        });
+        const body = await resp.json();
+        if (!resp.ok) throw new Error(body.error || 'Erro ao criar cliente via função');
+        cliente = body.cliente || body;
+      } else {
+        // fallback to client-side creation (uses Firestore rules / SDK)
+        try{ cliente = await findOrCreateClienteByEmail(profissionalId, email, nome, tel); }catch(e){ console.warn('findOrCreateCliente failed', e); }
+      }
+    }catch(e){ console.warn('createCliente flow failed', e); }
+
+    const payload = { inicioISO: slot.inicioISO, fimISO: slot.fimISO, nomeCliente: nome, telefone: tel, servico, clienteUid: cliente ? cliente.id : null };
     const res = await solicitarAgendamento(profissionalId, payload);
 
     // Notify profissional (in-app)
