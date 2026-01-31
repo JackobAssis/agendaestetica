@@ -1,40 +1,123 @@
-# Environment variables
+# ===========================================
+# AgendaEstética - GitIgnore Completo
+# Reference: PLANO-MESTRE-TECNICO.md > Seção 0.1
+# ===========================================
+
+# -------------------------------------------
+# SENSÍVEL - NUNCA COMMITAR
+# -------------------------------------------
 .env
 .env.local
 .env.*.local
-
-# Dependencies
-node_modules/
-package-lock.json
-yarn.lock
-
-# IDE
-.vscode/
-.idea/
-*.swp
-*.swo
-*~
-
-# OS
-.DS_Store
-Thumbs.db
-
-# Build
-dist/
-build/
+.env.production
+.env.development
+*.local
 
 # Firebase
-.firebase/
-.firebaserc
+firebase-credentials.json
+serviceAccountKey.json
+*.local.json
 
-# Logs
-*.log
+# -------------------------------------------
+# DEPENDÊNCIAS
+# -------------------------------------------
+node_modules/
 npm-debug.log*
 yarn-debug.log*
+yarn-error.log*
 
-# Vercel
+# -------------------------------------------
+# BUILD E DISTRIBUIÇÃO
+# -------------------------------------------
+dist/
+build/
+.cache/
+.parcel-cache/
+.eslintcache
+*.min.js
+*.min.css
+
+# -------------------------------------------
+# IDE E EDITORES
+# -------------------------------------------
+.vscode/
+.idea/
+*.sublime-*
+.project
+.classpath
+.settings/
+*.sublime-workspace
+*.sublime-project
+.sequelpro/
+
+# -------------------------------------------
+# SISTEMA OPERACIONAL
+# -------------------------------------------
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+*.bak
+
+# -------------------------------------------
+# FIREBASE
+# -------------------------------------------
+.firebase/
+.firebase-cache/
+firestore-debug.log
+firestore-emulator.log
+ui-debug.log
+.firebaserc
+database.rules.json
+storage.rules
+
+# -------------------------------------------
+# VERCEL
+# -------------------------------------------
 .vercel/
+.vercelignore
 
-# Test coverage
+# -------------------------------------------
+# TESTES
+# -------------------------------------------
 coverage/
 .nyc_output/
+test-results/
+playwright-report/
+cypress/videos/
+cypress/screenshots/
+*.lcov
+
+# -------------------------------------------
+# BACKUPS E TEMPORÁRIOS
+# -------------------------------------------
+*.backup
+*.tmp
+*.temp
+*~$
+*#
+.#*
+__pycache__/
+*.pyc
+*.pyo
+
+# -------------------------------------------
+# ARQUIVOS DO PROJETO (se necessário)
+# -------------------------------------------
+# Descomente se quiser ignorar documentação local
+# docs/local/
+# notas/
+# personal-notes/
+
+# -------------------------------------------
+# OUTROS
+# -------------------------------------------
+*.log
+debug.log
+*.pem
+*.key
+*.crt
+.envrc
