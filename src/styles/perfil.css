@@ -1,0 +1,3 @@
+.page-container{max-width:900px;margin:24px auto;padding:16px}
+.card{background:#fff;border:1px solid #eee;padding:12px;border-radius:8px;margin-bottom:12px}
+.btn{background:var(--primary);color:#fff;padding:8px 12px;border-radius:6px;border:none}
