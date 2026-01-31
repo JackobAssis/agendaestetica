@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AgendaEstética - Agendamentos</title>
+  <link rel="stylesheet" href="../styles/global.css">
+  <link rel="stylesheet" href="../styles/agendamentos.css">
+</head>
+<body>
+  <main class="agendamentos-container">
+    <div class="agendamentos-card">
+      <header>
+        <h1>Agendamentos</h1>
+        <p class="text-secondary">Lista de solicitações e agendamentos confirmados.</p>
+      </header>
+
+      <section class="filters">
+        <label for="filter-date-start">De</label>
+        <input id="filter-date-start" type="date" />
+        <label for="filter-date-end">Até</label>
+        <input id="filter-date-end" type="date" />
+        <button id="btn-filter" class="submit-btn">Filtrar</button>
+      </section>
+
+      <section id="lista-agendamentos" class="lista-agendamentos">
+        <!-- items serão injetados aqui -->
+      </section>
+    </div>
+  </main>
+
+  <script type="module" src="../pages/agendamentos.js"></script>
+</body>
+</html>

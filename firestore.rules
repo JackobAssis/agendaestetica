@@ -1,0 +1,54 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Empresas (tenants)
+    match /empresas/{empresaId} {
+      allow read: if true;
+
+      // Create empresa only by authenticated user who sets themselves as proprietarioUid
+      allow create: if request.auth != null && request.resource.data.proprietarioUid == request.auth.uid;
+
+      // Only proprietario can update/delete empresa
+      allow update, delete: if request.auth != null && resource.data.proprietarioUid == request.auth.uid;
+
+      // Notificações: allow public create (used by booking flow), reads restricted to owner
+      match /notificacoes/{notifId} {
+        allow create: if true;
+        allow read: if request.auth != null && get(/databases/$(database)/documents/empresas/$(empresaId)).data.proprietarioUid == request.auth.uid;
+        allow update, delete: if request.auth != null && get(/databases/$(database)/documents/empresas/$(empresaId)).data.proprietarioUid == request.auth.uid;
+      }
+
+      // Bloqueios: only owner may write
+      match /bloqueios/{blockId} {
+        allow read: if true;
+        allow create, update, delete: if request.auth != null && get(/databases/$(database)/documents/empresas/$(empresaId)).data.proprietarioUid == request.auth.uid;
+      }
+
+      // Agendamentos: public may create "solicitado" entries; updates/deletes limited
+      match /agendamentos/{agId} {
+        allow read: if true;
+
+        // Public create allowed but enforce initial status and required fields
+        allow create: if (
+          request.resource.data.status == 'solicitado'
+          && request.resource.data.inicio is string
+          && request.resource.data.fim is string
+        );
+
+        // Updates allowed for owner (confirm/cancel) or the cliente who created it
+        allow update: if request.auth != null && (
+          get(/databases/$(database)/documents/empresas/$(empresaId)).data.proprietarioUid == request.auth.uid
+          || request.auth.uid == resource.data.clienteUid
+        );
+
+        allow delete: if request.auth != null && get(/databases/$(database)/documents/empresas/$(empresaId)).data.proprietarioUid == request.auth.uid;
+      }
+    }
+
+    // Usuários: owner only
+    match /usuarios/{userId} {
+      allow read, create, update, delete: if request.auth != null && request.auth.uid == userId;
+    }
+  }
+}
