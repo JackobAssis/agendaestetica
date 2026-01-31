@@ -6,23 +6,23 @@
  * - Client-side routing without frameworks
  * - Page transitions
  * - Permission-based redirects
+ * - Authentication checks
  */
 
-const PAGES = {
-    LOGIN: { path: '/login', file: 'pages/login.html' },
-    CADASTRO: { path: '/cadastro', file: 'pages/cadastro.html' },
-    DASHBOARD_PROF: { path: '/dashboard', file: 'pages/dashboard-profissional.html' },
-    ONBOARDING: { path: '/onboarding', file: 'pages/onboarding.html' },
-    AGENDA: { path: '/agenda', file: 'pages/agenda.html' },
-    AGENDAMENTOS: { path: '/agendamentos', file: 'pages/agendamentos.html' },
-    CLIENTES: { path: '/clientes', file: 'pages/clientes.html' },
-    PERFIL: { path: '/perfil', file: 'pages/perfil.html' },
-    PAGINA_PUBLICA: { path: '/agenda/:profissionalId', file: 'pages/pagina-publica.html' },
-    LINK_AGENDAMENTO: { path: '/agendar/:profissionalId', file: 'pages/agendar-cliente.html' },
-    CONFIRMACAO: { path: '/confirmacao/:agendamentoId', file: 'pages/confirmacao.html' },
-};
+import { obterUsuarioAtual } from './modules/auth.js';
 
-const PUBLIC_PAGES = ['/login', '/cadastro', '/agenda/:profissionalId', '/agendar/:profissionalId'];
+const PAGES = {
+    LOGIN: { path: '/login', file: 'pages/login.html', public: true, requireAuth: false },
+    DASHBOARD_PROF: { path: '/dashboard', file: 'pages/dashboard.html', public: false, requireAuth: true },
+    ONBOARDING: { path: '/onboarding', file: 'pages/onboarding.html', public: false, requireAuth: true },
+    AGENDA: { path: '/agenda', file: 'pages/agenda.html', public: false, requireAuth: true },
+    AGENDAMENTOS: { path: '/agendamentos', file: 'pages/agendamentos.html', public: false, requireAuth: true },
+    CLIENTES: { path: '/clientes', file: 'pages/clientes.html', public: false, requireAuth: true },
+    PERFIL: { path: '/perfil', file: 'pages/perfil.html', public: false, requireAuth: true },
+    PAGINA_PUBLICA: { path: '/agenda/:profissionalId', file: 'pages/pagina-publica.html', public: true, requireAuth: false },
+    LINK_AGENDAMENTO: { path: '/agendar/:profissionalId', file: 'pages/agendar-cliente.html', public: true, requireAuth: false },
+    CONFIRMACAO: { path: '/confirmacao', file: 'pages/confirmacao.html', public: true, requireAuth: false },
+};
 
 /**
  * Navigate to a page
@@ -35,6 +35,21 @@ export async function navigate(path, params = {}) {
     Object.entries(params).forEach(([key, value]) => {
         url = url.replace(`:${key}`, value);
     });
+    
+    // Verificar permissão antes de navegar
+    const page = findPageByPath(url);
+    
+    if (!page) {
+        console.error('Page not found:', url);
+        navigate('/login');
+        return;
+    }
+    
+    // Verificar autenticação
+    if (page.requireAuth && !obterUsuarioAtual()) {
+        navigate('/login');
+        return;
+    }
     
     // Update browser history
     window.history.pushState({ path: url }, '', url);
@@ -137,14 +152,41 @@ export async function setupRouter() {
     });
     
     // Load initial page based on URL
-    const currentPath = window.location.pathname || '/login';
+    let currentPath = window.location.pathname || '/login';
+    
+    // Se não tem path, redirecionar para login ou dashboard
+    if (currentPath === '/' || currentPath === '') {
+        const usuario = obterUsuarioAtual();
+        currentPath = usuario ? '/dashboard' : '/login';
+    }
+    
+    // Verificar permissão
+    const page = findPageByPath(currentPath);
+    
+    if (page && page.requireAuth && !obterUsuarioAtual()) {
+        currentPath = '/login';
+    }
+    
     await loadPage(currentPath);
 }
 
 /**
- * Redirect if permission denied
+ * Require authentication to access page
+ * @param {string} requiredRole - optional role requirement ('profissional', 'cliente')
+ * @returns {boolean}
  */
 export function requireAuth(requiredRole = null) {
-    // This will be implemented in FASE 2
-    // Check auth state and redirect if needed
+    const usuario = obterUsuarioAtual();
+    
+    if (!usuario) {
+        navigate('/login');
+        return false;
+    }
+    
+    if (requiredRole && usuario.role !== requiredRole) {
+        navigate('/login');
+        return false;
+    }
+    
+    return true;
 }
