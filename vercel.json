@@ -1,9 +1,24 @@
 {
-  "buildCommand": "echo 'Static site - no build needed'",
+  "buildCommand": "./scripts/build.sh",
   "devCommand": "npx http-server src -p 8000",
   "installCommand": "npm install",
-  "outputDirectory": "src",
+  "outputDirectory": "public",
   "framework": null,
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=0, must-revalidate"
+        },
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        }
+      ]
+    }
+  ],
   "env": {
     "VITE_FIREBASE_API_KEY": "@firebase_api_key",
     "VITE_FIREBASE_AUTH_DOMAIN": "@firebase_auth_domain",

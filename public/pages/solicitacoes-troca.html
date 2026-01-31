@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AgendaEstética - Solicitações de Troca</title>
+  <link rel="stylesheet" href="../styles/global.css">
+  <link rel="stylesheet" href="../styles/solicitacoes.css">
+</head>
+<body>
+  <main class="solicitacoes-container">
+    <header class="page-header">
+      <a href="/dashboard" class="back-link">← Voltar ao Dashboard</a>
+      <h1>Solicitações de Troca</h1>
+    </header>
+
+    <section class="filtros">
+      <button class="filter-btn active" data-filter="pendentes">Pendentes</button>
+      <button class="filter-btn" data-filter="todas">Todas</button>
+    </section>
+
+    <section class="solicitacoes-list" id="lista-solicitacoes">
+      <div class="loading">Carregando solicitações...</div>
+    </section>
+
+    <!-- Modal de Detalhes -->
+    <div id="modal-detalhes" class="modal hidden">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>Detalhes da Solicitação</h2>
+          <button class="modal-close" id="fechar-modal">&times;</button>
+        </div>
+        <div class="modal-body" id="detalhes-conteudo">
+          <!-- Conteúdo dinâmico -->
+        </div>
+        <div class="modal-footer" id="modal-actions">
+          <!-- Botões de ação -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Mensagens -->
+    <div id="mensagem" class="message hidden"></div>
+  </main>
+
+  <script type="module" src="../pages/solicitacoes-troca.js"></script>
+</body>
+</html>
+

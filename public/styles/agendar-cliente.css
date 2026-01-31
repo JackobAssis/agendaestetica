@@ -1,0 +1,12 @@
+/* Minimal styles for public booking page */
+.page-container{max-width:900px;margin:24px auto;padding:16px}
+.header{display:flex;justify-content:space-between;align-items:center}
+#profissional-nome{font-size:1.6rem;font-weight:700}
+#profissional-info{color:#666}
+.form-row{margin:12px 0;display:flex;gap:8px}
+select,input[type=date],input[type=text],input[type=email]{flex:1;padding:8px;border:1px solid #ddd;border-radius:4px}
+.slot-btn{display:inline-block;margin:6px;padding:8px 12px;border-radius:6px;border:1px solid #ccc;background:#fff;cursor:pointer}
+.slot-btn:hover{background:#f6f6f6}
+.success-message{color:green}
+.error-message{color:red}
+.hidden{display:none}
