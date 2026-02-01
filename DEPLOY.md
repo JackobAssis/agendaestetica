@@ -37,12 +37,11 @@ O arquivo `vercel.json` já está configurado:
 
 ```json
 {
-  "framework": "static",
-  "buildCommand": null,
+  "buildCommand": "echo 'Static site - no build needed'",
   "outputDirectory": ".",
   "cleanUrls": true,
   "rewrites": [
-    { "source": "/((?!assets/|modules/|pages/|styles/|favicon\\.ico).*)", "destination": "/index.html" }
+    { "source": "/((?!assets/|modules/|pages/|styles/).*)", "destination": "/index.html" }
   ]
 }
 ```
