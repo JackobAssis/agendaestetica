@@ -11,17 +11,15 @@
     <link rel="stylesheet" href="/styles/global.css">
     <link rel="stylesheet" href="/styles/login.css">
     
-    <!-- Security: Firebase Configuration loaded from environment variables -->
-    <!-- Supports: window.APP_CONFIG.firebase (priority) OR import.meta.env (Vite) -->
-    <!-- In production (Vercel): Set environment variables in Vercel Dashboard -->
-    <!-- In local development: Copy .env.example to .env and fill values -->
+<!-- Security: Firebase Configuration loaded from environment variables -->
+    <!-- Supports: window.APP_CONFIG.firebase OR import.meta.env (Vite) -->
+    <!-- For Vercel: Set Environment Variables in Vercel Dashboard -->
     
     <script>
-    // SECURITY: Load Firebase config from environment variables
-    // Priority: 1) window.APP_CONFIG.firebase  2) import.meta.env (Vite/build tools)
-    
+    // Vercel Environment Variables Injection
+    // For static sites, variables are injected at build time
     (function() {
-        // Check for Vite/build tool environment variables
+        // Try to get from Vite environment
         const envConfig = {
             apiKey: typeof importMetaEnv !== 'undefined' ? importMetaEnv.VITE_FIREBASE_API_KEY : null,
             authDomain: typeof importMetaEnv !== 'undefined' ? importMetaEnv.VITE_FIREBASE_AUTH_DOMAIN : null,
@@ -31,19 +29,22 @@
             appId: typeof importMetaEnv !== 'undefined' ? importMetaEnv.VITE_FIREBASE_APP_ID : null,
         };
         
-        // Use env vars if available, otherwise keep undefined for config.js validation
+        // If we have values, set them
         if (envConfig.apiKey) {
             window.APP_CONFIG = { firebase: envConfig };
         }
         
-        // Log configuration status (only in development)
-        const isDev = typeof importMetaEnv !== 'undefined' ? 
-            importMetaEnv.VITE_PRODUCTION_ENV !== 'true' : true;
-        
-        if (isDev && !window.APP_CONFIG?.firebase?.apiKey) {
+        // Log configuration status
+        const hasConfig = window.APP_CONFIG?.firebase?.apiKey;
+        if (!hasConfig) {
             console.warn('⚠️ Firebase configuration incomplete.');
-            console.warn('Please set environment variables or window.APP_CONFIG.firebase');
-            console.warn('See .env.example for reference.');
+            console.warn('Please set Environment Variables in Vercel Dashboard:');
+            console.warn('  VITE_FIREBASE_API_KEY');
+            console.warn('  VITE_FIREBASE_AUTH_DOMAIN');
+            console.warn('  VITE_FIREBASE_PROJECT_ID');
+            console.warn('  VITE_FIREBASE_STORAGE_BUCKET');
+            console.warn('  VITE_FIREBASE_MESSAGING_SENDER_ID');
+            console.warn('  VITE_FIREBASE_APP_ID');
         }
     })();
     </script>
