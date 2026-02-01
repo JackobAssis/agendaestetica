@@ -1,8 +1,8 @@
 {
-  "buildCommand": "echo 'Static site - no build required'",
-  "outputDirectory": "src",
-  "rewrites": [
-    { "source": "/(.*)", "destination": "/index.html" }
+  "buildCommand": "ls -la src/",
+  "outputDirectory": ".",
+  "routes": [
+    { "src": "/(.*)", "headers": { "Cache-Control": "no-cache" } }
   ]
 }
 
