@@ -50,21 +50,20 @@
         import { setupRouter } from './router.js';
         import { verificarSessao } from './modules/auth.js';
         
-        // Validate Firebase configuration
-        const requiredFields = ['apiKey', 'authDomain', 'projectId', 'storageBucket', 'messagingSenderId', 'appId'];
-        const missingFields = requiredFields.filter(field => !firebaseConfig[field] || !firebaseConfig[field]);
+        // Check if we have valid Firebase config
+        const hasValidConfig = firebaseConfig && 
+                               firebaseConfig.apiKey &&
+                               firebaseConfig.apiKey !== 'null' &&
+                               firebaseConfig.apiKey !== 'undefined' &&
+                               !firebaseConfig.apiKey.includes('placeholder') &&
+                               firebaseConfig.apiKey !== '';
         
-        // Check for placeholder or invalid values
-        const isPlaceholder = !firebaseConfig || 
-                             !firebaseConfig.apiKey || 
-                             firebaseConfig.apiKey === 'null' ||
-                             firebaseConfig.apiKey === 'undefined' ||
-                             firebaseConfig.apiKey === 'AIzaSyD-placeholder-key' ||
-                             firebaseConfig.apiKey === '' ||
-                             firebaseConfig.apiKey === 'YOUR_API_KEY_HERE';
+        // Validate required fields
+        const requiredFields = ['apiKey', 'authDomain', 'projectId', 'storageBucket', 'messagingSenderId', 'appId'];
+        const missingFields = hasValidConfig ? requiredFields.filter(field => !firebaseConfig[field]) : [];
         
         // Don't initialize Firebase if config is invalid
-        if (isPlaceholder) {
+        if (!hasValidConfig) {
             console.warn('⚠️ Firebase config invalid - running in DEMO mode');
             console.warn('   Configure VITE_FIREBASE_* variables in Vercel Dashboard');
             
@@ -89,10 +88,7 @@
             document.addEventListener('DOMContentLoaded', async () => {
                 await setupRouter();
             });
-            return;
-        }
-        
-        if (missingFields.length > 0) {
+        } else if (missingFields.length > 0) {
             console.error('❌ Firebase Configuration Error: Missing fields:', missingFields.join(', '));
             document.getElementById('loading-screen').innerHTML = `
                 <div class="error-screen">
@@ -102,44 +98,44 @@
                 </div>
             `;
             throw new Error('Firebase configuration incomplete');
+        } else {
+            console.log('✅ Initializing Firebase with valid config');
+            
+            // Initialize Firebase
+            const app = initializeApp(firebaseConfig);
+            const auth = getAuth(app);
+            const db = getFirestore(app);
+            const storage = getStorage(app);
+            
+            // Enable persistence for offline support
+            setPersistence(auth, browserLocalPersistence)
+                .catch(error => console.warn('Persistence error:', error.message));
+            
+            // Make Firebase services globally available
+            window.firebase = {
+                app,
+                auth,
+                db,
+                storage,
+                firestore: window.firebaseFirestore || db,
+            };
+            
+            // Setup router and check session on load
+            document.addEventListener('DOMContentLoaded', async () => {
+                try {
+                    await setupRouter();
+                    await verificarSessao();
+                } catch (error) {
+                    console.error('Initialization error:', error);
+                    document.getElementById('loading-screen').innerHTML = `
+                        <div class="error-screen">
+                            <h2>Erro ao Inicializar</h2>
+                            <p>${error.message}</p>
+                        </div>
+                    `;
+                }
+            });
         }
-        
-        console.log('✅ Initializing Firebase with valid config');
-        
-        // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-        const storage = getStorage(app);
-        
-        // Enable persistence for offline support
-        setPersistence(auth, browserLocalPersistence)
-            .catch(error => console.warn('Persistence error:', error.message));
-        
-        // Make Firebase services globally available
-        window.firebase = {
-            app,
-            auth,
-            db,
-            storage,
-            firestore: window.firebaseFirestore || db,
-        };
-        
-        // Setup router and check session on load
-        document.addEventListener('DOMContentLoaded', async () => {
-            try {
-                await setupRouter();
-                await verificarSessao();
-            } catch (error) {
-                console.error('Initialization error:', error);
-                document.getElementById('loading-screen').innerHTML = `
-                    <div class="error-screen">
-                        <h2>Erro ao Inicializar</h2>
-                        <p>${error.message}</p>
-                    </div>
-                `;
-            }
-        });
     </script>
     
     <style>
