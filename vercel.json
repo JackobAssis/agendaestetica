@@ -1,5 +1,5 @@
 {
-  "buildCommand": "./scripts/build.sh",
+  "buildCommand": "mkdir -p public && cp -r src/* public/",
   "outputDirectory": "public",
   "framework": null,
   "cleanUrls": true,
