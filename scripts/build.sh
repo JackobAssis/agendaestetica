@@ -5,7 +5,7 @@ set -euo pipefail
 # Build Script for Vercel Deployment
 # ==========================================
 # Copia arquivos src/ para public/
-# para compatibilidade com Vercel
+# e injeta configuração do Firebase
 # ==========================================
 
 echo "🏗️ Build AgendaEstética para Vercel"
@@ -38,6 +38,15 @@ cp "$PROJECT_DIR/index.html" "$PROJECT_DIR/public/" 2>/dev/null || true
 cp "$PROJECT_DIR/config.js" "$PROJECT_DIR/public/" 2>/dev/null || true
 cp "$PROJECT_DIR/router.js" "$PROJECT_DIR/public/" 2>/dev/null || true
 cp "$PROJECT_DIR/_redirects" "$PROJECT_DIR/public/" 2>/dev/null || true
+
+# Sobrescrever index.html do public/ com a versão atual do src/
+# (necessário para garantir que o placeholder está limpo antes da injeção)
+echo "📁 Sincronizando index.html do src/ para public/..."
+cp "$PROJECT_DIR/src/index.html" "$PROJECT_DIR/public/"
+
+# Injetar configuração do Firebase no index.html
+echo "🔧 Injetando configuração do Firebase..."
+node "$SCRIPT_DIR/inject-config.js"
 
 # Verificar arquivos copiados
 echo ""

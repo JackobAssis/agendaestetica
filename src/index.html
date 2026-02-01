@@ -11,40 +11,24 @@
     <link rel="stylesheet" href="styles/global.css">
     <link rel="stylesheet" href="styles/login.css">
     
-    <!-- Security: Firebase Configuration loaded from environment variables -->
-    <!-- Supports: window.APP_CONFIG.firebase (priority) OR import.meta.env (Vite) -->
-    <!-- In production (Vercel): Set environment variables in Vercel Dashboard -->
-    <!-- In local development: Copy .env.example to .env and fill values -->
+<!-- Firebase Configuration Placeholder -->
+<!-- End Firebase Configuration -->
     
     <script>
-    // SECURITY: Load Firebase config from environment variables
-    // Priority: 1) window.APP_CONFIG.firebase  2) import.meta.env (Vite/build tools)
-    
+    // Check if Firebase config was injected at build time
     (function() {
-        // Check for Vite/build tool environment variables
-        const envConfig = {
-            apiKey: typeof importMetaEnv !== 'undefined' ? importMetaEnv.VITE_FIREBASE_API_KEY : null,
-            authDomain: typeof importMetaEnv !== 'undefined' ? importMetaEnv.VITE_FIREBASE_AUTH_DOMAIN : null,
-            projectId: typeof importMetaEnv !== 'undefined' ? importMetaEnv.VITE_FIREBASE_PROJECT_ID : null,
-            storageBucket: typeof importMetaEnv !== 'undefined' ? importMetaEnv.VITE_FIREBASE_STORAGE_BUCKET : null,
-            messagingSenderId: typeof importMetaEnv !== 'undefined' ? importMetaEnv.VITE_FIREBASE_MESSAGING_SENDER_ID : null,
-            appId: typeof importMetaEnv !== 'undefined' ? importMetaEnv.VITE_FIREBASE_APP_ID : null,
-        };
-        
-        // Use env vars if available, otherwise keep undefined for config.js validation
-        if (envConfig.apiKey) {
-            window.APP_CONFIG = { firebase: envConfig };
+        if (typeof window !== 'undefined' && window.APP_CONFIG && window.APP_CONFIG.firebase) {
+            console.log('✅ Firebase config loaded from build injection');
+            return;
         }
         
-        // Log configuration status (only in development)
-        const isDev = typeof importMetaEnv !== 'undefined' ? 
-            importMetaEnv.VITE_PRODUCTION_ENV !== 'true' : true;
-        
-        if (isDev && !window.APP_CONFIG?.firebase?.apiKey) {
-            console.warn('⚠️ Firebase configuration incomplete.');
-            console.warn('Please set environment variables or window.APP_CONFIG.firebase');
-            console.warn('See .env.example for reference.');
+        if (typeof window !== 'undefined' && window.APP_CONFIG && window.APP_CONFIG._demoMode) {
+            console.log('ℹ️ Running in DEMO mode - no Firebase config available');
+            return;
         }
+        
+        // No config found - will use config.js fallback
+        console.warn('⚠️ No Firebase config found - using fallback');
     })();
     </script>
 </head>
@@ -66,9 +50,47 @@
         import { setupRouter } from './router.js';
         import { verificarSessao } from './modules/auth.js';
         
-        // Security: Validate Firebase configuration before initialization
+        // Validate Firebase configuration
         const requiredFields = ['apiKey', 'authDomain', 'projectId', 'storageBucket', 'messagingSenderId', 'appId'];
-        const missingFields = requiredFields.filter(field => !firebaseConfig[field]);
+        const missingFields = requiredFields.filter(field => !firebaseConfig[field] || !firebaseConfig[field]);
+        
+        // Check for placeholder or invalid values
+        const isPlaceholder = !firebaseConfig || 
+                             !firebaseConfig.apiKey || 
+                             firebaseConfig.apiKey === 'null' ||
+                             firebaseConfig.apiKey === 'undefined' ||
+                             firebaseConfig.apiKey === 'AIzaSyD-placeholder-key' ||
+                             firebaseConfig.apiKey === '' ||
+                             firebaseConfig.apiKey === 'YOUR_API_KEY_HERE';
+        
+        // Don't initialize Firebase if config is invalid
+        if (isPlaceholder) {
+            console.warn('⚠️ Firebase config invalid - running in DEMO mode');
+            console.warn('   Configure VITE_FIREBASE_* variables in Vercel Dashboard');
+            
+            // Show demo mode UI
+            document.getElementById('loading-screen').innerHTML = `
+                <div class="demo-mode-screen">
+                    <h2>🧪 Modo Demonstração</h2>
+                    <p>O Firebase não está configurado corretamente.</p>
+                    <p>Configure as variáveis de ambiente no Vercel Dashboard:</p>
+                    <ul>
+                        <li>VITE_FIREBASE_API_KEY</li>
+                        <li>VITE_FIREBASE_AUTH_DOMAIN</li>
+                        <li>VITE_FIREBASE_PROJECT_ID</li>
+                        <li>VITE_FIREBASE_STORAGE_BUCKET</li>
+                        <li>VITE_FIREBASE_MESSAGING_SENDER_ID</li>
+                        <li>VITE_FIREBASE_APP_ID</li>
+                    </ul>
+                </div>
+            `;
+            
+            // Still setup router for UI demo
+            document.addEventListener('DOMContentLoaded', async () => {
+                await setupRouter();
+            });
+            return;
+        }
         
         if (missingFields.length > 0) {
             console.error('❌ Firebase Configuration Error: Missing fields:', missingFields.join(', '));
@@ -77,12 +99,12 @@
                     <h2>Erro de Configuração</h2>
                     <p>Faltam configurações do Firebase necessárias.</p>
                     <p class="error-details">Campos ausentes: ${missingFields.join(', ')}</p>
-                    <p>Configure as variáveis de ambiente ou Defina window.APP_CONFIG.firebase</p>
-                    <small>Veja .env.example para referência</small>
                 </div>
             `;
             throw new Error('Firebase configuration incomplete');
         }
+        
+        console.log('✅ Initializing Firebase with valid config');
         
         // Initialize Firebase
         const app = initializeApp(firebaseConfig);
@@ -100,7 +122,7 @@
             auth,
             db,
             storage,
-            firestore: window.firebaseFirestore || db, // Fallback
+            firestore: window.firebaseFirestore || db,
         };
         
         // Setup router and check session on load
@@ -121,7 +143,6 @@
     </script>
     
     <style>
-        /* Loading Screen Styles */
         .loading-screen {
             display: flex;
             flex-direction: column;
@@ -145,10 +166,27 @@
             to { transform: rotate(360deg); }
         }
         
-        .error-screen {
+        .error-screen, .demo-mode-screen {
             text-align: center;
             padding: 24px;
-            max-width: 400px;
+            max-width: 500px;
+        }
+        
+        .demo-mode-screen {
+            background: #fff3e0;
+            border: 1px solid #ffb74d;
+            border-radius: 8px;
+        }
+        
+        .demo-mode-screen h2 {
+            color: #e65100;
+            margin-bottom: 16px;
+        }
+        
+        .demo-mode-screen ul {
+            text-align: left;
+            font-size: 12px;
+            color: #666;
         }
         
         .error-screen h2 {
@@ -164,3 +202,4 @@
     </style>
 </body>
 </html>
+
