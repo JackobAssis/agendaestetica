@@ -18,12 +18,12 @@ let modoAtual = 'login'; // 'login' ou 'cadastro'
 let roleAtual = 'profissional'; // 'profissional' ou 'cliente'
 
 // ============================================================
-// DOM Elements
+// DOM Elements - Buscar imediatamente
 // ============================================================
 
 const formLogin = document.getElementById('form-login');
 const formCadastro = document.getElementById('form-cadastro');
-const toggleButtons = document.querySelectorAll('.toggle-buttons');
+const toggleButtons = document.querySelectorAll('[data-mode]');
 const roleBtnsProfissional = document.querySelectorAll('[data-role="profissional"]');
 const roleBtnsCliente = document.querySelectorAll('[data-role="cliente"]');
 const grupoProfissao = document.getElementById('grupo-profissao');
@@ -34,22 +34,30 @@ const mensagemDiv = document.getElementById('mensagem');
 const linkEsqueciSenha = document.getElementById('link-esqueci-senha');
 
 // ============================================================
-// Event Listeners
+// Inicialização - Executar imediatamente quando o módulo carrega
 // ============================================================
 
-document.addEventListener('DOMContentLoaded', () => {
+if (formLogin || formCadastro) {
+    init();
+}
+
+function init() {
     setupToggleButtons();
     setupFormListeners();
     setupRoleButtons();
-});
+    atualizarUIRole();
+    console.log('✅ Login page initialized');
+}
+
+// ============================================================
+// Event Listeners
+// ============================================================
 
 /**
  * Setup toggle entre Login e Cadastro
  */
 function setupToggleButtons() {
-    const toggleBtns = document.querySelectorAll('[data-mode]');
-    
-    toggleBtns.forEach(btn => {
+    toggleButtons.forEach(btn => {
         btn.addEventListener('click', (e) => {
             e.preventDefault();
             
@@ -57,7 +65,7 @@ function setupToggleButtons() {
             modoAtual = modo;
             
             // Atualizar UI
-            toggleBtns.forEach(b => b.classList.remove('active'));
+            toggleButtons.forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
             
             // Mostrar/Esconder forms
@@ -123,10 +131,15 @@ function atualizarUIRole() {
         if (grupoSenhaConfirma) grupoSenhaConfirma.style.display = 'block';
         
         // Validações
-        document.getElementById('cadastro-profissao').required = true;
-        document.getElementById('cadastro-senha').required = true;
-        document.getElementById('cadastro-senha-confirma').required = true;
-        document.getElementById('login-senha').required = true;
+        const profissaoInput = document.getElementById('cadastro-profissao');
+        const senhaLogin = document.getElementById('login-senha');
+        const senhaCadastro = document.getElementById('cadastro-senha');
+        const senhaConfirma = document.getElementById('cadastro-senha-confirma');
+        
+        if (profissaoInput) profissaoInput.required = true;
+        if (senhaLogin) senhaLogin.required = true;
+        if (senhaCadastro) senhaCadastro.required = true;
+        if (senhaConfirma) senhaConfirma.required = true;
         
     } else { // cliente
         if (grupoProfissao) grupoProfissao.style.display = 'none';
@@ -135,10 +148,15 @@ function atualizarUIRole() {
         if (grupoSenhaConfirma) grupoSenhaConfirma.style.display = 'none';
         
         // Remover validações
-        document.getElementById('cadastro-profissao').required = false;
-        document.getElementById('cadastro-senha').required = false;
-        document.getElementById('cadastro-senha-confirma').required = false;
-        document.getElementById('login-senha').required = false;
+        const profissaoInput = document.getElementById('cadastro-profissao');
+        const senhaLogin = document.getElementById('login-senha');
+        const senhaCadastro = document.getElementById('cadastro-senha');
+        const senhaConfirma = document.getElementById('cadastro-senha-confirma');
+        
+        if (profissaoInput) profissaoInput.required = false;
+        if (senhaLogin) senhaLogin.required = false;
+        if (senhaCadastro) senhaCadastro.required = false;
+        if (senhaConfirma) senhaConfirma.required = false;
     }
 }
 
@@ -147,16 +165,20 @@ function atualizarUIRole() {
  */
 function setupFormListeners() {
     // Login form
-    formLogin.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        await handleLogin();
-    });
+    if (formLogin) {
+        formLogin.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            await handleLogin();
+        });
+    }
     
     // Cadastro form
-    formCadastro.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        await handleCadastro();
-    });
+    if (formCadastro) {
+        formCadastro.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            await handleCadastro();
+        });
+    }
     
     // Esqueci senha
     if (linkEsqueciSenha) {
@@ -313,6 +335,7 @@ function mostraModoRecuperarSenha() {
  * Mostrar erro
  */
 function mostrarErro(mensagem) {
+    if (!mensagemDiv) return;
     mensagemDiv.className = 'error-message';
     mensagemDiv.textContent = '❌ ' + mensagem;
     mensagemDiv.classList.remove('hidden');
@@ -322,6 +345,7 @@ function mostrarErro(mensagem) {
  * Mostrar sucesso
  */
 function mostrarSucesso(mensagem) {
+    if (!mensagemDiv) return;
     mensagemDiv.className = 'success-message';
     mensagemDiv.textContent = '✅ ' + mensagem;
     mensagemDiv.classList.remove('hidden');
@@ -331,8 +355,7 @@ function mostrarSucesso(mensagem) {
  * Limpar mensagem
  */
 function limparMensagem() {
+    if (!mensagemDiv) return;
     mensagemDiv.classList.add('hidden');
 }
 
-// Inicializar UI do role
-atualizarUIRole();

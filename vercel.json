@@ -2,10 +2,12 @@
   "buildCommand": "bash scripts/build.sh",
   "outputDirectory": "public",
   "cleanUrls": true,
+  "framework": null,
   "rewrites": [
     {
-      "source": "/((?!assets/|modules/|pages/|styles/).*)",
+      "source": "/:path*",
       "destination": "/index.html"
     }
   ]
 }
+
