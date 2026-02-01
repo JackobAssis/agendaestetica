@@ -1,13 +1,11 @@
 {
-  "buildCommand": "bash scripts/build.sh",
-  "outputDirectory": "public",
-  "cleanUrls": true,
-  "framework": null,
-  "rewrites": [
-    {
-      "source": "/:path*",
-      "destination": "/index.html"
-    }
-  ]
+    "buildCommand": "bash scripts/build.sh",
+    "outputDirectory": "public",
+    "framework": null,
+    "rewrites": [
+        {
+            "source": "/:path*",
+            "destination": "/index.html"
+        }
+    ]
 }
-
