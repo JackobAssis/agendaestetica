@@ -1,8 +1,9 @@
 {
-  "buildCommand": "ls -la src/",
-  "outputDirectory": ".",
-  "routes": [
-    { "src": "/(.*)", "headers": { "Cache-Control": "no-cache" } }
+  "buildCommand": "./scripts/build.sh",
+  "outputDirectory": "public",
+  "framework": null,
+  "cleanUrls": true,
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/index.html" }
   ]
 }
-
