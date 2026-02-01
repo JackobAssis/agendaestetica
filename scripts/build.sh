@@ -23,12 +23,21 @@ if [ ! -d "$PROJECT_DIR/src" ]; then
     exit 1
 fi
 
-# Criar pasta public se não existir
+# Remover e recriar pasta public/
+echo "🗑️  Limpando diretório public/..."
+rm -rf "$PROJECT_DIR/public"
 mkdir -p "$PROJECT_DIR/public"
 
 # Copiar todos os arquivos de src/ para public/
 echo "📁 Copiando arquivos de src/ para public/..."
 cp -r "$PROJECT_DIR/src"/* "$PROJECT_DIR/public/"
+
+# Copiar arquivos da raiz necessários para public/
+echo "📁 Copiando arquivos da raiz..."
+cp "$PROJECT_DIR/index.html" "$PROJECT_DIR/public/" 2>/dev/null || true
+cp "$PROJECT_DIR/config.js" "$PROJECT_DIR/public/" 2>/dev/null || true
+cp "$PROJECT_DIR/router.js" "$PROJECT_DIR/public/" 2>/dev/null || true
+cp "$PROJECT_DIR/_redirects" "$PROJECT_DIR/public/" 2>/dev/null || true
 
 # Verificar arquivos copiados
 echo ""

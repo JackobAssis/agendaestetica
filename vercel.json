@@ -1,6 +1,6 @@
 {
-  "buildCommand": "node scripts/build.js",
-  "outputDirectory": ".",
+  "buildCommand": "bash scripts/build.sh",
+  "outputDirectory": "public",
   "cleanUrls": true,
   "rewrites": [
     {

@@ -1,59 +1,24 @@
 #!/usr/bin/env node
 /**
- * Build script that injects Firebase config into index.html
- * Usage: node scripts/build.js
+ * @deprecated Este script está OBSOLETO e não é mais usado no fluxo de deploy.
+ * 
+ * O fluxo de deploy atual (Vercel) usa:
+ *   - buildCommand: "bash scripts/build.sh"
+ *   - outputDirectory: "public"
+ * 
+ * O script build.sh simplesmente copia arquivos de src/ para public/
+ * sem precisar de injeção de config via regex.
+ * 
+ * Para configurações do Firebase, use variáveis de ambiente diretamente:
+ *   - VITE_FIREBASE_API_KEY
+ *   - VITE_FIREBASE_AUTH_DOMAIN
+ *   - etc.
+ * 
+ * Estas variáveis são configuradas no dashboard da Vercel e lidas via config.js
+ * ou window.APP_CONFIG (ver public/index.html).
+ * 
+ * @usage Este arquivo pode ser removido do projeto.
  */
+console.log('⚠️ build.js está obsoleto! Use: bash scripts/build.sh');
+process.exit(0);
 
-const fs = require('fs');
-const path = require('path');
-
-// Read environment variables
-const config = {
-    apiKey: process.env.VITE_FIREBASE_API_KEY || '',
-    authDomain: process.env.VITE_FIREBASE_AUTH_DOMAIN || '',
-    projectId: process.env.VITE_FIREBASE_PROJECT_ID || '',
-    storageBucket: process.env.VITE_FIREBASE_STORAGE_BUCKET || '',
-    messagingSenderId: process.env.VITE_FIREBASE_MESSAGING_SENDER_ID || '',
-    appId: process.env.VITE_FIREBASE_APP_ID || '',
-};
-
-// Check if we have the required config
-if (!config.apiKey) {
-    console.error('❌ Error: VITE_FIREBASE_API_KEY is not set');
-    console.error('Please set environment variables before running build');
-    process.exit(1);
-}
-
-console.log('✅ Firebase config found, injecting into index.html...');
-
-// Read index.html
-const indexPath = path.join(__dirname, '..', 'index.html');
-let html = fs.readFileSync(indexPath, 'utf8');
-
-// Create the config script
-const configScript = `
-<!-- Firebase Configuration (injected at build time) -->
-<script>
-window.APP_CONFIG = {
-    firebase: {
-        apiKey: "${config.apiKey}",
-        authDomain: "${config.authDomain}",
-        projectId: "${config.projectId}",
-        storageBucket: "${config.storageBucket}",
-        messagingSenderId: "${config.messagingSenderId}",
-        appId: "${config.appId}",
-    }
-};
-</script>
-`;
-
-// Replace the placeholder comment
-const placeholderRegex = /<!-- Security: Firebase Configuration[\s\S]*?-->/;
-html = html.replace(placeholderRegex, configScript.trim());
-
-// Write back
-fs.writeFileSync(indexPath, html);
-
-console.log('✅ Build complete! index.html has been updated.');
-console.log('');
-console.log('Ready to deploy to Vercel!');
