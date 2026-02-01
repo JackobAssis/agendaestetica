@@ -29,12 +29,14 @@ No dashboard do Vercel, configure as seguintes variáveis:
 
 | Variável | Valor | Proteção |
 |----------|-------|----------|
-| `VITE_FIREBASE_API_KEY` | Sua chave API do Firebase | 🔒 Sensitive |
-| `VITE_FIREBASE_AUTH_DOMAIN` | `seu-projeto.firebaseapp.com` | 🔒 Sensitive |
-| `VITE_FIREBASE_PROJECT_ID` | ID do projeto Firebase | 🔒 Sensitive |
-| `VITE_FIREBASE_STORAGE_BUCKET` | `seu-projeto.appspot.com` | 🔒 Sensitive |
-| `VITE_FIREBASE_MESSAGING_SENDER_ID` | Sender ID do Firebase | 🔒 Sensitive |
-| `VITE_FIREBASE_APP_ID` | App ID do Firebase | 🔒 Sensitive |
+| `VITE_FIREBASE_API_KEY` | `AIzaSyDj3cSnhFusveRRzCm8OGOIboiqQjCYy94` | 🔒 Sensitive |
+| `VITE_FIREBASE_AUTH_DOMAIN` | `agendaestetica-fe8b9.firebaseapp.com` | 🔒 Sensitive |
+| `VITE_FIREBASE_PROJECT_ID` | `agendaestetica-fe8b9` | 🔒 Sensitive |
+| `VITE_FIREBASE_STORAGE_BUCKET` | `agendaestetica-fe8b9.firebasestorage.app` | 🔒 Sensitive |
+| `VITE_FIREBASE_MESSAGING_SENDER_ID` | `735305856969` | 🔒 Sensitive |
+| `VITE_FIREBASE_APP_ID` | `1:735305856969:web:9d28f77af9d302f2699a18` | 🔒 Sensitive |
+
+> 💡 **Dica:** Execute `bash scripts/vercel-env-setup.sh` para configurar automaticamente via CLI (requer login Vercel)
 
 ### 2. Configurações do Projeto
 

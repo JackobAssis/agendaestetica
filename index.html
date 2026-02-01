@@ -15,37 +15,22 @@
     <!-- Supports: window.APP_CONFIG.firebase OR import.meta.env (Vite) -->
     <!-- For Vercel: Set Environment Variables in Vercel Dashboard -->
     
+    <!-- Firebase Configuration loaded via window.APP_CONFIG.firebase -->
+    <!-- For local dev: set in .env.local or define window.APP_CONFIG here -->
+    <!-- For Vercel: Set Environment Variables in Vercel Dashboard -->
     <script>
-    // Vercel Environment Variables Injection
-    // For static sites, variables are injected at build time
     (function() {
-        // Try to get from Vite environment
-        const envConfig = {
-            apiKey: typeof importMetaEnv !== 'undefined' ? importMetaEnv.VITE_FIREBASE_API_KEY : null,
-            authDomain: typeof importMetaEnv !== 'undefined' ? importMetaEnv.VITE_FIREBASE_AUTH_DOMAIN : null,
-            projectId: typeof importMetaEnv !== 'undefined' ? importMetaEnv.VITE_FIREBASE_PROJECT_ID : null,
-            storageBucket: typeof importMetaEnv !== 'undefined' ? importMetaEnv.VITE_FIREBASE_STORAGE_BUCKET : null,
-            messagingSenderId: typeof importMetaEnv !== 'undefined' ? importMetaEnv.VITE_FIREBASE_MESSAGING_SENDER_ID : null,
-            appId: typeof importMetaEnv !== 'undefined' ? importMetaEnv.VITE_FIREBASE_APP_ID : null,
-        };
-        
-        // If we have values, set them
-        if (envConfig.apiKey) {
-            window.APP_CONFIG = { firebase: envConfig };
+        // Check if already configured via window.APP_CONFIG
+        if (typeof window !== 'undefined' && window.APP_CONFIG && window.APP_CONFIG.firebase) {
+            console.log('✅ Firebase config loaded from window.APP_CONFIG');
+            return;
         }
         
-        // Log configuration status
-        const hasConfig = window.APP_CONFIG?.firebase?.apiKey;
-        if (!hasConfig) {
-            console.warn('⚠️ Firebase configuration incomplete.');
-            console.warn('Please set Environment Variables in Vercel Dashboard:');
-            console.warn('  VITE_FIREBASE_API_KEY');
-            console.warn('  VITE_FIREBASE_AUTH_DOMAIN');
-            console.warn('  VITE_FIREBASE_PROJECT_ID');
-            console.warn('  VITE_FIREBASE_STORAGE_BUCKET');
-            console.warn('  VITE_FIREBASE_MESSAGING_SENDER_ID');
-            console.warn('  VITE_FIREBASE_APP_ID');
-        }
+        // Log placeholder warning
+        console.warn('⚠️ Using placeholder Firebase configuration');
+        console.warn('App will use placeholder values. For real config:');
+        console.warn('1. Set window.APP_CONFIG = { firebase: { ... } } before this script');
+        console.warn('2. Or configure VITE_FIREBASE_* vars in .env.local or Vercel');
     })();
     </script>
 </head>
@@ -71,7 +56,13 @@
         const requiredFields = ['apiKey', 'authDomain', 'projectId', 'storageBucket', 'messagingSenderId', 'appId'];
         const missingFields = requiredFields.filter(field => !firebaseConfig[field]);
         
-        if (missingFields.length > 0) {
+        // Check for placeholder values
+        const isPlaceholder = firebaseConfig.apiKey === 'AIzaSyD-placeholder-key' || 
+                             !firebaseConfig.apiKey ||
+                             firebaseConfig.apiKey === 'null' ||
+                             firebaseConfig.apiKey === 'undefined';
+        
+        if (missingFields.length > 0 && !isPlaceholder) {
             console.error('❌ Firebase Configuration Error: Missing fields:', missingFields.join(', '));
             document.getElementById('loading-screen').innerHTML = `
                 <div class="error-screen">
@@ -83,6 +74,10 @@
                 </div>
             `;
             throw new Error('Firebase configuration incomplete');
+        }
+        
+        if (isPlaceholder) {
+            console.warn('⚠️ Using placeholder Firebase configuration - app running in demo mode');
         }
         
         // Initialize Firebase

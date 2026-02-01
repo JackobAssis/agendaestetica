@@ -23,15 +23,26 @@ const firebaseConfig = (function(){
   };
 })();
 
-// Validate configuration
+// Validate configuration - warn but don't throw for placeholder values
 const requiredFields = ['apiKey', 'authDomain', 'projectId', 'storageBucket', 'messagingSenderId', 'appId'];
 const missingFields = requiredFields.filter(field => !firebaseConfig[field]);
 
-if (missingFields.length > 0) {
-  console.error('❌ Firebase Configuration Error');
-  console.error('Missing configuration fields:', missingFields.join(', '));
-  console.error('Provide `window.APP_CONFIG = { firebase: { ... } }` in your HTML or set import.meta.env vars. See .env.example');
-  // Do not throw in browser; let callers handle missing config gracefully
+// Check for placeholder values
+const isPlaceholder = firebaseConfig.apiKey === 'AIzaSyD-placeholder-key' || 
+                     !firebaseConfig.apiKey ||
+                     firebaseConfig.apiKey === 'null' ||
+                     firebaseConfig.apiKey === 'undefined';
+
+if (missingFields.length > 0 || isPlaceholder) {
+  const hasRealConfig = !isPlaceholder && missingFields.length === 0;
+  
+  if (hasRealConfig) {
+    console.warn('⚠️ Firebase Configuration Warning: Some optional fields missing:', missingFields.join(', '));
+  } else {
+    console.warn('⚠️ Firebase configuration incomplete or using placeholder values.');
+    console.warn('App will use placeholder config. Replace values in .env.local or set window.APP_CONFIG.firebase');
+    console.warn('Required fields:', requiredFields.join(', '));
+  }
 }
 
 export default firebaseConfig;
