@@ -9,12 +9,12 @@
   },
   "dependencies": {
     "firebase": "^10.5.0",
-    "firebase-admin": "^11.10.0"
+    "firebase-admin": "^13.6.0"
   },
   "devDependencies": {
-    "http-server": "^14.1.1",
-    "mocha": "^10.2.0",
     "chai": "^4.3.7",
-    "firebase-tools": "^12.0.0"
+    "firebase-tools": "^15.5.1",
+    "http-server": "^14.1.1",
+    "mocha": "^10.2.0"
   }
 }
