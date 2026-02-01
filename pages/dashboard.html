@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AgendaEstética - Dashboard</title>
+    <link rel="stylesheet" href="/styles/global.css">
+    <link rel="stylesheet" href="/styles/dashboard.css">
+</head>
+<body>
+    <div id="app">
+        <div class="dashboard-container">
+            
+            <!-- Header -->
+            <header class="header">
+                <div class="header-content">
+                    <div class="header-left">
+                        <h1 class="logo">📅 AgendaEstética</h1>
+                        <p id="usuario-info" class="usuario-info"></p>
+                    </div>
+                    <div class="header-right">
+                        <button id="btn-logout" class="btn-logout">Logout</button>
+                    </div>
+                </div>
+            </header>
+            
+            <!-- Navigation -->
+            <nav class="sidebar">
+                <ul class="nav-list">
+                    <li><a href="/dashboard" class="nav-link active">Dashboard</a></li>
+                    <li><a href="/agenda" class="nav-link">Agenda</a></li>
+                    <li><a href="/agendamentos" class="nav-link">Agendamentos</a></li>
+                    <li><a href="/clientes" class="nav-link">Clientes</a></li>
+                    <li><a href="/perfil" class="nav-link">Perfil</a></li>
+                </ul>
+            </nav>
+            
+            <!-- Main Content -->
+            <main class="main-content">
+                <div class="container">
+                    
+                    <!-- Welcome Section -->
+                    <section class="welcome-section">
+                        <h2>Bem-vindo(a)! 👋</h2>
+                        <p id="welcome-message"></p>
+                    </section>
+                    
+                    <!-- Quick Actions -->
+                    <section class="quick-actions">
+                        <h3>Ações Rápidas</h3>
+                        <div style="float:right;margin-top:-28px;">
+                            <label for="theme-select">Tema:</label>
+                            <select id="theme-select">
+                                <option value="free">Free</option>
+                                <option value="premium">Premium</option>
+                            </select>
+                        </div>
+                        <div class="actions-grid">
+                            <a href="/agenda" class="action-card">
+                                <div class="action-icon">📋</div>
+                                <h4>Configurar Agenda</h4>
+                                <p>Defina seus horários de trabalho</p>
+                            </a>
+                            <a href="/agendamentos" class="action-card">
+                                <div class="action-icon">📅</div>
+                                <h4>Ver Agendamentos</h4>
+                                <p>Gerenciar agendamentos de clientes</p>
+                            </a>
+                            <a href="/clientes" class="action-card">
+                                <div class="action-icon">👥</div>
+                                <h4>Meus Clientes</h4>
+                                <p>Visualizar histórico de clientes</p>
+                            </a>
+                            <a href="/relatorios" class="action-card">
+                                <div class="action-icon">📈</div>
+                                <h4>Relatórios</h4>
+                                <p>Relatórios e insights</p>
+                            </a>
+                            <a href="/integracoes" class="action-card">
+                                <div class="action-icon">🔌</div>
+                                <h4>Integrações</h4>
+                                <p>Integre com calendários</p>
+                            </a>
+                            <a href="/perfil" class="action-card">
+                                <div class="action-icon">⚙️</div>
+                                <h4>Configurações</h4>
+                                <p>Personalize seu perfil</p>
+                            </a>
+                        </div>
+                    </section>
+                    
+                    <!-- Status Section -->
+                    <section class="status-section">
+                        <h3>Status</h3>
+                        <div class="status-grid">
+                            <div class="status-card">
+                                <h4>Agendamentos Hoje</h4>
+                                <p id="count-hoje" class="status-number">0</p>
+                            </div>
+                            <div class="status-card">
+                                <h4>Total de Clientes</h4>
+                                <p id="count-clientes" class="status-number">0</p>
+                            </div>
+                            <div class="status-card">
+                                <h4>Plano</h4>
+                                <p id="plano-atual" class="status-number">Free</p>
+                            </div>
+                            <div class="status-card">
+                                <h4>Perfil</h4>
+                                <p id="status-perfil" class="status-number">✅ Completo</p>
+                            </div>
+                        </div>
+                    </section>
+                    
+                </div>
+            </main>
+            
+        </div>
+    </div>
+    
+    <script type="module" src="/pages/dashboard.js"></script>
+    <link rel="stylesheet" href="/styles/theme.css">
+</body>
+</html>

@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AgendaEstética - Login / Cadastro</title>
+    <link rel="stylesheet" href="/styles/global.css">
+    <link rel="stylesheet" href="/styles/login.css">
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-box">
+            
+            <!-- Header -->
+            <div class="login-header">
+                <div class="login-logo">📅</div>
+                <h1>AgendaEstética</h1>
+                <p style="color: var(--color-text-secondary); margin: 0;">Gerencie sua agenda online</p>
+            </div>
+            
+            <!-- Toggle entre Login e Cadastro -->
+            <div class="toggle-buttons">
+                <button class="toggle-btn active" data-mode="login">Login</button>
+                <button class="toggle-btn" data-mode="cadastro">Cadastro</button>
+            </div>
+            
+            <!-- Mensagens de Erro/Sucesso -->
+            <div id="mensagem" class="hidden"></div>
+            
+            <!-- FORMULÁRIO LOGIN -->
+            <form id="form-login" class="login-form" style="display: block;">
+                
+                <!-- Toggle Profissional vs Cliente -->
+                <div class="toggle-buttons" style="margin-bottom: var(--spacing-lg);">
+                    <button type="button" class="toggle-btn active" data-role="profissional">Profissional</button>
+                    <button type="button" class="toggle-btn" data-role="cliente">Cliente</button>
+                </div>
+                
+                <!-- Email -->
+                <div class="form-group">
+                    <label for="login-email">Email</label>
+                    <input 
+                        type="email" 
+                        id="login-email" 
+                        name="email"
+                        placeholder="seu@email.com"
+                        required
+                    />
+                </div>
+                
+                <!-- Senha (visível apenas para profissional) -->
+                <div class="form-group" id="grupo-senha-login" style="display: block;">
+                    <label for="login-senha">Senha</label>
+                    <input 
+                        type="password" 
+                        id="login-senha" 
+                        name="senha"
+                        placeholder="Mínimo 6 caracteres"
+                    />
+                </div>
+                
+                <!-- Botão Login -->
+                <button type="submit" class="submit-btn">
+                    <span id="login-btn-texto">Entrar</span>
+                </button>
+                
+                <!-- Link Esqueci Senha -->
+                <div class="form-footer">
+                    <a href="#" id="link-esqueci-senha">Esqueci minha senha</a>
+                </div>
+                
+            </form>
+            
+            <!-- FORMULÁRIO CADASTRO -->
+            <form id="form-cadastro" class="login-form" style="display: none;">
+                
+                <!-- Toggle Profissional vs Cliente -->
+                <div class="toggle-buttons" style="margin-bottom: var(--spacing-lg);">
+                    <button type="button" class="toggle-btn active" data-role="profissional">Profissional</button>
+                    <button type="button" class="toggle-btn" data-role="cliente">Cliente</button>
+                </div>
+                
+                <!-- Nome -->
+                <div class="form-group">
+                    <label for="cadastro-nome">Nome Completo</label>
+                    <input 
+                        type="text" 
+                        id="cadastro-nome" 
+                        name="nome"
+                        placeholder="Seu nome"
+                        required
+                    />
+                </div>
+                
+                <!-- Email -->
+                <div class="form-group">
+                    <label for="cadastro-email">Email</label>
+                    <input 
+                        type="email" 
+                        id="cadastro-email" 
+                        name="email"
+                        placeholder="seu@email.com"
+                        required
+                    />
+                </div>
+                
+                <!-- Profissão (visível apenas para profissional) -->
+                <div class="form-group" id="grupo-profissao" style="display: block;">
+                    <label for="cadastro-profissao">Profissão</label>
+                    <select id="cadastro-profissao" name="profissao" required>
+                        <option value="">Selecione sua profissão</option>
+                        <option value="cabeleireira">Cabeleireira</option>
+                        <option value="esteticista">Esteticista</option>
+                        <option value="barbeiro">Barbeiro</option>
+                        <option value="massoterapeuta">Massoterapeuta</option>
+                        <option value="manicure">Manicure</option>
+                        <option value="pedicure">Pedicure</option>
+                        <option value="outro">Outro</option>
+                    </select>
+                </div>
+                
+                <!-- Senha (visível apenas para profissional) -->
+                <div class="form-group" id="grupo-senha-cadastro" style="display: block;">
+                    <label for="cadastro-senha">Senha</label>
+                    <input 
+                        type="password" 
+                        id="cadastro-senha" 
+                        name="senha"
+                        placeholder="Mínimo 6 caracteres"
+                        required
+                    />
+                </div>
+                
+                <!-- Confirmar Senha (visível apenas para profissional) -->
+                <div class="form-group" id="grupo-senha-confirma" style="display: block;">
+                    <label for="cadastro-senha-confirma">Confirmar Senha</label>
+                    <input 
+                        type="password" 
+                        id="cadastro-senha-confirma" 
+                        name="senhaConfirma"
+                        placeholder="Confirme a senha"
+                        required
+                    />
+                </div>
+                
+                <!-- Termos -->
+                <div class="form-group" style="margin-top: var(--spacing-lg);">
+                    <label style="display: flex; gap: var(--spacing-sm); align-items: flex-start;">
+                        <input 
+                            type="checkbox" 
+                            id="termos" 
+                            name="termos"
+                            required
+                            style="margin-top: 3px;"
+                        />
+                        <span style="font-size: var(--font-size-sm); color: var(--color-text-secondary);">
+                            Concordo com os <a href="#">Termos de Serviço</a> e <a href="#">Política de Privacidade</a>
+                        </span>
+                    </label>
+                </div>
+                
+                <!-- Botão Cadastro -->
+                <button type="submit" class="submit-btn">
+                    <span id="cadastro-btn-texto">Criar Conta</span>
+                </button>
+                
+            </form>
+            
+        </div>
+    </div>
+    
+    <script type="module" src="/pages/login.js"></script>
+</body>
+</html>

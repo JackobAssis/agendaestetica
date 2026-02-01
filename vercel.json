@@ -1,9 +1,9 @@
 {
-  "buildCommand": "echo 'Static site - no build needed'",
-  "outputDirectory": "src",
-  "framework": null,
+  "framework": "static",
+  "buildCommand": null,
+  "outputDirectory": ".",
   "cleanUrls": true,
   "rewrites": [
-    { "source": "/(.*)", "destination": "/src/index.html" }
+    { "source": "/((?!assets/|modules/|pages/|styles/|favicon\\.ico).*)", "destination": "/index.html" }
   ]
 }

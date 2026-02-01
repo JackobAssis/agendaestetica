@@ -1,0 +1,34 @@
+<div class="page-container">
+  <div class="header">
+    <h1>Clientes</h1>
+    <div>
+      <button id="btn-refresh" class="btn">Atualizar</button>
+    </div>
+  </div>
+
+  <section class="card">
+    <h2>Adicionar Cliente</h2>
+    <form id="form-add-client">
+      <div class="form-row"><input id="cliente-nome" placeholder="Nome" required></div>
+      <div class="form-row"><input id="cliente-email" placeholder="Email"></div>
+      <div class="form-row"><input id="cliente-tel" placeholder="Telefone"></div>
+      <div class="form-row"><button type="submit" class="btn">Adicionar</button></div>
+    </form>
+  </section>
+
+  <section class="card">
+    <h2>Lista de Clientes</h2>
+    <div id="lista-clientes"></div>
+  </section>
+
+  <section class="card hidden" id="cliente-detalhes">
+    <h2>Detalhes</h2>
+    <div id="detalhes-content"></div>
+    <h3>Histórico de Agendamentos</h3>
+    <div id="cliente-historico"></div>
+    <h3>Adicionar Observação</h3>
+    <div><textarea id="obs-text" rows="3" placeholder="Observação interna"></textarea></div>
+    <div><button id="btn-add-obs" class="btn">Salvar observação</button></div>
+  </section>
+
+</div>

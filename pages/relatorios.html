@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AgendaEstética - Relatórios</title>
+  <link rel="stylesheet" href="/styles/global.css">
+  <link rel="stylesheet" href="/styles/relatorios.css">
+</head>
+<body>
+  <main class="relatorios-container">
+    <header class="page-header">
+      <a href="/dashboard" class="back-link">← Voltar ao Dashboard</a>
+      <h1>Relatórios</h1>
+    </header>
+
+    <section class="relatorio-section">
+      <h2>Atendimentos por Período</h2>
+      
+      <div class="filtros-row">
+        <div class="form-group">
+          <label for="relatorio-inicio">De</label>
+          <input type="date" id="relatorio-inicio" />
+        </div>
+        <div class="form-group">
+          <label for="relatorio-fim">Até</label>
+          <input type="date" id="relatorio-fim" />
+        </div>
+        <button id="btn-gerar-relatorio" class="btn-primary">Gerar</button>
+      </div>
+
+      <div id="relatorio-resultado" class="relatorio-resultado">
+        <p class="text-secondary">Selecione um período e clique em "Gerar"</p>
+      </div>
+    </section>
+
+    <section class="relatorio-section">
+      <h2>Clientes Recorrentes</h2>
+      
+      <button id="btn-clientes-recorrentes" class="btn-primary">Ver Clientes Recorrentes</button>
+
+      <div id="clientes-resultado" class="relatorio-resultado">
+        <!-- Resultados aqui -->
+      </div>
+    </section>
+
+    <div id="mensagem" class="message hidden"></div>
+  </main>
+
+  <script type="module" src="/pages/relatorios.js"></script>
+</body>
+</html>
+

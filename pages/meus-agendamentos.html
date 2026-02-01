@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AgendaEstética - Meus Agendamentos</title>
+  <link rel="stylesheet" href="/styles/global.css">
+  <link name="stylesheet" href="/styles/meus-agendamentos.css">
+</head>
+<body>
+  <main class="meus-agendamentos-container">
+    <header class="page-header">
+      <a href="/" class="back-link">← Voltar</a>
+      <h1>Meus Agendamentos</h1>
+    </header>
+
+    <nav class="tabs">
+      <button class="tab-btn active" data-tab="futuros">Próximos</button>
+      <button class="tab-btn" data-tab="historico">Histórico</button>
+    </nav>
+
+    <section id="agendamentos-futuros" class="agendamentos-section">
+      <div class="agendamentos-list" id="lista-futuros">
+        <!-- Agendamentos futuros serão inseridos aqui -->
+        <div class="loading">Carregando...</div>
+      </div>
+    </section>
+
+    <section id="agendamentos-historico" class="agendamentos-section hidden">
+      <div class="agendamentos-list" id="lista-historico">
+        <!-- Histórico será inserido aqui -->
+      </div>
+    </section>
+
+    <!-- Modal de Detalhes -->
+    <div id="modal-detalhes" class="modal hidden">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>Detalhes do Agendamento</h2>
+          <button class="modal-close" id="fechar-modal">&times;</button>
+        </div>
+        <div class="modal-body" id="detalhes-conteudo">
+          <!-- Conteúdo dinâmico -->
+        </div>
+        <div class="modal-footer">
+          <button id="btn-cancelar" class="btn-secondary">Solicitar Cancelamento</button>
+          <button id="btn-solicitar-troca" class="btn-primary">Solicitar Troca</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal de Troca -->
+    <div id="modal-troca" class="modal hidden">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>Solicitar Troca de Data</h2>
+          <button class="modal-close" id="fechar-modal-troca">&times;</button>
+        </div>
+        <div class="modal-body">
+          <p class="text-secondary">Agendamento atual: <strong id="troca-atual"></strong></p>
+          
+          <label for="troca-data">Nova Data</label>
+          <input type="date" id="troca-data" />
+          
+          <label for="troca-hora">Novo Horário</label>
+          <select id="troca-hora">
+            <option value="">Selecione uma data primeiro</option>
+          </select>
+          
+          <label for="troca-motivo">Motivo (opcional)</label>
+          <textarea id="troca-motivo" placeholder="Explique o motivo da troca..."></textarea>
+        </div>
+        <div class="modal-footer">
+          <button id="btn-enviar-troca" class="btn-primary">Enviar Solicitação</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mensagens -->
+    <div id="mensagem" class="message hidden"></div>
+  </main>
+
+  <script type="module" src="/pages/meus-agendamentos.js"></script>
+</body>
+</html>
+
