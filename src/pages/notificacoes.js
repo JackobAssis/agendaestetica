@@ -1,10 +1,47 @@
 /**
- * Notificações Page
+ * Notificações Page - Firebase v9+ Modular SDK
  * Page to view and manage user notifications
  */
 
 import { notifyInApp } from '../modules/notifications.js';
 import { obterUsuarioAtual } from '../modules/auth.js';
+
+// ============================================================
+// Firebase v9+ Modular SDK Imports
+// ============================================================
+
+import { 
+    getFirestore, 
+    collection, 
+    doc, 
+    getDoc, 
+    getDocs, 
+    updateDoc, 
+    query, 
+    where, 
+    orderBy,
+    limit,
+    writeBatch,
+    serverTimestamp 
+} from 'https://www.gstatic.com/firebasejs/10.5.0/firebase-firestore.js';
+
+// ============================================================
+// Firebase Instance Factory
+// ============================================================
+
+/**
+ * Obter instância do Firestore - USA a instância global do index.html
+ */
+function getFirebaseDB() {
+    if (typeof window !== 'undefined' && window.firebaseApp) {
+        return getFirestore(window.firebaseApp);
+    }
+    throw new Error('Firebase Firestore não inicializado. Verifique index.html');
+}
+
+// ============================================================
+// Notification Page Functions
+// ============================================================
 
 // DOM Elements
 const listaNotificacoes = document.getElementById('lista-notificacoes');
@@ -89,14 +126,11 @@ async function carregarNotificacoes() {
             return;
         }
 
-        const db = window.firebase.db;
-        const snapshot = await db
-            .collection('empresas')
-            .doc(empresaId)
-            .collection('notificacoes')
-            .orderBy('createdAt', 'desc')
-            .limit(50)
-            .get();
+        const db = getFirebaseDB();
+        const notifRef = collection(db, 'empresas', empresaId, 'notificacoes');
+        const q = query(notifRef, orderBy('createdAt', 'desc'), limit(50));
+        
+        const snapshot = await getDocs(q);
 
         notificacoes = snapshot.docs.map(doc => ({
             id: doc.id,
@@ -188,13 +222,9 @@ async function marcarComoLida(notificacaoId) {
         const usuario = obterUsuarioAtual();
         if (!usuario || !usuario.empresaId) return;
 
-        const db = window.firebase.db;
-        await db
-            .collection('empresas')
-            .doc(usuario.empresaId)
-            .collection('notificacoes')
-            .doc(notificacaoId)
-            .update({ read: true });
+        const db = getFirebaseDB();
+        const notifRef = doc(db, 'empresas', usuario.empresaId, 'notificacoes', notificacaoId);
+        await updateDoc(notifRef, { read: true });
 
         // Update local state
         const notif = notificacoes.find(n => n.id === notificacaoId);
@@ -217,15 +247,11 @@ async function marcarTodasComoLidas() {
         const usuario = obterUsuarioAtual();
         if (!usuario || !usuario.empresaId) return;
 
-        const db = window.firebase.db;
-        const batch = db.batch();
+        const db = getFirebaseDB();
+        const batch = writeBatch(db);
 
         naoLidas.forEach(notif => {
-            const ref = db
-                .collection('empresas')
-                .doc(usuario.empresaId)
-                .collection('notificacoes')
-                .doc(notif.id);
+            const ref = doc(db, 'empresas', usuario.empresaId, 'notificacoes', notif.id);
             batch.update(ref, { read: true });
         });
 
@@ -253,7 +279,9 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
 });
 
 // Events
-btnMarcarTodas.addEventListener('click', marcarTodasComoLidas);
+if (btnMarcarTodas) {
+    btnMarcarTodas.addEventListener('click', marcarTodasComoLidas);
+}
 document.getElementById('fechar-modal').addEventListener('click', () => {
     modalDetalhes.classList.add('hidden');
 });

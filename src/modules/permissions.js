@@ -1,5 +1,5 @@
 /**
- * Permissions Module
+ * Permissions Module - Firebase v9+ Modular SDK
  * Reference: PLANO-MESTRE-TECNICO.md > Seção 5 (permissoes.js)
  * 
  * Responsibility:
@@ -9,6 +9,34 @@
  */
 
 import { obterUsuarioAtual } from './auth.js';
+
+// ============================================================
+// Firebase v9+ Modular SDK Imports
+// ============================================================
+
+import { 
+    getFirestore, 
+    doc, 
+    getDoc 
+} from 'https://www.gstatic.com/firebasejs/10.5.0/firebase-firestore.js';
+
+// ============================================================
+// Firebase Instance Factory
+// ============================================================
+
+/**
+ * Obter instância do Firestore - USA a instância global do index.html
+ */
+function getFirebaseDB() {
+    if (typeof window !== 'undefined' && window.firebaseApp) {
+        return getFirestore(window.firebaseApp);
+    }
+    throw new Error('Firebase Firestore não inicializado. Verifique index.html');
+}
+
+// ============================================================
+// Permission Functions
+// ============================================================
 
 /**
  * Verificar se usuário é profissional
@@ -48,11 +76,12 @@ export async function obterPlano() {
             return 'free';
         }
         
-        const db = window.firebase.db;
-        const empresaDoc = await db.collection('empresas').doc(usuario.empresaId).get();
+        const db = getFirebaseDB();
+        const docRef = doc(db, 'empresas', usuario.empresaId);
+        const snap = await getDoc(docRef);
         
-        if (empresaDoc.exists()) {
-            return empresaDoc.data().plano || 'free';
+        if (snap.exists()) {
+            return snap.data().plano || 'free';
         }
         
         return 'free';
@@ -159,17 +188,19 @@ export async function foiOnboardingCompleto() {
             return false;
         }
         
-        const db = window.firebase.db;
-        const empresaDoc = await db.collection('empresas').doc(usuario.empresaId).get();
+        const db = getFirebaseDB();
+        const docRef = doc(db, 'empresas', usuario.empresaId);
+        const snap = await getDoc(docRef);
         
-        if (!empresaDoc.exists()) {
+        if (!snap.exists()) {
             return false;
         }
         
-        return empresaDoc.data().onboardingCompleto === true;
+        return snap.data().onboardingCompleto === true;
         
     } catch (error) {
         console.error('Erro ao verificar onboarding:', error);
         return false;
     }
 }
+

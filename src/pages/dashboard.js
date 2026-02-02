@@ -1,11 +1,39 @@
 /**
- * Dashboard Page Logic
+ * Dashboard Page Logic - Firebase v9+ Modular SDK
  * Reference: PLANO-MESTRE-TECNICO.md > Seção 5 (dashboard.js)
  */
 
 import { obterUsuarioAtual, logout } from '../modules/auth.js';
 import { obterPlano, temFeature } from '../modules/permissions.js';
 import { applyTheme, getTheme, setTheme } from '../modules/theme.js';
+
+// ============================================================
+// Firebase v9+ Modular SDK Imports
+// ============================================================
+
+import { 
+    getFirestore, 
+    doc, 
+    getDoc 
+} from 'https://www.gstatic.com/firebasejs/10.5.0/firebase-firestore.js';
+
+// ============================================================
+// Firebase Instance Factory
+// ============================================================
+
+/**
+ * Obter instância do Firestore - USA a instância global do index.html
+ */
+function getFirebaseDB() {
+    if (typeof window !== 'undefined' && window.firebaseApp) {
+        return getFirestore(window.firebaseApp);
+    }
+    throw new Error('Firebase Firestore não inicializado. Verifique index.html');
+}
+
+// ============================================================
+// Dashboard Functions
+// ============================================================
 
 /**
  * Inicializar dashboard
@@ -32,56 +60,66 @@ async function inicializar() {
         const plano = await obterPlano();
         document.getElementById('plano-atual').textContent = plano.charAt(0).toUpperCase() + plano.slice(1);
 
-                // Apply theme preference and gate advanced theme by feature flag
-                const themeSelect = document.getElementById('theme-select');
-                const currentTheme = await getTheme(usuario.empresaId);
-                applyTheme(currentTheme);
-                if (themeSelect) themeSelect.value = currentTheme;
+        // Apply theme preference and gate advanced theme by feature flag
+        const themeSelect = document.getElementById('theme-select');
+        const currentTheme = await getTheme(usuario.empresaId);
+        applyTheme(currentTheme);
+        if (themeSelect) themeSelect.value = currentTheme;
 
-                // Check if advanced theme feature is available for this user
-                (async () => {
-                    try{
-                        const allowAdvancedTheme = await temFeature('tema_avancado');
-                        const premiumOption = themeSelect ? themeSelect.querySelector('option[value="premium"]') : null;
-                        if (premiumOption && !allowAdvancedTheme) {
-                            premiumOption.disabled = true;
-                            // add small hint
-                            let hint = document.getElementById('theme-hint');
-                            if(!hint){
-                                hint = document.createElement('div'); hint.id = 'theme-hint'; hint.style.fontSize='0.85rem'; hint.style.color='var(--muted)'; hint.style.marginTop='6px';
-                                hint.innerHTML = 'Tema avançado disponível apenas no plano <a href="/perfil">Premium</a>.';
-                                themeSelect.parentNode && themeSelect.parentNode.appendChild(hint);
-                            }
-                        }
-                        // Gate other premium-only quick action cards
-                        const allowRelatorios = await temFeature('relatorios');
-                        const relCard = document.querySelector('.action-card[href="/relatorios"]');
-                        if(relCard && !allowRelatorios) relCard.style.opacity = '0.5', relCard.title = 'Disponível no plano Premium';
-                        const allowIntegr = await temFeature('integracao_agenda');
-                        const integCard = document.querySelector('.action-card[href="/integracoes"]');
-                        if(integCard && !allowIntegr) integCard.style.opacity = '0.5', integCard.title = 'Disponível no plano Premium';
-                    }catch(e){ console.warn('temFeature check failed', e); }
-                })();
+        // Check if advanced theme feature is available for this user
+        (async () => {
+            try {
+                const allowAdvancedTheme = await temFeature('tema_avancado');
+                const premiumOption = themeSelect ? themeSelect.querySelector('option[value="premium"]') : null;
+                if (premiumOption && !allowAdvancedTheme) {
+                    premiumOption.disabled = true;
+                    // add small hint
+                    let hint = document.getElementById('theme-hint');
+                    if (!hint) {
+                        hint = document.createElement('div');
+                        hint.id = 'theme-hint';
+                        hint.style.fontSize = '0.85rem';
+                        hint.style.color = 'var(--muted)';
+                        hint.style.marginTop = '6px';
+                        hint.innerHTML = 'Tema avançado disponível apenas no plano <a href="/perfil">Premium</a>.';
+                        themeSelect.parentNode && themeSelect.parentNode.appendChild(hint);
+                    }
+                }
+                // Gate other premium-only quick action cards
+                const allowRelatorios = await temFeature('relatorios');
+                const relCard = document.querySelector('.action-card[href="/relatorios"]');
+                if (relCard && !allowRelatorios) relCard.style.opacity = '0.5', relCard.title = 'Disponível no plano Premium';
+                const allowIntegr = await temFeature('integracao_agenda');
+                const integCard = document.querySelector('.action-card[href="/integracoes"]');
+                if (integCard && !allowIntegr) integCard.style.opacity = '0.5', integCard.title = 'Disponível no plano Premium';
+            } catch (e) {
+                console.warn('temFeature check failed', e);
+            }
+        })();
 
-                if (themeSelect) themeSelect.addEventListener('change', async (e) => {
-                        const newTheme = e.target.value;
-                        // prevent switching to premium if not allowed
-                        try{
-                            const allowAdvanced = await temFeature('tema_avancado');
-                            if(newTheme === 'premium' && !allowAdvanced){
-                                alert('Tema avançado disponível apenas no plano Premium. Acesse Perfil para alterar o plano.');
-                                // reset select
-                                const current = await getTheme(usuario.empresaId);
-                                themeSelect.value = current;
-                                return;
-                            }
-                        }catch(e){ console.warn('feature check failed', e); }
+        if (themeSelect) {
+            themeSelect.addEventListener('change', async (e) => {
+                const newTheme = e.target.value;
+                // prevent switching to premium if not allowed
+                try {
+                    const allowAdvanced = await temFeature('tema_avancado');
+                    if (newTheme === 'premium' && !allowAdvanced) {
+                        alert('Tema avançado disponível apenas no plano Premium. Acesse Perfil para alterar o plano.');
+                        // reset select
+                        const current = await getTheme(usuario.empresaId);
+                        themeSelect.value = current;
+                        return;
+                    }
+                } catch (e) {
+                    console.warn('feature check failed', e);
+                }
 
-                        applyTheme(newTheme);
-                        await setTheme(usuario.empresaId, newTheme);
-                });
+                applyTheme(newTheme);
+                await setTheme(usuario.empresaId, newTheme);
+            });
+        }
         
-        // Carregar dados do Firebase (será implementado em FASE 3+)
+        // Carregar dados do Firebase
         carregarDados(usuario.empresaId);
         
     } catch (error) {
@@ -94,7 +132,8 @@ async function inicializar() {
  */
 async function carregarDados(empresaId) {
     try {
-        const db = window.firebase.db;
+        const db = getFirebaseDB();
+        const docRef = doc(db, 'empresas', empresaId);
         
         // Contar agendamentos de hoje
         // TODO: Implementar query de agendamentos
@@ -147,3 +186,4 @@ document.addEventListener('DOMContentLoaded', () => {
     inicializar();
     setupEventListeners();
 });
+

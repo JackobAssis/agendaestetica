@@ -111,7 +111,8 @@
             setPersistence(auth, browserLocalPersistence)
                 .catch(error => console.warn('Persistence error:', error.message));
             
-            // Make Firebase services globally available
+            // Make Firebase services globally available (v9+ compatible)
+            window.firebaseApp = app;
             window.firebase = {
                 app,
                 auth,
