@@ -1,22 +1,21 @@
 /**
  * Authentication Module - Firebase v9+ Modular SDK
- * CORRIGIDO para Firebase v9+ modular
+ * CORRIGIDO para usar instâncias compartilhadas do index.html
  */
 
-// Imports do Firebase v9+
+// Firebase Auth funções necessárias (importadas para uso)
 import { 
-    getAuth, 
     createUserWithEmailAndPassword, 
     signInWithEmailAndPassword, 
     signInAnonymously, 
     signOut, 
     sendPasswordResetEmail,
     updateProfile,
-    onAuthStateChanged 
-} from 'https://www.gstatic.com/firebasejs/10.5.0/firebase-auth.js?v=1';
+    onAuthStateChanged
+} from 'https://www.gstatic.com/firebasejs/10.5.0/firebase-auth.js';
 
+// Firebase Firestore funções necessárias
 import { 
-    getFirestore, 
     collection, 
     doc, 
     setDoc, 
@@ -25,23 +24,36 @@ import {
     query, 
     where, 
     updateDoc 
-} from 'https://www.gstatic.com/firebasejs/10.5.0/firebase-firestore.js?v=1';
+} from 'https://www.gstatic.com/firebasejs/10.5.0/firebase-firestore.js';
 
-// Funções helper
-function getFirebaseApp() {
-    if (!window.firebaseApp) {
-        throw new Error('Firebase não foi inicializado. Verifique index.html');
-    }
-    return window.firebaseApp;
-}
+// ============================================================
+// Firebase Instance Factory (usa instâncias compartilhadas)
+// ============================================================
 
+/**
+ * Obter instância do Auth - USA a instância global do index.html
+ * Isso evita criar múltiplas instâncias do Firebase
+ */
 function getFirebaseAuth() {
-    return getAuth(getFirebaseApp());
+    if (typeof window !== 'undefined' && window.firebase && window.firebase.auth) {
+        return window.firebase.auth;
+    }
+    throw new Error('Firebase Auth não inicializado. Verifique index.html');
 }
 
+/**
+ * Obter instância do Firestore - USA a instância global do index.html
+ */
 function getFirebaseDB() {
-    return getFirestore(getFirebaseApp());
+    if (typeof window !== 'undefined' && window.firebase && window.firebase.db) {
+        return window.firebase.db;
+    }
+    throw new Error('Firebase Firestore não inicializado. Verifique index.html');
 }
+
+// ============================================================
+// Helper Functions
+// ============================================================
 
 function isEmail(input) {
     return input && input.includes('@') && input.includes('.');
@@ -70,12 +82,15 @@ function generateRandomPassword() {
 }
 
 // ============================================================
-// Funções de Autenticação (CORRIGIDAS v9+)
+// Main Authentication Functions (v9+)
 // ============================================================
 
+/**
+ * Cadastro de Profissional
+ */
 export async function cadastroProfissional(emailOuTelefone, senha, nome, profissao) {
-    const auth = getFirebaseAuth();
-    const db = getFirebaseDB();
+    const auth = getFirebaseAuth();  // Usa instância global
+    const db = getFirebaseDB();      // Usa instância global
     
     if (!nome || !profissao) throw new Error('Nome e profissão são obrigatórios');
     
@@ -87,9 +102,11 @@ export async function cadastroProfissional(emailOuTelefone, senha, nome, profiss
         if (!senha || senha.length < 6) throw new Error('Senha deve ter no mínimo 6 caracteres');
         if (!isValidEmail(emailOuTelefone)) throw new Error('Email inválido');
         
+        // ✅ Firebase v9+ com instância compartilhada
         const result = await createUserWithEmailAndPassword(auth, emailOuTelefone, senha);
         user = result.user;
         email = emailOuTelefone;
+        
     } else if (isPhone(emailOuTelefone)) {
         const phoneNumber = normalizePhone(emailOuTelefone);
         telefone = phoneNumber;
@@ -117,6 +134,9 @@ export async function cadastroProfissional(emailOuTelefone, senha, nome, profiss
     return { uid: user.uid, email, telefone, nome, role: 'profissional', empresaId };
 }
 
+/**
+ * Cadastro de Cliente
+ */
 export async function cadastroCliente(email, nome) {
     const auth = getFirebaseAuth();
     const db = getFirebaseDB();
@@ -124,7 +144,9 @@ export async function cadastroCliente(email, nome) {
     if (!email || !nome) throw new Error('Email e nome são obrigatórios');
     if (!isValidEmail(email)) throw new Error('Email inválido');
     
-    const { user } = await createUserWithEmailAndPassword(auth, email, generateRandomPassword());
+    const result = await createUserWithEmailAndPassword(auth, email, generateRandomPassword());
+    const { user } = result;
+    
     await updateProfile(user, { displayName: nome });
     
     await setDoc(doc(db, 'usuarios', user.uid), {
@@ -136,6 +158,9 @@ export async function cadastroCliente(email, nome) {
     return { uid: user.uid, email: user.email, nome, role: 'cliente' };
 }
 
+/**
+ * Login de Profissional
+ */
 export async function loginProfissional(emailOuTelefone, senha) {
     const auth = getFirebaseAuth();
     const db = getFirebaseDB();
@@ -180,6 +205,9 @@ export async function loginProfissional(emailOuTelefone, senha) {
     return userData;
 }
 
+/**
+ * Login de Cliente
+ */
 export async function loginCliente(email) {
     const db = getFirebaseDB();
     
@@ -205,6 +233,9 @@ export async function loginCliente(email) {
     return clienteData;
 }
 
+/**
+ * Verificar sessão existente
+ */
 export async function verificarSessao() {
     const auth = getFirebaseAuth();
     const db = getFirebaseDB();
