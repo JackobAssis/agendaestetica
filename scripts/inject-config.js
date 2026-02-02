@@ -24,11 +24,23 @@ const envConfig = {
 // Validate that we have required config
 const requiredFields = ['apiKey', 'authDomain', 'projectId', 'storageBucket', 'messagingSenderId', 'appId'];
 const missingFields = requiredFields.filter(field => !envConfig[field]);
-const hasValidConfig = missingFields.length === 0 && envConfig.apiKey && !envConfig.apiKey.includes('placeholder');
+const hasValidConfig = missingFields.length === 0 && 
+                       envConfig.apiKey && 
+                       !envConfig.apiKey.includes('placeholder') &&
+                       envConfig.apiKey.length > 10;
 
 console.log('🔧 Build: Injecting Firebase configuration...');
 console.log('   Project ID:', envConfig.projectId || 'NOT SET');
 console.log('   Has valid config:', hasValidConfig);
+
+// Show which fields are missing for debugging
+if (!hasValidConfig && missingFields.length > 0) {
+    console.log('   Missing fields:', missingFields.join(', '));
+}
+
+if (!hasValidConfig && envConfig.apiKey) {
+    console.log('   API Key looks invalid (too short or contains "placeholder")');
+}
 
 // Generate the config script
 const configScript = hasValidConfig ? `
@@ -46,13 +58,34 @@ window.APP_CONFIG = {
 console.log('✅ Firebase config injected successfully');
 ` : `
 // Firebase Configuration - PLACEHOLDER MODE
-// No valid environment variables found - running in demo mode
+// ❌ No valid environment variables found - running in demo mode
+// 
+// TO FIX THIS ERROR: auth/api-key-not-valid
+// 1. Go to Vercel Dashboard > Settings > Environment Variables
+// 2. Add the following variables (must match your Firebase project):
+//
+//    VITE_FIREBASE_API_KEY=AIzaSy...
+//    VITE_FIREBASE_AUTH_DOMAIN=your-project.firebaseapp.com
+//    VITE_FIREBASE_PROJECT_ID=your-project-id
+//    VITE_FIREBASE_STORAGE_BUCKET=your-project.appspot.com
+//    VITE_FIREBASE_MESSAGING_SENDER_ID=123456789
+//    VITE_FIREBASE_APP_ID=1:123456789:web:abc123
+//
+// 3. Redeploy the application
+//
+// To get these values:
+// - Go to Firebase Console > Project Settings > General
+// - Scroll down to "Your apps" > Web app configuration
+//
+// ⚠️ IMPORTANT: The API key must match the projectId!
+//
 window.APP_CONFIG = {
     firebase: null,
-    _demoMode: true
+    _demoMode: true,
+    _error: "Firebase environment variables not configured in Vercel"
 };
-console.warn('⚠️ Firebase config NOT injected - running in demo mode');
-console.warn('   Set VITE_FIREBASE_* environment variables in Vercel Dashboard');
+console.error('❌ Firebase config NOT injected - running in DEMO mode');
+console.error('   Set VITE_FIREBASE_* variables in Vercel Dashboard');
 `;
 
 // Read index.html template
@@ -83,5 +116,12 @@ if (placeholderRegex.test(html)) {
 // Write back
 fs.writeFileSync(indexPath, html);
 
-console.log('✅ Build complete! Firebase config injected into index.html');
+if (hasValidConfig) {
+    console.log('✅ Build complete! Firebase config injected into index.html');
+} else {
+    console.log('⚠️  Build complete, but Firebase config is MISSING!');
+    console.log('   The app will run in DEMO mode.');
+    console.log('');
+    console.log('   To fix: Add VITE_FIREBASE_* variables in Vercel Dashboard');
+}
 

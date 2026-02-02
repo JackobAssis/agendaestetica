@@ -12,16 +12,31 @@
     <link rel="stylesheet" href="styles/login.css">
     
 <!-- Firebase Configuration Placeholder -->
+<!-- Configuração do Firebase será injetada via scripts/inject-config.js durante o build -->
+<!-- Para desenvolvimento local: configure as variáveis no .env.local ou Vercel Dashboard -->
 <script>
 
 // Firebase Configuration - PLACEHOLDER MODE
-// No valid environment variables found - running in demo mode
+// ⚠️ Nenhum dado válido foi injetado durante o build
+// O app funcionará em modo DEMO
+
+// Para resolver o erro "auth/api-key-not-valid":
+// 1. Configure as variáveis de ambiente no Vercel Dashboard:
+//    - VITE_FIREBASE_API_KEY
+//    - VITE_FIREBASE_AUTH_DOMAIN
+//    - VITE_FIREBASE_PROJECT_ID
+//    - VITE_FIREBASE_STORAGE_BUCKET
+//    - VITE_FIREBASE_MESSAGING_SENDER_ID
+//    - VITE_FIREBASE_APP_ID
+//
+// 2. Redeploy a aplicação após configurar as variáveis
+
 window.APP_CONFIG = {
     firebase: null,
     _demoMode: true
 };
-console.warn('⚠️ Firebase config NOT injected - running in demo mode');
-console.warn('   Set VITE_FIREBASE_* environment variables in Vercel Dashboard');
+console.warn('⚠️ Firebase config NOT injected - running in DEMO mode');
+console.warn('   Configure VITE_FIREBASE_* variables in Vercel Dashboard');
 
 </script>
 <!-- End Firebase Configuration -->
@@ -68,7 +83,8 @@ console.warn('   Set VITE_FIREBASE_* environment variables in Vercel Dashboard')
                                firebaseConfig.apiKey !== 'null' &&
                                firebaseConfig.apiKey !== 'undefined' &&
                                !firebaseConfig.apiKey.includes('placeholder') &&
-                               firebaseConfig.apiKey !== '';
+                               firebaseConfig.apiKey !== '' &&
+                               firebaseConfig.apiKey !== 'AIzaSyD-placeholder-key';
         
         // Validate required fields
         const requiredFields = ['apiKey', 'authDomain', 'projectId', 'storageBucket', 'messagingSenderId', 'appId'];
@@ -84,7 +100,7 @@ console.warn('   Set VITE_FIREBASE_* environment variables in Vercel Dashboard')
                 <div class="demo-mode-screen">
                     <h2>🧪 Modo Demonstração</h2>
                     <p>O Firebase não está configurado corretamente.</p>
-                    <p>Configure as variáveis de ambiente no Vercel Dashboard:</p>
+                    <p>Para usar autenticação real, configure:</p>
                     <ul>
                         <li>VITE_FIREBASE_API_KEY</li>
                         <li>VITE_FIREBASE_AUTH_DOMAIN</li>
@@ -93,6 +109,7 @@ console.warn('   Set VITE_FIREBASE_* environment variables in Vercel Dashboard')
                         <li>VITE_FIREBASE_MESSAGING_SENDER_ID</li>
                         <li>VITE_FIREBASE_APP_ID</li>
                     </ul>
+                    <p class="error-details">Verifique FIREBASE-SETUP.md para instruções</p>
                 </div>
             `;
             
@@ -123,7 +140,7 @@ console.warn('   Set VITE_FIREBASE_* environment variables in Vercel Dashboard')
             setPersistence(auth, browserLocalPersistence)
                 .catch(error => console.warn('Persistence error:', error.message));
             
-            // Make Firebase services globally available (v9+ compatible)
+            // Make Firebase services globally available
             window.firebaseApp = app;
             window.firebase = {
                 app,
