@@ -1,18 +1,26 @@
 /**
- * Notificações Page
- * Page to view and manage user notifications
+ * Página de Notificações - Firebase v9+ Modular SDK
+ * CORRIGIDO para Firebase v9+ modular
  */
 
-import { notifyInApp } from '../modules/notifications.js';
 import { obterUsuarioAtual } from '../modules/auth.js';
+import { 
+    getFirebaseDB, 
+    doc, 
+    getDoc, 
+    collection, 
+    query, 
+    orderBy, 
+    limit, 
+    getDocs, 
+    updateDoc 
+} from '../modules/firebase.js';
 
-// DOM Elements
 const listaNotificacoes = document.getElementById('lista-notificacoes');
 const mensagem = document.getElementById('mensagem');
 const modalDetalhes = document.getElementById('modal-detalhes');
 const btnMarcarTodas = document.getElementById('btn-marcar-todas');
 
-// State
 let notificacoes = [];
 let filtroAtual = 'nao-lidas';
 let notifSelecionada = null;
@@ -66,20 +74,17 @@ async function carregarNotificacoes() {
         return;
     }
 
-    // Determinar empresaId baseado no role
     let empresaId = null;
     if (usuario.role === 'profissional') {
         empresaId = usuario.empresaId;
     } else if (usuario.clienteUid) {
-        // Cliente - precisaria buscar empresa do agendamento
-        // Por enquanto, we'll show placeholder
+        // Cliente - placeholder
     }
 
     listaNotificacoes.innerHTML = '<div class="loading">Carregando notificações...</div>';
 
     try {
         if (!empresaId) {
-            // Para clientes ou sem empresa, mostrar estado vazio
             listaNotificacoes.innerHTML = `
                 <div class="empty-state">
                     <p>As notificações aparecerão aqui quando houver atualizações sobre seus agendamentos.</p>
@@ -89,14 +94,10 @@ async function carregarNotificacoes() {
             return;
         }
 
-        const db = window.firebase.db;
-        const snapshot = await db
-            .collection('empresas')
-            .doc(empresaId)
-            .collection('notificacoes')
-            .orderBy('createdAt', 'desc')
-            .limit(50)
-            .get();
+        const db = getFirebaseDB();
+        const notifRef = collection(db, 'empresas', empresaId, 'notificacoes');
+        const q = query(notifRef, orderBy('createdAt', 'desc'), limit(50));
+        const snapshot = await getDocs(q);
 
         notificacoes = snapshot.docs.map(doc => ({
             id: doc.id,
@@ -142,7 +143,6 @@ function renderNotificacoes() {
         </div>
     `).join('');
 
-    // Add click handlers
     document.querySelectorAll('.notificacao-card').forEach(card => {
         card.addEventListener('click', () => {
             const id = card.dataset.id;
@@ -163,12 +163,10 @@ function mostrarDetalhes(notif) {
         </div>
     `;
 
-    // Botão ver agendamento se houver referência
     const btnVer = document.getElementById('btn-ver-agendamento');
     if (notif.meta && notif.meta.agendamentoId) {
         btnVer.style.display = 'inline-block';
         btnVer.onclick = () => {
-            // Redirecionar para agendamento
             window.location.href = `/agendamentos?id=${notif.meta.agendamentoId}`;
         };
     } else {
@@ -177,7 +175,6 @@ function mostrarDetalhes(notif) {
 
     modalDetalhes.classList.remove('hidden');
 
-    // Marcar como lida
     if (!notif.read) {
         marcarComoLida(notif.id);
     }
@@ -188,15 +185,10 @@ async function marcarComoLida(notificacaoId) {
         const usuario = obterUsuarioAtual();
         if (!usuario || !usuario.empresaId) return;
 
-        const db = window.firebase.db;
-        await db
-            .collection('empresas')
-            .doc(usuario.empresaId)
-            .collection('notificacoes')
-            .doc(notificacaoId)
-            .update({ read: true });
+        const db = getFirebaseDB();
+        const docRef = doc(db, 'empresas', usuario.empresaId, 'notificacoes', notificacaoId);
+        await updateDoc(docRef, { read: true });
 
-        // Update local state
         const notif = notificacoes.find(n => n.id === notificacaoId);
         if (notif) notif.read = true;
 
@@ -217,21 +209,16 @@ async function marcarTodasComoLidas() {
         const usuario = obterUsuarioAtual();
         if (!usuario || !usuario.empresaId) return;
 
-        const db = window.firebase.db;
-        const batch = db.batch();
+        const db = getFirebaseDB();
+        const batch = [];
 
-        naoLidas.forEach(notif => {
-            const ref = db
-                .collection('empresas')
-                .doc(usuario.empresaId)
-                .collection('notificacoes')
-                .doc(notif.id);
-            batch.update(ref, { read: true });
-        });
+        for (const notif of naoLidas) {
+            const docRef = doc(db, 'empresas', usuario.empresaId, 'notificacoes', notif.id);
+            batch.push(updateDoc(docRef, { read: true }));
+        }
 
-        await batch.commit();
+        await Promise.all(batch);
 
-        // Update local state
         naoLidas.forEach(n => n.read = true);
 
         showMsg('Todas marcadas como lidas', 'success');
@@ -242,7 +229,6 @@ async function marcarTodasComoLidas() {
     }
 }
 
-// Tab switching
 document.querySelectorAll('.tab-btn').forEach(btn => {
     btn.addEventListener('click', () => {
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -252,7 +238,6 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
     });
 });
 
-// Events
 btnMarcarTodas.addEventListener('click', marcarTodasComoLidas);
 document.getElementById('fechar-modal').addEventListener('click', () => {
     modalDetalhes.classList.add('hidden');
@@ -263,6 +248,5 @@ modalDetalhes.addEventListener('click', (e) => {
     }
 });
 
-// Initialize
 document.addEventListener('DOMContentLoaded', carregarNotificacoes);
 

@@ -1,92 +1,118 @@
 /**
- * Clientes Module
- * Responsibilities:
- * - CRUD básico para clientes por empresa
- * - Observações internas
- * - Histórico de agendamentos por cliente
+ * Clientes Module - Firebase v9+ Modular SDK
+ * CORRIGIDO para Firebase v9+ modular
  */
+
+import { 
+    getFirebaseDB, 
+    collection, 
+    doc, 
+    addDoc, 
+    getDoc, 
+    getDocs, 
+    query, 
+    where, 
+    updateDoc,
+    orderBy
+} from '../modules/firebase.js';
 
 export async function addCliente(empresaId, cliente) {
-  if (!empresaId) throw new Error('empresaId é obrigatório');
-  if (!cliente || !cliente.nome) throw new Error('Dados do cliente inválidos');
+    if (!empresaId) throw new Error('empresaId é obrigatório');
+    if (!cliente || !cliente.nome) throw new Error('Dados do cliente inválidos');
 
-  const db = window.firebase.db;
-  const payload = {
-    nome: cliente.nome,
-    email: cliente.email || null,
-    telefone: cliente.telefone || null,
-    criadoEm: new Date().toISOString(),
-    criadoPor: window.firebase.auth.currentUser ? window.firebase.auth.currentUser.uid : null,
-    observacoes: [],
-  };
+    const db = getFirebaseDB();
+    const payload = {
+        nome: cliente.nome,
+        email: cliente.email || null,
+        telefone: cliente.telefone || null,
+        criadoEm: new Date().toISOString(),
+        criadoPor: null,
+        observacoes: [],
+    };
 
-  const ref = await db.collection('empresas').doc(empresaId).collection('clientes').add(payload);
-  return { id: ref.id, ...payload };
+    const ref = await addDoc(collection(db, 'empresas', empresaId, 'clientes'), payload);
+    return { id: ref.id, ...payload };
 }
 
-/**
- * Find a client by email under empresa; if not found, create one.
- * Returns the cliente object with id.
- */
 export async function findOrCreateClienteByEmail(empresaId, email, nome, telefone) {
-  if (!empresaId) throw new Error('empresaId é obrigatório');
-  if (!email && !nome) throw new Error('Email ou nome é obrigatório para criar cliente');
+    if (!empresaId) throw new Error('empresaId é obrigatório');
+    if (!email && !nome) throw new Error('Email ou nome é obrigatório para criar cliente');
 
-  const db = window.firebase.db;
-  if (email) {
-    const q = await db.collection('empresas').doc(empresaId).collection('clientes').where('email', '==', email).get();
-    if (!q.empty) {
-      const d = q.docs[0];
-      return { id: d.id, ...d.data() };
+    const db = getFirebaseDB();
+    
+    if (email) {
+        const q = query(
+            collection(db, 'empresas', empresaId, 'clientes'),
+            where('email', '==', email)
+        );
+        const snapshot = await getDocs(q);
+        if (!snapshot.empty) {
+            const d = snapshot.docs[0];
+            return { id: d.id, ...d.data() };
+        }
     }
-  }
 
-  // Create new cliente
-  const payload = { nome: nome || (email ? email.split('@')[0] : 'Cliente'), email: email || null, telefone: telefone || null };
-  const res = await addCliente(empresaId, payload);
-  return res;
+    const payload = { 
+        nome: nome || (email ? email.split('@')[0] : 'Cliente'), 
+        email: email || null, 
+        telefone: telefone || null 
+    };
+    const res = await addCliente(empresaId, payload);
+    return res;
 }
 
 export async function getCliente(empresaId, clienteId) {
-  if (!empresaId || !clienteId) throw new Error('empresaId e clienteId obrigatórios');
-  const db = window.firebase.db;
-  const snap = await db.collection('empresas').doc(empresaId).collection('clientes').doc(clienteId).get();
-  if (!snap.exists) return null;
-  return { id: snap.id, ...snap.data() };
+    if (!empresaId || !clienteId) throw new Error('empresaId e clienteId obrigatórios');
+    const db = getFirebaseDB();
+    
+    const docRef = doc(db, 'empresas', empresaId, 'clientes', clienteId);
+    const snap = await getDoc(docRef);
+    
+    if (!snap.exists()) return null;
+    return { id: snap.id, ...snap.data() };
 }
 
 export async function listClientesEmpresa(empresaId) {
-  if (!empresaId) throw new Error('empresaId é obrigatório');
-  const db = window.firebase.db;
-  const q = await db.collection('empresas').doc(empresaId).collection('clientes').orderBy('criadoEm', 'desc').get();
-  return q.docs.map(d => ({ id: d.id, ...d.data() }));
+    if (!empresaId) throw new Error('empresaId é obrigatório');
+    const db = getFirebaseDB();
+    
+    const q = query(
+        collection(db, 'empresas', empresaId, 'clientes'),
+        orderBy('criadoEm', 'desc')
+    );
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
 }
 
 export async function addObservacao(empresaId, clienteId, nota) {
-  if (!empresaId || !clienteId) throw new Error('empresaId e clienteId obrigatórios');
-  if (!nota) throw new Error('Nota inválida');
-  const db = window.firebase.db;
-  const clienteRef = db.collection('empresas').doc(empresaId).collection('clientes').doc(clienteId);
-  const fv = window.firebase.firestore && window.firebase.firestore.FieldValue ? window.firebase.firestore.FieldValue : (window.firebase.firestoreFieldValueArrayUnion || null);
-  if (fv && fv.arrayUnion) {
-    await clienteRef.update({ observacoes: fv.arrayUnion({ texto: nota, criadoEm: new Date().toISOString(), criadoPor: window.firebase.auth.currentUser ? window.firebase.auth.currentUser.uid : null }) });
-  } else {
-    // fallback: fetch and push
-    const snap = await clienteRef.get();
-    const data = snap.exists ? snap.data() : { observacoes: [] };
+    if (!empresaId || !clienteId) throw new Error('empresaId e clienteId obrigatórios');
+    if (!nota) throw new Error('Nota inválida');
+    
+    const db = getFirebaseDB();
+    const clienteRef = doc(db, 'empresas', empresaId, 'clientes', clienteId);
+    
+    const snap = await getDoc(clienteRef);
+    const data = snap.exists() ? snap.data() : { observacoes: [] };
     const arr = data.observacoes || [];
-    arr.push({ texto: nota, criadoEm: new Date().toISOString(), criadoPor: window.firebase.auth.currentUser ? window.firebase.auth.currentUser.uid : null });
-    await clienteRef.update({ observacoes: arr });
-  }
-  return { sucesso: true };
+    arr.push({ texto: nota, criadoEm: new Date().toISOString(), criadoPor: null });
+    
+    await updateDoc(clienteRef, { observacoes: arr });
+    return { sucesso: true };
 }
 
 export async function getHistorico(empresaId, clienteId) {
-  if (!empresaId || !clienteId) throw new Error('empresaId e clienteId obrigatórios');
-  const db = window.firebase.db;
-  const q = db.collection('empresas').doc(empresaId).collection('agendamentos').where('clienteUid', '==', clienteId).orderBy('inicio', 'desc');
-  const snap = await q.get();
-  return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    if (!empresaId || !clienteId) throw new Error('empresaId e clienteId obrigatórios');
+    const db = getFirebaseDB();
+    
+    const q = query(
+        collection(db, 'agendamentos'),
+        where('clienteUid', '==', clienteId),
+        orderBy('inicio', 'desc')
+    );
+    
+    const snap = await getDocs(q);
+    return snap.docs.map(d => ({ id: d.id, ...d.data() }));
 }
 
 export default { addCliente, getCliente, listClientesEmpresa, addObservacao, getHistorico };
+

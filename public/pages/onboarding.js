@@ -1,4 +1,10 @@
+/**
+ * Onboarding Page Logic - Firebase v9+ Modular SDK
+ * CORRIGIDO para Firebase v9+ modular
+ */
+
 import { obterUsuarioAtual } from '../modules/auth.js';
+import { getFirebaseDB, doc, updateDoc } from '../modules/firebase.js';
 
 const form = document.getElementById('form-onboarding');
 const mensagemDiv = document.getElementById('onboarding-mensagem');
@@ -34,7 +40,6 @@ async function validarDados(dados){
   if(!dados.dias || dados.dias.length === 0) throw new Error('Selecione pelo menos um dia da semana');
   if(!dados.horaInicio || !dados.horaFim) throw new Error('Informe horário de início e fim');
   if(dados.duracaoSlot < 5) throw new Error('Duração de slot inválida');
-  // Mais validações podem ser adicionadas conforme necessário
 }
 
 async function salvarConfiguracao(dados){
@@ -42,7 +47,7 @@ async function salvarConfiguracao(dados){
   if(!usuario || !usuario.empresaId) throw new Error('Usuário não autenticado ou sem empresaId');
 
   const empresaId = usuario.empresaId;
-  const db = window.firebase.db;
+  const db = getFirebaseDB();
 
   const payload = {
     nome: dados.empresaNome,
@@ -58,8 +63,7 @@ async function salvarConfiguracao(dados){
     atualizadoEm: new Date().toISOString(),
   };
 
-  // Atualiza documento da empresa
-  await db.collection('empresas').doc(empresaId).update(payload);
+  await updateDoc(doc(db, 'empresas', empresaId), payload);
 }
 
 form.addEventListener('submit', async (e)=>{
@@ -84,10 +88,10 @@ form.addEventListener('submit', async (e)=>{
   }
 });
 
-// Proteção: se não estiver autenticado, redireciona
 document.addEventListener('DOMContentLoaded', ()=>{
   const usuario = obterUsuarioAtual();
   if(!usuario || !usuario.empresaId){
     window.location.href = '/login';
   }
 });
+
