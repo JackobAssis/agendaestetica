@@ -25,7 +25,7 @@ import {
     sendPasswordResetEmail,
     updateProfile,
     onAuthStateChanged 
-} from 'https://www.gstatic.com/firebasejs/10.5.0/firebase-auth.js';
+} from 'https://www.gstatic.com/firebasejs/10.5.0/firebase-auth.js?v=1';
 
 import { 
     getFirestore, 
@@ -37,7 +37,7 @@ import {
     query, 
     where, 
     updateDoc 
-} from 'https://www.gstatic.com/firebasejs/10.5.0/firebase-firestore.js';
+} from 'https://www.gstatic.com/firebasejs/10.5.0/firebase-firestore.js?v=1';
 
 // ============================================================
 // Firebase App Reference
