@@ -1,29 +1,18 @@
 /**
  * Firebase Configuration - Single Source of Truth
- * 
- * This file provides Firebase config validation for the entire app.
- * It should be imported by index.html and auth.js.
  */
 
-// ============================================================
-// Required Configuration Fields
-// ============================================================
+// Required fields for valid Firebase config
+const FIREBASE_REQUIRED_FIELDS = ['apiKey', 'authDomain', 'projectId', 'appId'];
 
-const REQUIRED_FIELDS = ['apiKey', 'authDomain', 'projectId', 'appId'];
-
-// ============================================================
-// Get Firebase Config
-// ============================================================
-
+// Get Firebase config from window.APP_CONFIG or environment variables
 function getFirebaseConfig() {
-    // Config injected at build time via window.APP_CONFIG
     if (typeof window !== 'undefined' && 
         window.APP_CONFIG && 
         window.APP_CONFIG.firebase) {
         return window.APP_CONFIG.firebase;
     }
     
-    // Environment variables
     const env = typeof import.meta !== 'undefined' ? (import.meta.env || {}) : {};
     
     return {
@@ -36,24 +25,19 @@ function getFirebaseConfig() {
     };
 }
 
-// ============================================================
-// Validate Configuration
-// ============================================================
-
+// Check if Firebase config is valid
 function isFirebaseConfigValid(config) {
     if (!config || typeof config !== 'object') {
         return false;
     }
     
-    // Check all required fields are present and non-empty
-    for (const field of REQUIRED_FIELDS) {
+    for (const field of FIREBASE_REQUIRED_FIELDS) {
         const value = config[field];
         if (!value || value === '' || value === 'null' || value === 'undefined') {
             return false;
         }
     }
     
-    // Check for placeholder values
     if (config.apiKey && (
         config.apiKey.includes('placeholder') ||
         config.apiKey.length < 10
@@ -64,50 +48,41 @@ function isFirebaseConfigValid(config) {
     return true;
 }
 
+// Check if running in demo mode
 function isFirebaseDemoMode(config) {
     return !isFirebaseConfigValid(config);
 }
 
-// ============================================================
-// Create exports
-// ============================================================
-
+// Create exported values
 const firebaseConfig = getFirebaseConfig();
-const configIsValid = isFirebaseConfigValid(firebaseConfig);
-const demoMode = isFirebaseDemoMode(firebaseConfig);
+const firebaseConfigValid = isFirebaseConfigValid(firebaseConfig);
+const firebaseDemoMode = isFirebaseDemoMode(firebaseConfig);
 
-// ============================================================
-// Console Logging
-// ============================================================
-
+// Console logging
 if (typeof console !== 'undefined') {
-    if (demoMode) {
-        console.warn('🧪 Firebase config missing or invalid - RUNNING IN DEMO MODE');
-    } else if (configIsValid) {
-        console.log('✅ Firebase config valid - Ready to initialize');
+    if (firebaseDemoMode) {
+        console.warn('Firebase config missing or invalid - DEMO MODE');
+    } else if (firebaseConfigValid) {
+        console.log('Firebase config valid - Ready');
     }
 }
 
-// ============================================================
-// ES Module Exports
-// ============================================================
-
-export { firebaseConfig as firebaseConfig$config };
-export { configIsValid as configIsValid$config };
-export { demoMode as demoMode$config };
+// Named exports
+export { firebaseConfig };
+export { firebaseConfigValid };
+export { firebaseDemoMode };
 export { isFirebaseConfigValid };
 export { isFirebaseDemoMode };
 
-// Default export for compatibility
+// Default export
 export default firebaseConfig;
 
-// Make available globally for non-module scripts
+// Global helper
 if (typeof window !== 'undefined') {
-    window.firebaseConfigHelpers = {
+    window.firebaseHelpers = {
         getConfig: getFirebaseConfig,
         isValid: isFirebaseConfigValid,
-        isDemoMode: isFirebaseDemoMode,
-        config: firebaseConfig
+        isDemoMode: isFirebaseDemoMode
     };
 }
 

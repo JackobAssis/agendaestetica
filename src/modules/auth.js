@@ -1,18 +1,8 @@
 /**
  * Authentication Module - Firebase v9+ Modular SDK
  * 
- * This module handles all authentication operations using Firebase v9+ modular SDK.
- * It uses factory functions to get Firebase instances from the app initialized in index.html.
- * 
- * Architecture:
- * - index.html initializes Firebase and exposes: window.firebaseApp
- * - auth.js uses getAuth(window.firebaseApp) and getFirestore(window.firebaseApp)
- * - Single shared Firebase App instance
+ * Uses getAuth() and getFirestore() factory functions with window.firebaseApp
  */
-
-// ============================================================
-// Firebase v9+ Modular SDK Imports
-// ============================================================
 
 import { 
     getAuth, 
@@ -118,10 +108,6 @@ export async function cadastroProfissional(emailOuTelefone, senha, nome, profiss
         
     } else if (isPhone(emailOuTelefone)) {
         const phoneNumber = normalizePhone(emailOuTelefone);
-        const phoneExists = await verificarTelefoneExistente(phoneNumber);
-        if (phoneExists) {
-            throw new Error('Este telefone já está cadastrado');
-        }
         telefone = phoneNumber;
         throw new Error('Para cadastro por telefone, verifique o código enviado por SMS');
         
@@ -146,13 +132,6 @@ export async function cadastroProfissional(emailOuTelefone, senha, nome, profiss
     });
     
     return { uid: user.uid, email, telefone, nome, role: 'profissional', empresaId };
-}
-
-async function verificarTelefoneExistente(telefone) {
-    const db = getFirebaseDB();
-    const q = query(collection(db, 'usuarios'), where('telefone', '==', telefone));
-    const querySnapshot = await getDocs(q);
-    return !querySnapshot.empty;
 }
 
 export async function cadastroCliente(email, nome) {
@@ -257,7 +236,7 @@ export async function loginCliente(email) {
     const querySnapshot = await getDocs(q);
     
     if (querySnapshot.empty) {
-        throw new Error('Cliente não encontrado ou já existe agendamento');
+        throw new Error('Cliente não encontrado');
     }
     
     const clienteData = querySnapshot.docs[0].data();
