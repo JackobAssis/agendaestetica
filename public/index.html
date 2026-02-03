@@ -12,56 +12,33 @@
     <link rel="stylesheet" href="styles/login.css">
     
 <!-- Firebase Configuration Placeholder -->
-<!-- Configuração do Firebase será injetada via scripts/inject-config.js durante o build -->
-<!-- Para desenvolvimento local: configure as variáveis no .env.local ou Vercel Dashboard -->
+<!-- ⚠️ NÃO EDITE ESTE BLOCO - será substituído durante o build -->
+<!-- Configuração será injetada via scripts/inject-config.js -->
+<!-- Para desenvolvimento local: configure as variáveis no .env.local -->
+<!-- Para Vercel: configure VITE_FIREBASE_* em Settings > Environment Variables -->
 <script>
-
-// Firebase Configuration - PLACEHOLDER MODE
-// ⚠️ Nenhum dado válido foi injetado durante o build
-// O app funcionará em modo DEMO
-
-// Para resolver o erro "auth/api-key-not-valid":
-// 1. Configure as variáveis de ambiente no Vercel Dashboard:
-//    - VITE_FIREBASE_API_KEY
-//    - VITE_FIREBASE_AUTH_DOMAIN
-//    - VITE_FIREBASE_PROJECT_ID
-//    - VITE_FIREBASE_STORAGE_BUCKET
-//    - VITE_FIREBASE_MESSAGING_SENDER_ID
-//    - VITE_FIREBASE_APP_ID
-//
-// 2. Redeploy a aplicação após configurar as variáveis
-
-window.APP_CONFIG = {
-    firebase: null,
-    _demoMode: true
-};
-console.warn('⚠️ Firebase config NOT injected - running in DEMO mode');
-console.warn('   Configure VITE_FIREBASE_* variables in Vercel Dashboard');
-
+(function() {
+    // Este script será substituído pelo inject-config.js durante o build
+    // Verifique se window.APP_CONFIG.firebase contém a configuração válida
+    console.log('Firebase config placeholder - aguardando injeção do build');
+})();
 </script>
 <!-- End Firebase Configuration -->
     
     <script>
-    // Check if Firebase config was injected at build time
+    // Verificar se configuração foi injetada
     (function() {
         if (typeof window !== 'undefined' && window.APP_CONFIG && window.APP_CONFIG.firebase) {
-            console.log('✅ Firebase config loaded from build injection');
+            console.log('✅ Firebase config carregada do build');
             return;
         }
-        
-        if (typeof window !== 'undefined' && window.APP_CONFIG && window.APP_CONFIG._demoMode) {
-            console.log('ℹ️ Running in DEMO mode - no Firebase config available');
-            return;
-        }
-        
-        // No config found - will use config.js fallback
-        console.warn('⚠️ No Firebase config found - using fallback');
+        console.warn('⚠️ Firebase config não encontrada - modo demo');
     })();
     </script>
 </head>
 <body>
     <div id="app">
-        <!-- Loading state while Firebase initializes -->
+        <!-- Loading state -->
         <div class="loading-screen" id="loading-screen">
             <div class="loading-spinner"></div>
             <p>Carregando AgendaEstética...</p>
@@ -75,96 +52,107 @@ console.warn('   Configure VITE_FIREBASE_* variables in Vercel Dashboard');
         import { getFirestore } from 'https://www.gstatic.com/firebasejs/10.5.0/firebase-firestore.js';
         import { getStorage } from 'https://www.gstatic.com/firebasejs/10.5.0/firebase-storage.js';
         import { setupRouter } from './router.js';
-        import { verificarSessao } from './modules/auth.js';
         
-        // Check if we have valid Firebase config
-        const hasValidConfig = firebaseConfig && 
-                               firebaseConfig.apiKey &&
-                               firebaseConfig.apiKey !== 'null' &&
-                               firebaseConfig.apiKey !== 'undefined' &&
-                               !firebaseConfig.apiKey.includes('placeholder') &&
-                               firebaseConfig.apiKey !== '' &&
-                               firebaseConfig.apiKey !== 'AIzaSyD-placeholder-key';
+        // ✅ Verificação RIGOROSA de configuração
+        const isValidConfig = firebaseConfig && 
+                              typeof firebaseConfig.apiKey === 'string' &&
+                              firebaseConfig.apiKey.length > 10 &&
+                              !firebaseConfig.apiKey.includes('placeholder') &&
+                              !firebaseConfig.apiKey.includes('undefined') &&
+                              !firebaseConfig.apiKey.includes('null') &&
+                              firebaseConfig.apiKey.startsWith('AIzaSy');
         
-        // Validate required fields
+        // Campos obrigatórios
         const requiredFields = ['apiKey', 'authDomain', 'projectId', 'storageBucket', 'messagingSenderId', 'appId'];
-        const missingFields = hasValidConfig ? requiredFields.filter(field => !firebaseConfig[field]) : [];
+        const missingFields = requiredFields.filter(field => !firebaseConfig[field]);
         
-        // Don't initialize Firebase if config is invalid
-        if (!hasValidConfig) {
-            console.warn('⚠️ Firebase config invalid - running in DEMO mode');
-            console.warn('   Configure VITE_FIREBASE_* variables in Vercel Dashboard');
+        // ✅ IMPEDIR fallback silencioso em produção
+        const isProduction = window.location.hostname !== 'localhost' && 
+                            window.location.hostname !== '127.0.0.1';
+        
+        if (!isValidConfig) {
+            const errorMsg = '❌ Firebase config INVÁLIDA ou AUSENTE!';
+            console.error(errorMsg);
+            console.error('Campos ausentes:', missingFields.join(', '));
+            console.error('API Key:', firebaseConfig?.apiKey || 'NÃO DEFINIDA');
             
-            // Show demo mode UI
-            document.getElementById('loading-screen').innerHTML = `
-                <div class="demo-mode-screen">
-                    <h2>🧪 Modo Demonstração</h2>
-                    <p>O Firebase não está configurado corretamente.</p>
-                    <p>Para usar autenticação real, configure:</p>
-                    <ul>
-                        <li>VITE_FIREBASE_API_KEY</li>
-                        <li>VITE_FIREBASE_AUTH_DOMAIN</li>
-                        <li>VITE_FIREBASE_PROJECT_ID</li>
-                        <li>VITE_FIREBASE_STORAGE_BUCKET</li>
-                        <li>VITE_FIREBASE_MESSAGING_SENDER_ID</li>
-                        <li>VITE_FIREBASE_APP_ID</li>
-                    </ul>
-                    <p class="error-details">Verifique FIREBASE-SETUP.md para instruções</p>
-                </div>
-            `;
+            // Em produção, mostrar erro crítico
+            if (isProduction) {
+                document.getElementById('loading-screen').innerHTML = `
+                    <div class="error-screen">
+                        <h2>⚠️ Erro Crítico de Configuração</h2>
+                        <p>Firebase não está configurado corretamente.</p>
+                        <p class="error-details">O app não pode funcionar sem configuração válida.</p>
+                        <p><strong>Para resolver:</strong></p>
+                        <ul>
+                            <li>Configure VITE_FIREBASE_* no Vercel Dashboard</li>
+                            <li>Verifique FIREBASE-SETUP.md</li>
+                        </ul>
+                        <p class="error-details">Error: Firebase configuration missing</p>
+                    </div>
+                `;
+            } else {
+                // Em dev, permitir modo demo
+                document.getElementById('loading-screen').innerHTML = `
+                    <div class="demo-mode-screen">
+                        <h2>🧪 Modo Desenvolvimento</h2>
+                        <p>Firebase não configurado - modo demo.</p>
+                        <p>Configure .env.local para testar autenticação.</p>
+                        <ul>
+                            <li>VITE_FIREBASE_API_KEY</li>
+                            <li>VITE_FIREBASE_AUTH_DOMAIN</li>
+                            <li>VITE_FIREBASE_PROJECT_ID</li>
+                            <li>VITE_FIREBASE_STORAGE_BUCKET</li>
+                            <li>VITE_FIREBASE_MESSAGING_SENDER_ID</li>
+                            <li>VITE_FIREBASE_APP_ID</li>
+                        </ul>
+                    </div>
+                `;
+            }
             
-            // Still setup router for UI demo
+            // Setup router (funcionalidade limitada em demo)
             document.addEventListener('DOMContentLoaded', async () => {
                 await setupRouter();
             });
-        } else if (missingFields.length > 0) {
-            console.error('❌ Firebase Configuration Error: Missing fields:', missingFields.join(', '));
-            document.getElementById('loading-screen').innerHTML = `
-                <div class="error-screen">
-                    <h2>Erro de Configuração</h2>
-                    <p>Faltam configurações do Firebase necessárias.</p>
-                    <p class="error-details">Campos ausentes: ${missingFields.join(', ')}</p>
-                </div>
-            `;
-            throw new Error('Firebase configuration incomplete');
-        } else {
-            console.log('✅ Initializing Firebase with valid config');
             
-            // Initialize Firebase
+            // ✅ Não inicializar Firebase com config inválida
+            if (isProduction) {
+                throw new Error('Firebase configuration required for production');
+            }
+            return; // Sai sem inicializar Firebase
+        }
+        
+        // ✅ Configuração válida - inicializar Firebase
+        console.log('✅ Firebase config válida - inicializando...');
+        
+        try {
             const app = initializeApp(firebaseConfig);
             const auth = getAuth(app);
             const db = getFirestore(app);
             const storage = getStorage(app);
             
-            // Enable persistence for offline support
+            // Persistência
             setPersistence(auth, browserLocalPersistence)
-                .catch(error => console.warn('Persistence error:', error.message));
+                .catch(error => console.warn('Persistence warning:', error.message));
             
-            // Make Firebase services globally available
+            // Expor globalmente
             window.firebaseApp = app;
-            window.firebase = {
-                app,
-                auth,
-                db,
-                storage,
-                firestore: window.firebaseFirestore || db,
-            };
+            window.firebase = { app, auth, db, storage, firestore: db };
             
-            // Setup router and check session on load
+            const { verificarSessao } = await import('./modules/auth.js');
+            
             document.addEventListener('DOMContentLoaded', async () => {
-                try {
-                    await setupRouter();
-                    await verificarSessao();
-                } catch (error) {
-                    console.error('Initialization error:', error);
-                    document.getElementById('loading-screen').innerHTML = `
-                        <div class="error-screen">
-                            <h2>Erro ao Inicializar</h2>
-                            <p>${error.message}</p>
-                        </div>
-                    `;
-                }
+                await setupRouter();
+                await verificarSessao();
             });
+        } catch (error) {
+            console.error('Firebase init error:', error);
+            document.getElementById('loading-screen').innerHTML = `
+                <div class="error-screen">
+                    <h2>Erro de Inicialização</h2>
+                    <p>${error.message}</p>
+                </div>
+            `;
         }
     </script>
     
@@ -188,43 +176,31 @@ console.warn('   Configure VITE_FIREBASE_* variables in Vercel Dashboard');
             margin-bottom: 16px;
         }
         
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
+        @keyframes spin { to { transform: rotate(360deg); } }
         
-        .error-screen, .demo-mode-screen {
+        .demo-mode-screen {
             text-align: center;
             padding: 24px;
             max-width: 500px;
-        }
-        
-        .demo-mode-screen {
             background: #fff3e0;
             border: 1px solid #ffb74d;
             border-radius: 8px;
         }
         
-        .demo-mode-screen h2 {
-            color: #e65100;
-            margin-bottom: 16px;
+        .demo-mode-screen h2 { color: #e65100; margin-bottom: 16px; }
+        .demo-mode-screen ul { text-align: left; font-size: 13px; color: #666; margin: 16px 0; }
+        
+        .error-screen {
+            text-align: center;
+            padding: 24px;
+            max-width: 500px;
+            background: #ffebee;
+            border: 1px solid #ef5350;
+            border-radius: 8px;
         }
         
-        .demo-mode-screen ul {
-            text-align: left;
-            font-size: 12px;
-            color: #666;
-        }
-        
-        .error-screen h2 {
-            color: var(--color-error, #f44336);
-            margin-bottom: 16px;
-        }
-        
-        .error-details {
-            font-size: 12px;
-            color: var(--color-text-secondary, #666);
-            margin-top: 8px;
-        }
+        .error-screen h2 { color: #c62828; margin-bottom: 16px; }
+        .error-details { font-size: 12px; color: #666; margin-top: 8px; }
     </style>
 </body>
 </html>
