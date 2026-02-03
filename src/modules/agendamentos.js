@@ -24,7 +24,8 @@ import {
     where, 
     orderBy,
     runTransaction,
-    serverTimestamp 
+    serverTimestamp,
+    arrayUnion 
 } from 'https://www.gstatic.com/firebasejs/10.5.0/firebase-firestore.js';
 
 import { getAuth, getIdToken } from 'https://www.gstatic.com/firebasejs/10.5.0/firebase-auth.js';
@@ -307,8 +308,6 @@ export async function addNota(empresaId, agendamentoId, nota) {
     const agRef = doc(db, 'empresas', empresaId, 'agendamentos', agendamentoId);
     
     // Firebase v9+ way to use arrayUnion
-    const { arrayUnion, serverTimestamp } = await import('https://www.gstatic.com/firebasejs/10.5.0/firebase-firestore.js');
-    
     await updateDoc(agRef, { 
         notas: arrayUnion({
             texto: nota,
