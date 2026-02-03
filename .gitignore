@@ -121,3 +121,5 @@ debug.log
 *.key
 *.crt
 .envrc
+.vercel
+.env*.local
