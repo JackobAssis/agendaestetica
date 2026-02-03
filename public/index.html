@@ -11,28 +11,15 @@
     <link rel="stylesheet" href="styles/global.css">
     <link rel="stylesheet" href="styles/login.css">
     
-<!-- Firebase Configuration Placeholder -->
-<!-- ⚠️ NÃO EDITE ESTE BLOCO - será substituído durante o build -->
-<!-- Configuração será injetada via scripts/inject-config.js -->
-<!-- Para desenvolvimento local: configure as variáveis no .env.local -->
-<!-- Para Vercel: configure VITE_FIREBASE_* em Settings > Environment Variables -->
-<script>
-(function() {
-    // Este script será substituído pelo inject-config.js durante o build
-    // Verifique se window.APP_CONFIG.firebase contém a configuração válida
-    console.log('Firebase config placeholder - aguardando injeção do build');
-})();
-</script>
-<!-- End Firebase Configuration -->
-    
+    <!-- Firebase Configuration Placeholder -->
+    <!-- ⚠️ NÃO EDITE ESTE BLOCO - será substituído durante o build -->
+    <!-- Configuração será injetada via scripts/inject-config.js -->
+    <!-- Para desenvolvimento local: configure as variáveis no .env.local -->
+    <!-- Para Vercel: configure VITE_FIREBASE_* em Settings > Environment Variables -->
     <script>
-    // Verificar se configuração foi injetada
     (function() {
-        if (typeof window !== 'undefined' && window.APP_CONFIG && window.APP_CONFIG.firebase) {
-            console.log('✅ Firebase config carregada do build');
-            return;
-        }
-        console.warn('⚠️ Firebase config não encontrada - modo demo');
+        // Este script será substituído pelo inject-config.js durante o build
+        console.log('Firebase config placeholder - aguardando injeção do build');
     })();
     </script>
 </head>
@@ -45,31 +32,41 @@
         </div>
     </div>
     
+    <!-- Main Application Module -->
     <script type="module">
-        import firebaseConfig from './config.js';
-        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.5.0/firebase-app.js';
-        import { getAuth, setPersistence, browserLocalPersistence } from 'https://www.gstatic.com/firebasejs/10.5.0/firebase-auth.js';
-        import { getFirestore } from 'https://www.gstatic.com/firebasejs/10.5.0/firebase-firestore.js';
-        import { getStorage } from 'https://www.gstatic.com/firebasejs/10.5.0/firebase-storage.js';
+        // Import Firebase v9+ modular SDK
+        import { 
+            initializeApp, 
+            getApp 
+        } from 'https://www.gstatic.com/firebasejs/10.5.0/firebase-app.js';
+        
+        import { 
+            getAuth, 
+            setPersistence, 
+            browserLocalPersistence 
+        } from 'https://www.gstatic.com/firebasejs/10.5.0/firebase-auth.js';
+        
+        import { 
+            getFirestore 
+        } from 'https://www.gstatic.com/firebasejs/10.5.0/firebase-firestore.js';
+        
+        import { 
+            getStorage 
+        } from 'https://www.gstatic.com/firebasejs/10.5.0/firebase-storage.js';
+        
         import { setupRouter } from './router.js';
         
-        // ✅ Verificação RIGOROSA de configuração
-        function isFirebaseConfigValid(config) {
-            if (!config) return false;
-            if (typeof config.apiKey !== 'string') return false;
-            if (config.apiKey.length <= 10) return false;
-            if (config.apiKey.includes('placeholder')) return false;
-            if (config.apiKey.includes('undefined')) return false;
-            if (config.apiKey.includes('null')) return false;
-            if (!config.apiKey.startsWith('AIzaSy')) return false;
-            return true;
-        }
+        // Import config validation from single source of truth
+        import { 
+            firebaseConfig, 
+            configIsValid, 
+            isDemoMode 
+        } from './config.js';
         
-        const isValidConfig = isFirebaseConfigValid(firebaseConfig);
-        const isProduction = window.location.hostname !== 'localhost' && 
-                            window.location.hostname !== '127.0.0.1';
+        // ============================================================
+        // UI Helper Functions
+        // ============================================================
         
-        // Função para exibir tela de erro crítico
         function showCriticalError() {
             document.getElementById('loading-screen').innerHTML = `
                 <div class="error-screen">
@@ -86,7 +83,6 @@
             `;
         }
         
-        // Função para exibir tela de modo demo
         function showDemoMode() {
             document.getElementById('loading-screen').innerHTML = `
                 <div class="demo-mode-screen">
@@ -105,62 +101,96 @@
             `;
         }
         
-        // Função para inicializar Firebase
-        async function initializeFirebase() {
-            try {
-                const app = initializeApp(firebaseConfig);
-                const auth = getAuth(app);
-                const db = getFirestore(app);
-                const storage = getStorage(app);
-                
-                // Persistência
-                setPersistence(auth, browserLocalPersistence)
-                    .catch(error => console.warn('Persistence warning:', error.message));
-                
-                // Expor globalmente
-                window.firebaseApp = app;
-                window.firebase = { app, auth, db, storage, firestore: db };
-                
-                const { verificarSessao } = await import('./modules/auth.js');
-                
-                document.addEventListener('DOMContentLoaded', async () => {
-                    await setupRouter();
-                    await verificarSessao();
-                });
-            } catch (error) {
-                console.error('Firebase init error:', error);
-                document.getElementById('loading-screen').innerHTML = `
-                    <div class="error-screen">
-                        <h2>Erro de Inicialização</h2>
-                        <p>${error.message}</p>
-                    </div>
-                `;
-            }
+        function showLoadingComplete() {
+            document.getElementById('loading-screen').innerHTML = `
+                <div class="loading-complete">
+                    <p>AgendaEstética carregada!</p>
+                </div>
+            `;
         }
         
-        // ✅ Fluxo principal - decide o que fazer baseado na configuração
-        if (isValidConfig) {
-            // Configuração válida - inicializar Firebase normalmente
-            console.log('✅ Firebase config válida - inicializando...');
-            initializeFirebase();
+        // ============================================================
+        // Firebase Initialization
+        // ============================================================
+        
+        /**
+         * Initialize Firebase and expose instances globally
+         * Uses Firebase v9+ modular SDK pattern
+         */
+        async function initializeFirebaseApp() {
+            const app = initializeApp(firebaseConfig);
+            const auth = getAuth(app);
+            const db = getFirestore(app);
+            const storage = getStorage(app);
+            
+            // Set persistence
+            try {
+                await setPersistence(auth, browserLocalPersistence);
+            } catch (error) {
+                console.warn('Persistence warning:', error.message);
+            }
+            
+            // Expose globally for auth.js and other modules
+            window.firebaseApp = app;
+            window.firebaseAuth = auth;
+            window.firebaseDB = db;
+            window.firebaseStorage = storage;
+            
+            console.log('✅ Firebase initialized successfully');
+            return { app, auth, db, storage };
+        }
+        
+        /**
+         * Setup router and verify session
+         */
+        async function setupApp() {
+            await setupRouter();
+            
+            // Import and call verifySession from auth.js
+            const { verificarSessao } = await import('./modules/auth.js');
+            await verificarSessao();
+        }
+        
+        // ============================================================
+        // Main Flow Control
+        // ============================================================
+        
+        const isProduction = window.location.hostname !== 'localhost' && 
+                            window.location.hostname !== '127.0.0.1';
+        
+        // Log config status for debugging
+        if (isDemoMode()) {
+            console.log('🔧 Running in DEMO MODE - Firebase features disabled');
+        } else {
+            console.log('🚀 Firebase config is VALID - Initializing...');
+        }
+        
+        // Execute based on configuration status
+        if (configIsValid) {
+            // ✅ Valid config - Initialize Firebase normally
+            initializeFirebaseApp()
+                .then(() => setupApp())
+                .catch(error => {
+                    console.error('Firebase init error:', error);
+                    showCriticalError();
+                });
         } else if (isProduction) {
-            // Produção sem config válida - erro crítico
-            console.error('❌ Firebase config INVÁLIDA ou AUSENTE em produção!');
-            console.error('API Key:', firebaseConfig?.apiKey || 'NÃO DEFINIDA');
+            // ❌ Production without valid config - Show critical error
+            console.error('❌ Firebase config INVALID or MISSING in production!');
             showCriticalError();
             
-            // Setup router mesmo assim para permitir navegação
-            document.addEventListener('DOMContentLoaded', async () => {
-                await setupRouter();
+            // Setup router anyway for basic navigation
+            setupRouter().catch(error => {
+                console.error('Router setup error:', error);
             });
         } else {
-            // Desenvolvimento sem config - modo demo
-            console.warn('⚠️ Firebase config não encontrada - modo demo');
+            // 🧪 Development without config - Demo mode
+            console.warn('⚠️ Firebase config not found - Demo mode');
             showDemoMode();
             
-            // Setup router em modo demo
-            document.addEventListener('DOMContentLoaded', async () => {
-                await setupRouter();
+            // Setup router in demo mode (basic navigation only)
+            setupRouter().catch(error => {
+                console.error('Router setup error:', error);
             });
         }
     </script>
