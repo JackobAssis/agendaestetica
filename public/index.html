@@ -54,108 +54,114 @@
         import { setupRouter } from './router.js';
         
         // ✅ Verificação RIGOROSA de configuração
-        const isValidConfig = firebaseConfig && 
-                              typeof firebaseConfig.apiKey === 'string' &&
-                              firebaseConfig.apiKey.length > 10 &&
-                              !firebaseConfig.apiKey.includes('placeholder') &&
-                              !firebaseConfig.apiKey.includes('undefined') &&
-                              !firebaseConfig.apiKey.includes('null') &&
-                              firebaseConfig.apiKey.startsWith('AIzaSy');
+        function isFirebaseConfigValid(config) {
+            if (!config) return false;
+            if (typeof config.apiKey !== 'string') return false;
+            if (config.apiKey.length <= 10) return false;
+            if (config.apiKey.includes('placeholder')) return false;
+            if (config.apiKey.includes('undefined')) return false;
+            if (config.apiKey.includes('null')) return false;
+            if (!config.apiKey.startsWith('AIzaSy')) return false;
+            return true;
+        }
         
-        // Campos obrigatórios
-        const requiredFields = ['apiKey', 'authDomain', 'projectId', 'storageBucket', 'messagingSenderId', 'appId'];
-        const missingFields = requiredFields.filter(field => !firebaseConfig[field]);
-        
-        // ✅ IMPEDIR fallback silencioso em produção
+        const isValidConfig = isFirebaseConfigValid(firebaseConfig);
         const isProduction = window.location.hostname !== 'localhost' && 
                             window.location.hostname !== '127.0.0.1';
         
-        if (!isValidConfig) {
-            const errorMsg = '❌ Firebase config INVÁLIDA ou AUSENTE!';
-            console.error(errorMsg);
-            console.error('Campos ausentes:', missingFields.join(', '));
-            console.error('API Key:', firebaseConfig?.apiKey || 'NÃO DEFINIDA');
-            
-            // Em produção, mostrar erro crítico
-            if (isProduction) {
-                document.getElementById('loading-screen').innerHTML = `
-                    <div class="error-screen">
-                        <h2>⚠️ Erro Crítico de Configuração</h2>
-                        <p>Firebase não está configurado corretamente.</p>
-                        <p class="error-details">O app não pode funcionar sem configuração válida.</p>
-                        <p><strong>Para resolver:</strong></p>
-                        <ul>
-                            <li>Configure VITE_FIREBASE_* no Vercel Dashboard</li>
-                            <li>Verifique FIREBASE-SETUP.md</li>
-                        </ul>
-                        <p class="error-details">Error: Firebase configuration missing</p>
-                    </div>
-                `;
-            } else {
-                // Em dev, permitir modo demo
-                document.getElementById('loading-screen').innerHTML = `
-                    <div class="demo-mode-screen">
-                        <h2>🧪 Modo Desenvolvimento</h2>
-                        <p>Firebase não configurado - modo demo.</p>
-                        <p>Configure .env.local para testar autenticação.</p>
-                        <ul>
-                            <li>VITE_FIREBASE_API_KEY</li>
-                            <li>VITE_FIREBASE_AUTH_DOMAIN</li>
-                            <li>VITE_FIREBASE_PROJECT_ID</li>
-                            <li>VITE_FIREBASE_STORAGE_BUCKET</li>
-                            <li>VITE_FIREBASE_MESSAGING_SENDER_ID</li>
-                            <li>VITE_FIREBASE_APP_ID</li>
-                        </ul>
-                    </div>
-                `;
-            }
-            
-            // Setup router (funcionalidade limitada em demo)
-            document.addEventListener('DOMContentLoaded', async () => {
-                await setupRouter();
-            });
-            
-            // ✅ Não inicializar Firebase com config inválida
-            // Em produção, não há mais nada a fazer
-            if (isProduction) {
-                // Já mostrou o erro crítico acima
-                return;
-            }
-            // Em dev, sai sem inicializar Firebase
-            return;
-        }
-        
-        // ✅ Configuração válida - inicializar Firebase
-        console.log('✅ Firebase config válida - inicializando...');
-        
-        try {
-            const app = initializeApp(firebaseConfig);
-            const auth = getAuth(app);
-            const db = getFirestore(app);
-            const storage = getStorage(app);
-            
-            // Persistência
-            setPersistence(auth, browserLocalPersistence)
-                .catch(error => console.warn('Persistence warning:', error.message));
-            
-            // Expor globalmente
-            window.firebaseApp = app;
-            window.firebase = { app, auth, db, storage, firestore: db };
-            
-            const { verificarSessao } = await import('./modules/auth.js');
-            
-            document.addEventListener('DOMContentLoaded', async () => {
-                await setupRouter();
-                await verificarSessao();
-            });
-        } catch (error) {
-            console.error('Firebase init error:', error);
+        // Função para exibir tela de erro crítico
+        function showCriticalError() {
             document.getElementById('loading-screen').innerHTML = `
                 <div class="error-screen">
-                    <h2>Erro de Inicialização</h2>
-                    <p>${error.message}</p>
+                    <h2>⚠️ Erro Crítico de Configuração</h2>
+                    <p>Firebase não está configurado corretamente.</p>
+                    <p class="error-details">O app não pode funcionar sem configuração válida.</p>
+                    <p><strong>Para resolver:</strong></p>
+                    <ul>
+                        <li>Configure VITE_FIREBASE_* no Vercel Dashboard</li>
+                        <li>Verifique FIREBASE-SETUP.md</li>
+                    </ul>
+                    <p class="error-details">Error: Firebase configuration missing</p>
                 </div>
             `;
+        }
+        
+        // Função para exibir tela de modo demo
+        function showDemoMode() {
+            document.getElementById('loading-screen').innerHTML = `
+                <div class="demo-mode-screen">
+                    <h2>🧪 Modo Desenvolvimento</h2>
+                    <p>Firebase não configurado - modo demo.</p>
+                    <p>Configure .env.local para testar autenticação.</p>
+                    <ul>
+                        <li>VITE_FIREBASE_API_KEY</li>
+                        <li>VITE_FIREBASE_AUTH_DOMAIN</li>
+                        <li>VITE_FIREBASE_PROJECT_ID</li>
+                        <li>VITE_FIREBASE_STORAGE_BUCKET</li>
+                        <li>VITE_FIREBASE_MESSAGING_SENDER_ID</li>
+                        <li>VITE_FIREBASE_APP_ID</li>
+                    </ul>
+                </div>
+            `;
+        }
+        
+        // Função para inicializar Firebase
+        async function initializeFirebase() {
+            try {
+                const app = initializeApp(firebaseConfig);
+                const auth = getAuth(app);
+                const db = getFirestore(app);
+                const storage = getStorage(app);
+                
+                // Persistência
+                setPersistence(auth, browserLocalPersistence)
+                    .catch(error => console.warn('Persistence warning:', error.message));
+                
+                // Expor globalmente
+                window.firebaseApp = app;
+                window.firebase = { app, auth, db, storage, firestore: db };
+                
+                const { verificarSessao } = await import('./modules/auth.js');
+                
+                document.addEventListener('DOMContentLoaded', async () => {
+                    await setupRouter();
+                    await verificarSessao();
+                });
+            } catch (error) {
+                console.error('Firebase init error:', error);
+                document.getElementById('loading-screen').innerHTML = `
+                    <div class="error-screen">
+                        <h2>Erro de Inicialização</h2>
+                        <p>${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+        
+        // ✅ Fluxo principal - decide o que fazer baseado na configuração
+        if (isValidConfig) {
+            // Configuração válida - inicializar Firebase normalmente
+            console.log('✅ Firebase config válida - inicializando...');
+            initializeFirebase();
+        } else if (isProduction) {
+            // Produção sem config válida - erro crítico
+            console.error('❌ Firebase config INVÁLIDA ou AUSENTE em produção!');
+            console.error('API Key:', firebaseConfig?.apiKey || 'NÃO DEFINIDA');
+            showCriticalError();
+            
+            // Setup router mesmo assim para permitir navegação
+            document.addEventListener('DOMContentLoaded', async () => {
+                await setupRouter();
+            });
+        } else {
+            // Desenvolvimento sem config - modo demo
+            console.warn('⚠️ Firebase config não encontrada - modo demo');
+            showDemoMode();
+            
+            // Setup router em modo demo
+            document.addEventListener('DOMContentLoaded', async () => {
+                await setupRouter();
+            });
         }
     </script>
     
