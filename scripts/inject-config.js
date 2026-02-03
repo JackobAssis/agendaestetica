@@ -68,46 +68,6 @@ function loadEnv() {
 }
 
 /**
- * Gerar script de configuração Firebase
- */
-function generateFirebaseConfigScript(env) {
-    const apiKey = env.VITE_FIREBASE_API_KEY || 'AIzaSyD-placeholder-key';
-    const authDomain = env.VITE_FIREBASE_AUTH_DOMAIN || 'placeholder.firebaseapp.com';
-    const projectId = env.VITE_FIREBASE_PROJECT_ID || 'placeholder';
-    const storageBucket = env.VITE_FIREBASE_STORAGE_BUCKET || 'placeholder.appspot.com';
-    const messagingSenderId = env.VITE_FIREBASE_MESSAGING_SENDER_ID || '000000000000';
-    const appId = env.VITE_FIREBASE_APP_ID || '1:000000000000:web:0000000000000000000000';
-    
-    return `
-// Firebase Configuration - INJETADO VIA BUILD
-// NÃO EDITE ESTE BLOCO MANUALMENTE
-(function() {
-    // Verificar se já existe configuração
-    if (window.APP_CONFIG && window.APP_CONFIG.firebase) {
-        console.log('✅ Firebase config já carregada');
-        return;
-    }
-    
-    // Configuração do Firebase
-    window.APP_CONFIG = {
-        firebase: {
-            apiKey: "${apiKey}",
-            authDomain: "${authDomain}",
-            projectId: "${projectId}",
-            storageBucket: "${storageBucket}",
-            messagingSenderId: "${messagingSenderId}",
-            appId: "${appId}"
-        }
-    };
-    
-    console.log('✅ Firebase config injetada com sucesso');
-    console.log('Project ID:', window.APP_CONFIG.firebase.projectId);
-})();
-// FIM Firebase Configuration
-`;
-}
-
-/**
  * Injetar configuração no index.html
  */
 function injectConfig(htmlPath, env) {
@@ -118,34 +78,34 @@ function injectConfig(htmlPath, env) {
     
     let html = fs.readFileSync(htmlPath, 'utf8');
     
-    // Verificar se já tem configuração injetada
-    if (html.includes('// Firebase Configuration - INJETADO VIA BUILD')) {
+    // Verificar se já tem configuração válida injetada
+    if (html.includes('INJETAR_API_KEY') === false && 
+        html.includes('API_KEY_REPLACE')) {
         console.log(`ℹ️  Configuração já injetada em: ${htmlPath}`);
         return true;
     }
     
-    // Gerar script de configuração
-    const configScript = generateFirebaseConfigScript(env);
+    // Obter valores ou usar placeholders
+    const apiKey = env.VITE_FIREBASE_API_KEY || 'AIzaSyD-placeholder-key';
+    const authDomain = env.VITE_FIREBASE_AUTH_DOMAIN || 'placeholder.firebaseapp.com';
+    const projectId = env.VITE_FIREBASE_PROJECT_ID || 'placeholder';
+    const storageBucket = env.VITE_FIREBASE_STORAGE_BUCKET || 'placeholder.appspot.com';
+    const messagingSenderId = env.VITE_FIREBASE_MESSAGING_SENDER_ID || '000000000000';
+    const appId = env.VITE_FIREBASE_APP_ID || '1:000000000000:web:0000000000000000000000';
     
-    // Encontrar e substituir o placeholder
-    const placeholderPattern = /<!-- Firebase Configuration Placeholder -->[\s\S]*?<!-- End Firebase Configuration -->/;
-    
-    if (placeholderPattern.test(html)) {
-        html = html.replace(placeholderPattern, `<!-- Firebase Configuration -->\n${configScript}\n<!-- End Firebase Configuration -->`);
-    } else {
-        // Se não encontrar o placeholder, adicionar antes do título
-        const titleMatch = html.match(/<title>.*<\/title>/);
-        if (titleMatch) {
-            const insertPosition = html.indexOf(titleMatch[0]) + titleMatch[0].length;
-            html = html.slice(0, insertPosition) + 
-                   `\n${configScript}` + 
-                   html.slice(insertPosition);
-        }
-    }
+    // Substituir placeholders no HTML
+    html = html.replace(/INJETAR_API_KEY/g, apiKey);
+    html = html.replace(/INJETAR_AUTH_DOMAIN/g, authDomain);
+    html = html.replace(/INJETAR_PROJECT_ID/g, projectId);
+    html = html.replace(/INJETAR_STORAGE_BUCKET/g, storageBucket);
+    html = html.replace(/INJECT_SENDER_ID/g, messagingSenderId);
+    html = html.replace(/INJECT_APP_ID/g, appId);
     
     // Escrever arquivo modificado
     fs.writeFileSync(htmlPath, html);
     console.log(`✅ Configuração injetada em: ${htmlPath}`);
+    console.log(`   API Key: ${apiKey.substring(0, 10)}...`);
+    console.log(`   Project ID: ${projectId}`);
     
     return true;
 }
