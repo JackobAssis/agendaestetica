@@ -5,8 +5,7 @@
  * 
  * Priority order:
  * 1. window.APP_CONFIG.firebase (injected by build)
- * 2. import.meta.env.VITE_FIREBASE_* (Vercel environment variables)
- * 3. .env.local (development)
+ * 2. import.meta.env.VITE_FIREBASE_* (Vite/Vercel bundler)
  */
 
 // ============================================================
@@ -20,35 +19,46 @@ const FIREBASE_REQUIRED_FIELDS = ['apiKey', 'authDomain', 'projectId', 'appId'];
 // ============================================================
 
 function getFirebaseConfig() {
-    // Priority 1: window.APP_CONFIG.firebase (injected by build)
+    // Priority 1: window.APP_CONFIG.firebase (injected by build script)
     if (typeof window !== 'undefined' && window.APP_CONFIG && window.APP_CONFIG.firebase) {
         const config = window.APP_CONFIG.firebase;
-        if (config.apiKey && config.authDomain && config.projectId) {
+        if (config && config.apiKey && config.authDomain && config.projectId) {
             console.log('✅ Firebase config loaded from window.APP_CONFIG');
             return config;
         }
     }
     
-    // Priority 2: import.meta.env (Vercel compatible)
-    const env = (typeof importMetaEnv !== 'undefined' ? importMetaEnv : 
-                 (typeof import.meta !== 'undefined' ? import.meta.env : {}));
+    // Priority 2: import.meta.env (Vite/Vercel bundler)
+    // This only works when bundled with Vite
+    let envConfig = null;
     
-    const envConfig = {
-        apiKey: env.VITE_FIREBASE_API_KEY || null,
-        authDomain: env.VITE_FIREBASE_AUTH_DOMAIN || null,
-        projectId: env.VITE_FIREBASE_PROJECT_ID || null,
-        storageBucket: env.VITE_FIREBASE_STORAGE_BUCKET || null,
-        messagingSenderId: env.VITE_FIREBASE_MESSAGING_SENDER_ID || null,
-        appId: env.VITE_FIREBASE_APP_ID || null,
-    };
-    
-    if (envConfig.apiKey && envConfig.authDomain && envConfig.projectId) {
-        console.log('✅ Firebase config loaded from import.meta.env');
-        return envConfig;
+    if (typeof import.meta !== 'undefined' && import.meta.env) {
+        const env = import.meta.env;
+        envConfig = {
+            apiKey: env.VITE_FIREBASE_API_KEY || null,
+            authDomain: env.VITE_FIREBASE_AUTH_DOMAIN || null,
+            projectId: env.VITE_FIREBASE_PROJECT_ID || null,
+            storageBucket: env.VITE_FIREBASE_STORAGE_BUCKET || null,
+            messagingSenderId: env.VITE_FIREBASE_MESSAGING_SENDER_ID || null,
+            appId: env.VITE_FIREBASE_APP_ID || null,
+        };
+        
+        if (envConfig.apiKey && envConfig.authDomain && envConfig.projectId) {
+            console.log('✅ Firebase config loaded from import.meta.env');
+            return envConfig;
+        }
     }
     
-    // Return whatever we have (may be incomplete for demo mode)
-    return envConfig;
+    // Return demo config - app will work in demo mode
+    console.log('⚠️ Firebase config not found - demo mode');
+    return {
+        apiKey: null,
+        authDomain: null,
+        projectId: null,
+        storageBucket: null,
+        messagingSenderId: null,
+        appId: null,
+    };
 }
 
 // ============================================================
@@ -64,12 +74,12 @@ function isFirebaseConfigValid(config) {
     if (!config.apiKey || 
         config.apiKey === 'null' || 
         config.apiKey === 'undefined' ||
-        config.apiKey.includes('placeholder') ||
-        config.apiKey.length < 10) {
+        (typeof config.apiKey === 'string' && config.apiKey.includes('placeholder')) ||
+        (typeof config.apiKey === 'string' && config.apiKey.length < 10)) {
         return false;
     }
     
-    // Check required fields
+    // Check required fields exist
     for (const field of FIREBASE_REQUIRED_FIELDS) {
         const value = config[field];
         if (!value || typeof value !== 'string' || value.trim() === '') {
@@ -95,8 +105,7 @@ const firebaseDemoMode = !firebaseConfigValid;
 if (typeof console !== 'undefined') {
     if (firebaseDemoMode) {
         console.warn('⚠️ Firebase configuration incomplete or using placeholder values.');
-        console.warn('App will use placeholder config. Replace values in .env.local or set window.APP_CONFIG.firebase');
-        console.warn('Required fields:', FIREBASE_REQUIRED_FIELDS.join(', '));
+        console.warn('App will use demo mode. Configure VITE_FIREBASE_* environment variables.');
     } else {
         console.log('✅ Firebase configuration valid - Ready');
         console.log('Project ID:', firebaseConfig.projectId);
