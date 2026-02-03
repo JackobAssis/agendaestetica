@@ -1,5 +1,5 @@
 /**
- * Onboarding Page Logic - Firebase v9+ Modular SDK
+ * Onboarding Page Logic
  * CORRIGIDO para Firebase v9+ modular
  */
 
@@ -47,7 +47,7 @@ async function salvarConfiguracao(dados){
   if(!usuario || !usuario.empresaId) throw new Error('Usuário não autenticado ou sem empresaId');
 
   const empresaId = usuario.empresaId;
-  const db = getFirebaseDB();
+  const db = getFirebaseDB();  // ✅ v9+
 
   const payload = {
     nome: dados.empresaNome,
@@ -63,6 +63,7 @@ async function salvarConfiguracao(dados){
     atualizadoEm: new Date().toISOString(),
   };
 
+  // ✅ Firebase v9+: updateDoc(doc(db, collection, id), data)
   await updateDoc(doc(db, 'empresas', empresaId), payload);
 }
 

@@ -1,21 +1,22 @@
 /**
  * Firebase Configuration - Single Source of Truth
+ * 
+ * Uses import.meta.env as primary source (Vercel compatible).
+ * Falls back to window.APP_CONFIG if env vars are missing.
  */
 
 // Required fields for valid Firebase config
 const FIREBASE_REQUIRED_FIELDS = ['apiKey', 'authDomain', 'projectId', 'appId'];
 
-// Get Firebase config from window.APP_CONFIG or environment variables
+/**
+ * Get Firebase config from environment variables or window.APP_CONFIG
+ */
 function getFirebaseConfig() {
-    if (typeof window !== 'undefined' && 
-        window.APP_CONFIG && 
-        window.APP_CONFIG.firebase) {
-        return window.APP_CONFIG.firebase;
-    }
+    // Primary source: import.meta.env (Vercel compatible)
+    const env = (typeof importMetaEnv !== 'undefined' ? importMetaEnv : 
+                 (typeof import.meta !== 'undefined' ? import.meta.env : {}));
     
-    const env = typeof import.meta !== 'undefined' ? (import.meta.env || {}) : {};
-    
-    return {
+    const envConfig = {
         apiKey: env.VITE_FIREBASE_API_KEY || null,
         authDomain: env.VITE_FIREBASE_AUTH_DOMAIN || null,
         projectId: env.VITE_FIREBASE_PROJECT_ID || null,
@@ -23,9 +24,22 @@ function getFirebaseConfig() {
         messagingSenderId: env.VITE_FIREBASE_MESSAGING_SENDER_ID || null,
         appId: env.VITE_FIREBASE_APP_ID || null,
     };
+    
+    // Fallback: window.APP_CONFIG (build-time injection)
+    if (typeof window !== 'undefined' && 
+        window.APP_CONFIG && 
+        window.APP_CONFIG.firebase &&
+        window.APP_CONFIG.firebase.apiKey) {
+        return window.APP_CONFIG.firebase;
+    }
+    
+    return envConfig;
 }
 
-// Check if Firebase config is valid
+/**
+ * Check if Firebase config is valid
+ * Validation: all required keys must exist and be non-empty strings
+ */
 function isFirebaseConfigValid(config) {
     if (!config || typeof config !== 'object') {
         return false;
@@ -33,56 +47,28 @@ function isFirebaseConfigValid(config) {
     
     for (const field of FIREBASE_REQUIRED_FIELDS) {
         const value = config[field];
-        if (!value || value === '' || value === 'null' || value === 'undefined') {
+        if (!value || typeof value !== 'string' || value.trim() === '') {
             return false;
         }
-    }
-    
-    if (config.apiKey && (
-        config.apiKey.includes('placeholder') ||
-        config.apiKey.length < 10
-    )) {
-        return false;
     }
     
     return true;
 }
 
-// Check if running in demo mode
-function isFirebaseDemoMode(config) {
-    return !isFirebaseConfigValid(config);
-}
-
 // Create exported values
 const firebaseConfig = getFirebaseConfig();
 const firebaseConfigValid = isFirebaseConfigValid(firebaseConfig);
-const firebaseDemoMode = isFirebaseDemoMode(firebaseConfig);
+const firebaseDemoMode = !firebaseConfigValid;
 
-// Console logging
+// Console logging for debugging
 if (typeof console !== 'undefined') {
     if (firebaseDemoMode) {
-        console.warn('Firebase config missing or invalid - DEMO MODE');
-    } else if (firebaseConfigValid) {
-        console.log('Firebase config valid - Ready');
+        console.warn('[Firebase Config] Missing or invalid - DEMO MODE');
+    } else {
+        console.log('[Firebase Config] Valid - Ready');
     }
 }
 
-// Named exports
-export { firebaseConfig };
-export { firebaseConfigValid };
-export { firebaseDemoMode };
-export { isFirebaseConfigValid };
-export { isFirebaseDemoMode };
-
-// Default export
-export default firebaseConfig;
-
-// Global helper
-if (typeof window !== 'undefined') {
-    window.firebaseHelpers = {
-        getConfig: getFirebaseConfig,
-        isValid: isFirebaseConfigValid,
-        isDemoMode: isFirebaseDemoMode
-    };
-}
+// Named exports - clean and simple
+export { firebaseConfig, firebaseConfigValid, firebaseDemoMode };
 

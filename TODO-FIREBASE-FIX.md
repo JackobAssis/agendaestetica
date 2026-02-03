@@ -1,44 +1,57 @@
-# Firebase Vercel Bug Fix Plan
+# TODO: Firebase Config Fix for Vercel Static Deployment
 
-## Summary
-Fix Firebase initialization and auth issues for production deployment on Vercel.
+## Completed ✅
+- [x] Create standardized src/config.js (single source of truth)
+- [x] Fix src/index.html module script
+- [x] Update modules/firebase.js (Firebase v9+ factory)
+- [x] Update modules/auth.js (remove legacy references)
+- [x] Fix modules/monetization.js (use firebase.js imports)
+- [x] Simplify scripts/build.sh
+- [x] Deprecate scripts/inject-config.js
+- [x] Update vercel.json with proper headers and rewrites
+- [x] Sync public/ directory with build
 
-## Issues Identified
-1. Config validation mismatch between config.js and index.html
-2. No single shared validation logic
-3. Auth module using incorrect v9+ modular patterns
-4. Potential window.firebase usage instead of factory functions
+## Summary of Changes
 
-## Files to Modify
+### 1. src/config.js
+- Uses `import.meta.env.VITE_FIREBASE_*` as primary source
+- Falls back to `window.APP_CONFIG.firebase` if env vars missing
+- Clean named exports: `firebaseConfig`, `firebaseConfigValid`, `firebaseDemoMode`
+- Simple validation: required fields must exist and be non-empty strings
 
-### 1. config.js - Single Source of Truth
-- [x] Export config object
-- [x] Export isDemoMode flag
-- [x] Export isConfigValid function
-- [x] Check only required fields (apiKey, authDomain, projectId, appId)
-- [x] Demo mode activates only when config missing/invalid
+### 2. src/index.html
+- Imports config from `./config.js` only
+- Initializes Firebase only if `firebaseConfigValid === true`
+- Shows appropriate UI for demo mode or missing config
+- No `window.APP_CONFIG` direct access
 
-### 2. index.html - Firebase Initialization
-- [x] Import validation from config.js
-- [x] Use config.isConfigValid() for validation
-- [x] Initialize Firebase only when config is valid
-- [x] Use getAuth(getApp()) and getFirestore(getApp())
-- [x] Set window.firebaseApp for auth module
+### 3. modules/firebase.js
+- Centralized Firebase instance factory
+- Uses `window.firebaseApp` from index.html initialization
+- Re-exports all needed Firestore and Auth functions
 
-### 3. auth.js - Proper v9+ Modular SDK
-- [x] Import getAuth, getFirestore from firebase
-- [x] Use factory functions to get instances
-- [x] Remove window.firebase usage
-- [x] Remove duplicate code
+### 4. modules/auth.js
+- Imports from `./firebase.js` factory
+- No `window.firebase` references
+- Clean Firebase v9+ modular imports
 
-## Implementation Order
-1. Fix config.js (foundation)
-2. Fix index.html (uses config.js)
-3. Fix auth.js (uses window.firebaseApp)
+### 5. scripts/build.sh
+- Simple copy from src/ to public/
+- No config injection needed
 
-## Validation
-- No syntax errors in module scripts
-- Firebase initializes only with valid config
-- Demo mode works when config missing
-- Auth functions work correctly
+### 6. vercel.json
+- Proper SPA rewrites to /index.html
+- Security headers
+- Cache headers for assets
+
+## Vercel Deployment Setup
+1. Go to Vercel Dashboard > Settings > Environment Variables
+2. Add:
+   - VITE_FIREBASE_API_KEY
+   - VITE_FIREBASE_AUTH_DOMAIN
+   - VITE_FIREBASE_PROJECT_ID
+   - VITE_FIREBASE_STORAGE_BUCKET
+   - VITE_FIREBASE_MESSAGING_SENDER_ID
+   - VITE_FIREBASE_APP_ID
+3. Redeploy
 

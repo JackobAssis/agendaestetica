@@ -37,9 +37,9 @@ async function carregarProfissional(){
     try{
         if(!profissionalId) throw new Error('ID do profissional não encontrado na URL');
         
-        const db = getFirebaseDB();
+        const db = getFirebaseDB();  // ✅ v9+
         const docRef = doc(db, 'empresas', profissionalId);
-        const empresaDoc = await getDoc(docRef);
+        const empresaDoc = await getDoc(docRef);  // ✅ v9+
         
         if(!empresaDoc.exists()) throw new Error('Profissional não encontrado');
         const data = empresaDoc.data();
@@ -122,7 +122,9 @@ async function solicitarSlot(slot){
             } else {
                 try{ 
                     cliente = await findOrCreateClienteByEmail(profissionalId, email, nome, tel); 
-                }catch(e){ console.warn('findOrCreateCliente failed', e); }
+                }catch(e){ 
+                    console.warn('findOrCreateCliente failed', e); 
+                }
             }
         }catch(e){ console.warn('createCliente flow failed', e); }
 
@@ -153,9 +155,9 @@ async function notifyProfissionalOnNewRequest(empresaId, agendamento){
     });
 
     try{
-        const db = getFirebaseDB();
+        const db = getFirebaseDB();  // ✅ v9+
         const docRef = doc(db, 'empresas', empresaId);
-        const empresaDoc = await getDoc(docRef);
+        const empresaDoc = await getDoc(docRef);  // ✅ v9+
         const data = empresaDoc.data();
         
         if(data && data.webhookUrl){

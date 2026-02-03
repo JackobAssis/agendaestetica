@@ -19,11 +19,14 @@ import {
     getIdToken
 } from '../modules/firebase.js';
 
+/**
+ * Solicitar agendamento (cliente)
+ */
 export async function solicitarAgendamento(empresaId, payload) {
     if (!empresaId) throw new Error('empresaId é obrigatório');
     if (!payload || !payload.inicioISO || !payload.fimISO) throw new Error('Intervalo inválido');
 
-    const db = getFirebaseDB();
+    const db = getFirebaseDB();  // ✅ v9+
     const agRef = collection(db, 'empresas', empresaId, 'agendamentos');
 
     const docRef = await addDoc(agRef, {
@@ -41,19 +44,23 @@ export async function solicitarAgendamento(empresaId, payload) {
     return { id: docRef.id, ...payload, status: 'solicitado' };
 }
 
+/**
+ * Confirmar agendamento (profissional)
+ */
 export async function confirmarAgendamento(empresaId, agendamentoId) {
     if (!empresaId || !agendamentoId) throw new Error('empresaId e agendamentoId obrigatórios');
     
-    const db = getFirebaseDB();
+    const db = getFirebaseDB();  // ✅ v9+
     const agDocRef = doc(db, 'empresas', empresaId, 'agendamentos', agendamentoId);
     
+    // Remote URL for Cloud Function (if configured)
     const remoteUrl = window.APP_CONFIG && window.APP_CONFIG.confirmAgendamentoFunctionUrl;
     if (remoteUrl) {
-        const auth = getFirebaseAuth();
+        const auth = getFirebaseAuth();  // ✅ v9+
         const user = auth.currentUser;
         if (!user) throw new Error('Usuário não autenticado');
         
-        const idToken = await getIdToken(user);
+        const idToken = await getIdToken(user);  // ✅ v9+
 
         const resp = await fetch(remoteUrl, {
             method: 'POST',
@@ -69,7 +76,8 @@ export async function confirmarAgendamento(empresaId, agendamentoId) {
         return body.result || body;
     }
 
-    return await runTransaction(db, async (transaction) => {
+    // Fallback: Transactional confirm
+    return await runTransaction(db, async (transaction) => {  // ✅ v9+
         const snap = await transaction.get(agDocRef);
         if (!snap.exists) throw new Error('Agendamento não encontrado');
         const data = snap.data();
@@ -89,10 +97,13 @@ export async function confirmarAgendamento(empresaId, agendamentoId) {
     });
 }
 
+/**
+ * Cancelar agendamento
+ */
 export async function cancelarAgendamento(empresaId, agendamentoId, motivo) {
     if (!empresaId || !agendamentoId) throw new Error('empresaId e agendamentoId obrigatórios');
     
-    const db = getFirebaseDB();
+    const db = getFirebaseDB();  // ✅ v9+
     const agDocRef = doc(db, 'empresas', empresaId, 'agendamentos', agendamentoId);
 
     await updateDoc(agDocRef, { 
@@ -104,11 +115,14 @@ export async function cancelarAgendamento(empresaId, agendamentoId, motivo) {
     return { id: agendamentoId, status: 'cancelado' };
 }
 
+/**
+ * Solicitar remarcação (cliente)
+ */
 export async function solicitarRemarcacao(empresaId, agendamentoId, novoInicioISO, novoFimISO, motivo) {
     if (!empresaId || !agendamentoId) throw new Error('empresaId e agendamentoId obrigatórios');
     if (!novoInicioISO || !novoFimISO) throw new Error('Novo intervalo inválido');
 
-    const db = getFirebaseDB();
+    const db = getFirebaseDB();  // ✅ v9+
     const remRef = collection(db, 'empresas', empresaId, 'agendamentos', agendamentoId, 'remarcacoes');
 
     const res = await addDoc(remRef, {
@@ -125,14 +139,17 @@ export async function solicitarRemarcacao(empresaId, agendamentoId, novoInicioIS
     return { id: res.id, status: 'pendente' };
 }
 
+/**
+ * Aceitar remarcação (profissional)
+ */
 export async function aceitarRemarcacao(empresaId, agendamentoId, remarcacaoId) {
     if (!empresaId || !agendamentoId || !remarcacaoId) throw new Error('Parâmetros obrigatórios');
     
-    const db = getFirebaseDB();
+    const db = getFirebaseDB();  // ✅ v9+
     const remRef = doc(db, 'empresas', empresaId, 'agendamentos', agendamentoId, 'remarcacoes', remarcacaoId);
     const agDocRef = doc(db, 'empresas', empresaId, 'agendamentos', agendamentoId);
 
-    return await runTransaction(db, async (transaction) => {
+    return await runTransaction(db, async (transaction) => {  // ✅ v9+
         const remSnap = await transaction.get(remRef);
         if (!remSnap.exists) throw new Error('Remarcação não encontrada');
         const rem = remSnap.data();
@@ -162,8 +179,11 @@ export async function aceitarRemarcacao(empresaId, agendamentoId, remarcacaoId) 
     });
 }
 
+/**
+ * Rejeitar remarcação
+ */
 export async function rejeitarRemarcacao(empresaId, agendamentoId, remarcacaoId, motivo) {
-    const db = getFirebaseDB();
+    const db = getFirebaseDB();  // ✅ v9+
     const remRef = doc(db, 'empresas', empresaId, 'agendamentos', agendamentoId, 'remarcacoes', remarcacaoId);
     const agDocRef = doc(db, 'empresas', empresaId, 'agendamentos', agendamentoId);
 
@@ -178,8 +198,11 @@ export async function rejeitarRemarcacao(empresaId, agendamentoId, remarcacaoId,
     return { id: remarcacaoId, status: 'rejeitada' };
 }
 
+/**
+ * Listar agendamentos da empresa
+ */
 export async function listAgendamentosEmpresa(empresaId, opts = {}) {
-    const db = getFirebaseDB();
+    const db = getFirebaseDB();  // ✅ v9+
     let q = query(
         collection(db, 'empresas', empresaId, 'agendamentos'),
         orderBy('inicio', 'asc')
@@ -193,9 +216,13 @@ export async function listAgendamentosEmpresa(empresaId, opts = {}) {
     return snap.docs.map(d => ({ id: d.id, ...d.data() }));
 }
 
+/**
+ * Listar agendamentos de um cliente
+ */
 export async function listAgendamentosCliente(clienteUid) {
-    const db = getFirebaseDB();
+    const db = getFirebaseDB();  // ✅ v9+
     
+    // Note: collectionGroup queries require composite indexes in Firestore
     const q = query(
         collection(db, 'agendamentos'),
         where('clienteUid', '==', clienteUid),
@@ -206,10 +233,14 @@ export async function listAgendamentosCliente(clienteUid) {
     return snap.docs.map(d => ({ id: d.id, ...d.data(), refPath: d.ref.path }));
 }
 
+/**
+ * Adicionar nota interna ao agendamento
+ */
 export async function addNota(empresaId, agendamentoId, nota) {
-    const db = getFirebaseDB();
+    const db = getFirebaseDB();  // ✅ v9+
     const agRef = doc(db, 'empresas', empresaId, 'agendamentos', agendamentoId);
     
+    // Get current notas and append
     const snap = await getDoc(agRef);
     const data = snap.exists() ? snap.data() : { notas: [] };
     const arr = data.notas || [];

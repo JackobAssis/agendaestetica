@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AgendaEstética - Login / Cadastro</title>
-    <link rel="stylesheet" href="../styles/global.css">
-    <link rel="stylesheet" href="../styles/login.css">
+    <link rel="stylesheet" href="/styles/global.css">
+    <link rel="stylesheet" href="/styles/login.css">
 </head>
 <body>
     <div class="login-container">
@@ -36,19 +36,22 @@
                     <button type="button" class="toggle-btn" data-role="cliente">Cliente</button>
                 </div>
                 
-                <!-- Email -->
+                <!-- Email ou Telefone -->
                 <div class="form-group">
-                    <label for="login-email">Email</label>
+                    <label for="login-email">Email ou Telefone</label>
                     <input 
-                        type="email" 
+                        type="text" 
                         id="login-email" 
                         name="email"
-                        placeholder="seu@email.com"
+                        placeholder="seu@email.com ou (11) 99999-9999"
                         required
                     />
+                    <small style="color: var(--color-text-secondary); font-size: 12px;">
+                        Informe email ou telefone com DDD
+                    </small>
                 </div>
                 
-                <!-- Senha (visível apenas para profissional) -->
+                <!-- Senha (visível apenas para profissional e quando usar email) -->
                 <div class="form-group" id="grupo-senha-login" style="display: block;">
                     <label for="login-senha">Senha</label>
                     <input 
@@ -92,16 +95,19 @@
                     />
                 </div>
                 
-                <!-- Email -->
+                <!-- Email ou Telefone -->
                 <div class="form-group">
-                    <label for="cadastro-email">Email</label>
+                    <label for="cadastro-email">Email ou Telefone</label>
                     <input 
-                        type="email" 
+                        type="text" 
                         id="cadastro-email" 
                         name="email"
-                        placeholder="seu@email.com"
+                        placeholder="seu@email.com ou (11) 99999-9999"
                         required
                     />
+                    <small style="color: var(--color-text-secondary); font-size: 12px;">
+                        Informe email ou telefone com DDD
+                    </small>
                 </div>
                 
                 <!-- Profissão (visível apenas para profissional) -->
@@ -119,7 +125,7 @@
                     </select>
                 </div>
                 
-                <!-- Senha (visível apenas para profissional) -->
+                <!-- Senha (visível apenas para profissional e quando usar email) -->
                 <div class="form-group" id="grupo-senha-cadastro" style="display: block;">
                     <label for="cadastro-senha">Senha</label>
                     <input 
@@ -127,11 +133,13 @@
                         id="cadastro-senha" 
                         name="senha"
                         placeholder="Mínimo 6 caracteres"
-                        required
                     />
+                    <small style="color: var(--color-text-secondary); font-size: 12px;">
+                        Obrigatório apenas para cadastro por email
+                    </small>
                 </div>
                 
-                <!-- Confirmar Senha (visível apenas para profissional) -->
+                <!-- Confirmar Senha -->
                 <div class="form-group" id="grupo-senha-confirma" style="display: block;">
                     <label for="cadastro-senha-confirma">Confirmar Senha</label>
                     <input 
@@ -139,7 +147,6 @@
                         id="cadastro-senha-confirma" 
                         name="senhaConfirma"
                         placeholder="Confirme a senha"
-                        required
                     />
                 </div>
                 
@@ -150,7 +157,6 @@
                             type="checkbox" 
                             id="termos" 
                             name="termos"
-                            required
                             style="margin-top: 3px;"
                         />
                         <span style="font-size: var(--font-size-sm); color: var(--color-text-secondary);">
@@ -169,6 +175,6 @@
         </div>
     </div>
     
-    <script type="module" src="../pages/login.js"></script>
+    <script type="module" src="/pages/login.js"></script>
 </body>
 </html>

@@ -14,21 +14,21 @@
 import { obterUsuarioAtual } from './modules/auth.js';
 
 const PAGES = {
-    LOGIN: { path: '/login', file: '/pages/login.html', public: true, requireAuth: false },
-    DASHBOARD_PROF: { path: '/dashboard', file: '/pages/dashboard.html', public: false, requireAuth: true, role: 'profissional' },
-    ONBOARDING: { path: '/onboarding', file: '/pages/onboarding.html', public: false, requireAuth: true },
-    AGENDA: { path: '/agenda', file: '/pages/agenda.html', public: false, requireAuth: true },
-    AGENDAMENTOS: { path: '/agendamentos', file: '/pages/agendamentos.html', public: false, requireAuth: true },
-    CLIENTES: { path: '/clientes', file: '/pages/clientes.html', public: false, requireAuth: true },
-    PERFIL: { path: '/perfil', file: '/pages/perfil.html', public: false, requireAuth: true },
-    MEUS_AGENDAMENTOS: { path: '/meus-agendamentos', file: '/pages/meus-agendamentos.html', public: false, requireAuth: true, role: 'cliente' },
-    SOLICITACOES_TROCA: { path: '/solicitacoes-troca', file: '/pages/solicitacoes-troca.html', public: false, requireAuth: true, role: 'profissional' },
-    NOTIFICACOES: { path: '/notificacoes', file: '/pages/notificacoes.html', public: false, requireAuth: true },
-    RELATORIOS: { path: '/relatorios', file: '/pages/relatorios.html', public: false, requireAuth: true, role: 'profissional' },
-    PAGINA_PUBLICA: { path: '/agenda/:profissionalId', file: '/pages/pagina-publica.html', public: true, requireAuth: false },
-    LINK_AGENDAMENTO: { path: '/agendar/:profissionalId', file: '/pages/agendar-cliente.html', public: true, requireAuth: false },
-    CONFIRMACAO: { path: '/confirmacao', file: '/pages/confirmacao.html', public: true, requireAuth: false },
-    HOME: { path: '/', file: '/index.html', public: true, requireAuth: false },
+    LOGIN: { path: '/login', file: 'pages/login.html', public: true, requireAuth: false },
+    DASHBOARD_PROF: { path: '/dashboard', file: 'pages/dashboard.html', public: false, requireAuth: true, role: 'profissional' },
+    ONBOARDING: { path: '/onboarding', file: 'pages/onboarding.html', public: false, requireAuth: true },
+    AGENDA: { path: '/agenda', file: 'pages/agenda.html', public: false, requireAuth: true },
+    AGENDAMENTOS: { path: '/agendamentos', file: 'pages/agendamentos.html', public: false, requireAuth: true },
+    CLIENTES: { path: '/clientes', file: 'pages/clientes.html', public: false, requireAuth: true },
+    PERFIL: { path: '/perfil', file: 'pages/perfil.html', public: false, requireAuth: true },
+    MEUS_AGENDAMENTOS: { path: '/meus-agendamentos', file: 'pages/meus-agendamentos.html', public: false, requireAuth: true, role: 'cliente' },
+    SOLICITACOES_TROCA: { path: '/solicitacoes-troca', file: 'pages/solicitacoes-troca.html', public: false, requireAuth: true, role: 'profissional' },
+    NOTIFICACOES: { path: '/notificacoes', file: 'pages/notificacoes.html', public: false, requireAuth: true },
+    RELATORIOS: { path: '/relatorios', file: 'pages/relatorios.html', public: false, requireAuth: true, role: 'profissional' },
+    PAGINA_PUBLICA: { path: '/agenda/:profissionalId', file: 'pages/pagina-publica.html', public: true, requireAuth: false },
+    LINK_AGENDAMENTO: { path: '/agendar/:profissionalId', file: 'pages/agendar-cliente.html', public: true, requireAuth: false },
+    CONFIRMACAO: { path: '/confirmacao', file: 'pages/confirmacao.html', public: true, requireAuth: false },
+    HOME: { path: '/', file: 'index.html', public: true, requireAuth: false },
 };
 
 /**
@@ -85,7 +85,7 @@ async function loadPage(path) {
     if (!page) {
         console.warn('Page not found:', path);
         // Fallback to login or home
-        const fallback = obterUsuarioAtual() ? '/pages/login.html' : '/pages/login.html';
+        const fallback = obterUsuarioAtual() ? 'pages/login.html' : 'pages/login.html';
         const app = document.getElementById('app');
         if (app) {
             try {

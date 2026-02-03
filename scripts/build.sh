@@ -4,56 +4,57 @@ set -euo pipefail
 # ==========================================
 # Build Script for Vercel Deployment
 # ==========================================
-# Copia arquivos src/ para public/
-# e injeta configuração do Firebase
+# Simply copies src/ to public/ for static hosting
+# Firebase config is handled via import.meta.env at runtime
 # ==========================================
 
 echo "🏗️ Build AgendaEstética para Vercel"
 echo "===================================="
 
-# Detectar diretório do projeto (onde está este script)
+# Detect project directories
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
 
 echo "📂 Diretório do projeto: $PROJECT_DIR"
 
-# Verificar se src existe
+# Check if src exists
 if [ ! -d "$PROJECT_DIR/src" ]; then
     echo "❌ Erro: Pasta src/ não encontrada em $PROJECT_DIR/src"
     exit 1
 fi
 
-# Remover e recriar pasta public/
+# Remove and recreate public/
 echo "🗑️  Limpando diretório public/..."
 rm -rf "$PROJECT_DIR/public"
 mkdir -p "$PROJECT_DIR/public"
 
-# Copiar todos os arquivos de src/ para public/
+# Copy all files from src/ to public/
 echo "📁 Copiando arquivos de src/ para public/..."
 cp -r "$PROJECT_DIR/src"/* "$PROJECT_DIR/public/"
 
-# Copiar arquivos da raiz necessários para public/
+# Copy root files needed in public/
 echo "📁 Copiando arquivos da raiz..."
 cp "$PROJECT_DIR/index.html" "$PROJECT_DIR/public/" 2>/dev/null || true
 cp "$PROJECT_DIR/config.js" "$PROJECT_DIR/public/" 2>/dev/null || true
 cp "$PROJECT_DIR/router.js" "$PROJECT_DIR/public/" 2>/dev/null || true
 cp "$PROJECT_DIR/_redirects" "$PROJECT_DIR/public/" 2>/dev/null || true
 
-# Sobrescrever index.html do public/ com a versão atual do src/
-# (necessário para garantir que o placeholder está limpo antes da injeção)
-echo "📁 Sincronizando index.html do src/ para public/..."
-cp "$PROJECT_DIR/src/index.html" "$PROJECT_DIR/public/"
+# Copy modules/ to public/ (needed for SPA)
+echo "📁 Copiando módulos..."
+cp -r "$PROJECT_DIR/modules" "$PROJECT_DIR/public/" 2>/dev/null || true
 
-# Injetar configuração do Firebase no index.html
-echo "🔧 Injetando configuração do Firebase..."
-node "$SCRIPT_DIR/inject-config.js"
+# Copy styles/ to public/
+echo "📁 Copiando estilos..."
+cp -r "$PROJECT_DIR/styles" "$PROJECT_DIR/public/" 2>/dev/null || true
 
-# Verificar arquivos copiados
+# Verify copied files
 echo ""
 echo "📂 Estrutura do public/:"
-ls -la "$PROJECT_DIR/public/"
+find "$PROJECT_DIR/public" -maxdepth 2 -type f -name "*.js" -o -name "*.html" | head -20
 
 echo ""
 echo "✅ Build concluído com sucesso!"
 echo "📦 Pasta public/ pronta para deploy"
+echo ""
+echo "💡 Firebase config será carregado via import.meta.env.VITE_FIREBASE_*"
 

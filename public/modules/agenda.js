@@ -1,5 +1,11 @@
 /**
  * Agenda Module - Firebase v9+ Modular SDK
+ * Responsibilities:
+ * - Save / read agenda configuration for empresa
+ * - Create blocks (bloqueios)
+ * - Generate slots for a date based on configuration
+ * - Check conflicts against existing agendamentos
+ * 
  * CORRIGIDO para Firebase v9+ modular
  */
 
@@ -17,11 +23,14 @@ import {
     orderBy
 } from '../modules/firebase.js';
 
+/**
+ * Save agenda configuration under empresas/{empresaId}.agendaConfig
+ */
 export async function saveAgendaConfig(empresaId, config) {
     if (!empresaId) throw new Error('empresaId é obrigatório');
     if (!config || !config.dias || !config.horaInicio || !config.horaFim) throw new Error('Configuração inválida');
 
-    const db = getFirebaseDB();
+    const db = getFirebaseDB();  // ✅ v9+
     const payload = {
         agendaConfig: {
             dias: config.dias,
@@ -32,14 +41,19 @@ export async function saveAgendaConfig(empresaId, config) {
         }
     };
 
+    // ✅ Firebase v9+: updateDoc(doc(db, collection, id), data)
     await updateDoc(doc(db, 'empresas', empresaId), payload);
     return payload.agendaConfig;
 }
 
+/**
+ * Get agenda configuration for empresa
+ */
 export async function getAgendaConfig(empresaId) {
     if (!empresaId) throw new Error('empresaId é obrigatório');
-    const db = getFirebaseDB();
+    const db = getFirebaseDB();  // ✅ v9+
     
+    // ✅ Firebase v9+: getDoc(doc(db, collection, id))
     const docRef = doc(db, 'empresas', empresaId);
     const docSnap = await getDoc(docRef);
     
@@ -47,30 +61,40 @@ export async function getAgendaConfig(empresaId) {
     return docSnap.data().agendaConfig || null;
 }
 
+/**
+ * Create a blocking period (bloqueio) for empresa
+ * Stores in empresas/{empresaId}/bloqueios/
+ */
 export async function createBlock(empresaId, block) {
     if (!empresaId) throw new Error('empresaId é obrigatório');
     if (!block || !block.inicioISO || !block.fimISO) throw new Error('Block inválido');
 
-    const db = getFirebaseDB();
+    const db = getFirebaseDB();  // ✅ v9+
     
     const payload = {
         inicio: block.inicioISO,
         fim: block.fimISO,
         motivo: block.motivo || 'Bloqueio manual',
         criadoEm: new Date().toISOString(),
+        // Não precisamos do currentUser aqui para simplificação
     };
 
+    // ✅ Firebase v9+: addDoc(collection(db, path), data)
     const ref = await addDoc(collection(db, 'empresas', empresaId, 'bloqueios'), payload);
     return { id: ref.id, ...payload };
 }
 
+/**
+ * Check conflict between given interval and existing agendamentos or bloqueios
+ */
 export async function checkConflict(empresaId, inicioISO, fimISO) {
     if (!empresaId) throw new Error('empresaId é obrigatório');
-    const db = getFirebaseDB();
+    const db = getFirebaseDB();  // ✅ v9+
 
     const agendamentosRef = collection(db, 'empresas', empresaId, 'agendamentos');
     const bloqueiosRef = collection(db, 'empresas', empresaId, 'bloqueios');
 
+    // Query para agendamentos
     const agQuery = query(
         agendamentosRef,
         where('inicio', '<', fimISO),
@@ -79,6 +103,7 @@ export async function checkConflict(empresaId, inicioISO, fimISO) {
     const agSnapshot = await getDocs(agQuery);
     if (!agSnapshot.empty) return true;
 
+    // Query para bloqueios
     const blQuery = query(
         bloqueiosRef,
         where('inicio', '<', fimISO),
@@ -90,6 +115,9 @@ export async function checkConflict(empresaId, inicioISO, fimISO) {
     return false;
 }
 
+/**
+ * Generate slots for a given date
+ */
 export async function generateSlotsForDate(empresaId, dateISO) {
     const config = await getAgendaConfig(empresaId);
     if (!config) throw new Error('Agenda não configurada');
@@ -119,6 +147,7 @@ export async function generateSlotsForDate(empresaId, dateISO) {
         const inicioISO = slotStart.toISOString();
         const fimISO = slotEnd.toISOString();
 
+        // eslint-disable-next-line no-await-in-loop
         const conflict = await checkConflict(empresaId, inicioISO, fimISO);
         if (!conflict) slots.push({ inicioISO, fimISO });
 
@@ -128,8 +157,11 @@ export async function generateSlotsForDate(empresaId, dateISO) {
     return slots;
 }
 
+/**
+ * Create appointment reservation
+ */
 export async function createAppointment(empresaId, agendamento) {
-    const db = getFirebaseDB();
+    const db = getFirebaseDB();  // ✅ v9+
     const agRef = collection(db, 'empresas', empresaId, 'agendamentos');
 
     const conflict = await checkConflict(empresaId, agendamento.inicio, agendamento.fim);

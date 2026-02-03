@@ -1,67 +1,53 @@
 /**
  * Authentication Module - Firebase v9+ Modular SDK
  * 
- * Uses getAuth() and getFirestore() factory functions with window.firebaseApp
+ * Responsibility:
+ * - Login/Cadastro de profissional e cliente
+ * - Suporte a Email E Telefone
+ * - Controle de sessão com Firebase Auth
+ * - Persistência de dados do usuário em Firestore
+ * - Logout e reset de senha
  */
 
+// ============================================================
+// Firebase v9+ Imports (via firebase.js factory)
+// ============================================================
+
 import { 
-    getAuth, 
+    getFirebaseAuth,
+    getFirebaseDB,
     createUserWithEmailAndPassword, 
     signInWithEmailAndPassword, 
     signInAnonymously, 
     signOut, 
     sendPasswordResetEmail,
     updateProfile,
-    onAuthStateChanged 
-} from 'https://www.gstatic.com/firebasejs/10.5.0/firebase-auth.js';
-
-import { 
-    getFirestore, 
-    collection, 
-    doc, 
-    setDoc, 
-    getDoc, 
-    getDocs, 
-    query, 
-    where, 
-    updateDoc 
-} from 'https://www.gstatic.com/firebasejs/10.5.0/firebase-firestore.js';
-
-// ============================================================
-// Firebase Instance Factory
-// ============================================================
-
-export function getFirebaseAuth() {
-    if (!window.firebaseApp) {
-        throw new Error('Firebase App not initialized. Check index.html');
-    }
-    return getAuth(window.firebaseApp);
-}
-
-export function getFirebaseDB() {
-    if (!window.firebaseApp) {
-        throw new Error('Firebase App not initialized. Check index.html');
-    }
-    return getFirestore(window.firebaseApp);
-}
+    onAuthStateChanged,
+    collection,
+    doc,
+    setDoc,
+    getDoc,
+    getDocs,
+    query,
+    where,
+    updateDoc
+} from './firebase.js';
 
 // ============================================================
 // Helper Functions
 // ============================================================
 
 function isEmail(input) {
-    return input && typeof input === 'string' && 
-           input.includes('@') && input.includes('.');
+    return input && typeof input === 'string' && input.includes('@') && input.includes('.');
 }
 
 function isPhone(input) {
-    if (!input || typeof input !== 'string') return false;
     const phoneRegex = /^(\+55)?[1-9]{2}[9]?\d{8,9}$/;
-    return phoneRegex.test(input.replace(/[\s\-\(\)]/g, ''));
+    return phoneRegex.test(String(input).replace(/[\s\-\(\)]/g, ''));
 }
 
 function normalizePhone(input) {
-    let phone = input.replace(/[\s\-\(\)]/g, '');
+    let phone = String(input).replace(/[\s\-\(\)]/g, '');
     if (!phone.startsWith('+55') && phone.length >= 10) {
         phone = '+55' + phone;
     }
@@ -69,7 +55,6 @@ function normalizePhone(input) {
 }
 
 function isValidEmail(email) {
-    if (!email || typeof email !== 'string') return false;
     const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return regex.test(email);
 }
@@ -82,6 +67,9 @@ function generateRandomPassword() {
 // Main Authentication Functions
 // ============================================================
 
+/**
+ * Cadastro de Profissional
+ */
 export async function cadastroProfissional(emailOuTelefone, senha, nome, profissao) {
     const auth = getFirebaseAuth();
     const db = getFirebaseDB();
@@ -108,9 +96,11 @@ export async function cadastroProfissional(emailOuTelefone, senha, nome, profiss
         
     } else if (isPhone(emailOuTelefone)) {
         const phoneNumber = normalizePhone(emailOuTelefone);
-        telefone = phoneNumber;
+        const telefoneUtilizado = await verificarTelefoneExistente(phoneNumber);
+        if (telefoneUtilizado) {
+            throw new Error('Este telefone já está cadastrado');
+        }
         throw new Error('Para cadastro por telefone, verifique o código enviado por SMS');
-        
     } else {
         throw new Error('Email ou telefone inválido');
     }
@@ -120,20 +110,54 @@ export async function cadastroProfissional(emailOuTelefone, senha, nome, profiss
     const empresaId = `prof_${user.uid}`;
     
     await setDoc(doc(db, 'usuarios', user.uid), {
-        uid: user.uid, email, telefone, nome, profissao,
-        role: 'profissional', empresaId,
-        criadoEm: new Date().toISOString(), ativo: true,
+        uid: user.uid,
+        email: email,
+        telefone: telefone,
+        nome: nome,
+        profissao: profissao,
+        role: 'profissional',
+        empresaId: empresaId,
+        criadoEm: new Date().toISOString(),
+        ativo: true,
     });
     
     await setDoc(doc(db, 'empresas', empresaId), {
-        empresaId, proprietarioUid: user.uid, nome, profissao,
+        empresaId: empresaId,
+        proprietarioUid: user.uid,
+        nome: nome,
+        profissao: profissao,
         contato: telefone || email,
-        criadoEm: new Date().toISOString(), ativo: true, plano: 'free',
+        criadoEm: new Date().toISOString(),
+        ativo: true,
+        plano: 'free',
     });
     
-    return { uid: user.uid, email, telefone, nome, role: 'profissional', empresaId };
+    return {
+        uid: user.uid,
+        email: email,
+        telefone: telefone,
+        nome: nome,
+        role: 'profissional',
+        empresaId: empresaId,
+    };
 }
 
+/**
+ * Verificar se telefone já existe
+ */
+async function verificarTelefoneExistente(telefone) {
+    const db = getFirebaseDB();
+    const q = query(
+        collection(db, 'usuarios'),
+        where('telefone', '==', telefone)
+    );
+    const querySnapshot = await getDocs(q);
+    return !querySnapshot.empty;
+}
+
+/**
+ * Cadastro de Cliente
+ */
 export async function cadastroCliente(email, nome) {
     const auth = getFirebaseAuth();
     const db = getFirebaseDB();
@@ -145,20 +169,34 @@ export async function cadastroCliente(email, nome) {
         throw new Error('Email inválido');
     }
     
-    const result = await createUserWithEmailAndPassword(auth, email, generateRandomPassword());
-    const { user } = result;
+    const { user } = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        generateRandomPassword()
+    );
     
     await updateProfile(user, { displayName: nome });
     
     await setDoc(doc(db, 'usuarios', user.uid), {
-        uid: user.uid, email, nome,
+        uid: user.uid,
+        email: email,
+        nome: nome,
         role: 'cliente',
-        criadoEm: new Date().toISOString(), ativo: true,
+        criadoEm: new Date().toISOString(),
+        ativo: true,
     });
     
-    return { uid: user.uid, email: user.email, nome, role: 'cliente' };
+    return {
+        uid: user.uid,
+        email: user.email,
+        nome: nome,
+        role: 'cliente',
+    };
 }
 
+/**
+ * Login de Profissional
+ */
 export async function loginProfissional(emailOuTelefone, senha) {
     const auth = getFirebaseAuth();
     const db = getFirebaseDB();
@@ -176,10 +214,8 @@ export async function loginProfissional(emailOuTelefone, senha) {
         if (!isValidEmail(emailOuTelefone)) {
             throw new Error('Email inválido');
         }
-        
         const result = await signInWithEmailAndPassword(auth, emailOuTelefone, senha);
         user = result.user;
-        
     } else if (isPhone(emailOuTelefone)) {
         const phoneNumber = normalizePhone(emailOuTelefone);
         const q = query(
@@ -188,39 +224,57 @@ export async function loginProfissional(emailOuTelefone, senha) {
             where('role', '==', 'profissional')
         );
         const querySnapshot = await getDocs(q);
-        
         if (querySnapshot.empty) {
             throw new Error('Profissional não encontrado com este telefone');
         }
-        
         const userData = querySnapshot.docs[0].data();
         await signInAnonymously();
-        return userData;
-        
+        return {
+            uid: userData.uid,
+            email: userData.email,
+            telefone: userData.telefone,
+            nome: userData.nome,
+            profissao: userData.profissao,
+            role: 'profissional',
+            empresaId: userData.empresaId,
+        };
     } else {
         throw new Error('Email ou telefone inválido');
     }
     
-    const userDoc = await getDoc(doc(db, 'usuarios', user.uid));
+    const userDocRef = doc(db, 'usuarios', user.uid);
+    const userDoc = await getDoc(userDocRef);
+    
     if (!userDoc.exists()) {
         throw new Error('Dados do usuário não encontrados');
     }
     
     const userData = userDoc.data();
+    
     if (userData.role !== 'profissional') {
         throw new Error('Esse usuário não é um profissional');
     }
     
-    localStorage.setItem('usuarioAtual', JSON.stringify({
-        uid: user.uid, email: user.email, nome: userData.nome,
-        telefone: userData.telefone, profissao: userData.profissao,
-        role: userData.role, empresaId: userData.empresaId,
-    }));
+    const usuario = {
+        uid: user.uid,
+        email: user.email,
+        nome: userData.nome,
+        telefone: userData.telefone,
+        profissao: userData.profissao,
+        role: userData.role,
+        empresaId: userData.empresaId,
+    };
     
-    return userData;
+    localStorage.setItem('usuarioAtual', JSON.stringify(usuario));
+    
+    return usuario;
 }
 
+/**
+ * Login de Cliente
+ */
 export async function loginCliente(email) {
+    const auth = getFirebaseAuth();
     const db = getFirebaseDB();
     
     if (!email || !isValidEmail(email)) {
@@ -240,16 +294,24 @@ export async function loginCliente(email) {
     }
     
     const clienteData = querySnapshot.docs[0].data();
+    
     await signInAnonymously();
     
-    localStorage.setItem('usuarioAtual', JSON.stringify({
-        uid: clienteData.uid, email: clienteData.email,
-        nome: clienteData.nome, role: clienteData.role,
-    }));
+    const usuario = {
+        uid: clienteData.uid,
+        email: clienteData.email,
+        nome: clienteData.nome,
+        role: 'cliente',
+    };
     
-    return clienteData;
+    localStorage.setItem('usuarioAtual', JSON.stringify(usuario));
+    
+    return usuario;
 }
 
+/**
+ * Verificar sessão existente
+ */
 export async function verificarSessao() {
     const auth = getFirebaseAuth();
     const db = getFirebaseDB();
@@ -263,30 +325,27 @@ export async function verificarSessao() {
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 try {
-                    const userDoc = await getDoc(doc(db, 'usuarios', user.uid));
+                    const userDocRef = doc(db, 'usuarios', user.uid);
+                    const userDoc = await getDoc(userDocRef);
+                    
                     if (userDoc.exists()) {
                         const userData = userDoc.data();
-                        localStorage.setItem('usuarioAtual', JSON.stringify({
-                            uid: user.uid, email: user.email, nome: userData.nome,
-                            role: userData.role, empresaId: userData.empresaId,
+                        const usuario = {
+                            uid: user.uid,
+                            email: user.email,
+                            nome: userData.nome,
+                            role: userData.role,
+                            empresaId: userData.empresaId,
                             profissao: userData.profissao,
-                        }));
+                        };
+                        localStorage.setItem('usuarioAtual', JSON.stringify(usuario));
                         
-                        if (userData.role === 'profissional') {
-                            const empresaDoc = await getDoc(doc(db, 'empresas', userData.empresaId));
-                            const destino = (empresaDoc.exists() && !empresaDoc.data().onboardingCompleto)
-                                ? '/onboarding' : '/dashboard';
-                            window.location.href = destino;
-                        } else {
-                            window.location.href = '/confirmacao';
-                        }
-                        
-                        resolve({ usuario: { uid: user.uid, email: user.email, ...userData }, logado: true });
+                        resolve({ usuario, logado: true });
                     } else {
                         resolve({ usuario: null, logado: false });
                     }
                 } catch (error) {
-                    console.error('Error fetching user data:', error);
+                    console.error('Erro ao buscar dados do usuário:', error);
                     resolve({ usuario: null, logado: false });
                 }
             } else {
@@ -296,11 +355,17 @@ export async function verificarSessao() {
     });
 }
 
+/**
+ * Obter usuário atual
+ */
 export function obterUsuarioAtual() {
     const usuarioLocal = localStorage.getItem('usuarioAtual');
     return usuarioLocal ? JSON.parse(usuarioLocal) : null;
 }
 
+/**
+ * Logout
+ */
 export async function logout() {
     const auth = getFirebaseAuth();
     localStorage.removeItem('usuarioAtual');
@@ -308,6 +373,9 @@ export async function logout() {
     window.location.href = '/login';
 }
 
+/**
+ * Resetar senha
+ */
 export async function resetarSenha(email) {
     const auth = getFirebaseAuth();
     if (!email || !isValidEmail(email)) {
@@ -316,6 +384,9 @@ export async function resetarSenha(email) {
     await sendPasswordResetEmail(auth, email);
 }
 
+/**
+ * Atualizar perfil
+ */
 export async function atualizarPerfil(dados) {
     const usuario = obterUsuarioAtual();
     if (!usuario) {
@@ -329,11 +400,13 @@ export async function atualizarPerfil(dados) {
         await updateProfile(auth.currentUser, { displayName: dados.nome });
     }
     
-    await updateDoc(doc(db, 'usuarios', usuario.uid), {
+    const userDocRef = doc(db, 'usuarios', usuario.uid);
+    await updateDoc(userDocRef, {
         ...dados,
         atualizadoEm: new Date().toISOString(),
     });
     
-    localStorage.setItem('usuarioAtual', JSON.stringify({ ...usuario, ...dados }));
+    const usuarioAtualizado = { ...usuario, ...dados };
+    localStorage.setItem('usuarioAtual', JSON.stringify(usuarioAtualizado));
 }
 

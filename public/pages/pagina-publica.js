@@ -3,7 +3,7 @@
  * CORRIGIDO para Firebase v9+ modular
  */
 
-import { getFirebaseDB, doc, getDoc } from '../modules/firebase.js';
+import { getFirebaseDB, doc, getDoc, collection, query, where, getDocs } from '../modules/firebase.js';
 
 async function carregar(){
     const parts = window.location.pathname.split('/').filter(Boolean);
@@ -11,9 +11,9 @@ async function carregar(){
     
     if(!profissionalId) return;
     
-    const db = getFirebaseDB();
-    const docRef = doc(db, 'empresas', profissionalId);
-    const empresaDoc = await getDoc(docRef);
+    const db = getFirebaseDB();  // ✅ v9+
+    const docRef = doc(db, 'empresas', profissionalId);  // ✅ v9+
+    const empresaDoc = await getDoc(docRef);  // ✅ v9+
     
     if(!empresaDoc.exists()) return;
     

@@ -1,5 +1,7 @@
 /**
- * Dashboard Page Logic - Firebase v9+ Modular SDK
+ * Dashboard Page Logic
+ * Reference: PLANO-MESTRE-TECNICO.md > Seção 5 (dashboard.js)
+ * 
  * CORRIGIDO para Firebase v9+ modular
  */
 
@@ -8,6 +10,9 @@ import { obterPlano, temFeature } from '../modules/permissions.js';
 import { applyTheme, getTheme, setTheme } from '../modules/theme.js';
 import { getFirebaseDB } from '../modules/firebase.js';
 
+/**
+ * Inicializar dashboard
+ */
 async function inicializar() {
     try {
         const usuario = obterUsuarioAtual();
@@ -76,6 +81,9 @@ async function inicializar() {
     }
 }
 
+/**
+ * Carregar dados do Firebase (v9+)
+ */
 async function carregarDados(empresaId) {
     try {
         // ✅ Firebase v9+ modular
@@ -89,6 +97,9 @@ async function carregarDados(empresaId) {
     }
 }
 
+/**
+ * Setup event listeners
+ */
 function setupEventListeners() {
     const btnLogout = document.getElementById('btn-logout');
     if (btnLogout) {

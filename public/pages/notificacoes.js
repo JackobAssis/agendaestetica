@@ -3,6 +3,7 @@
  * CORRIGIDO para Firebase v9+ modular
  */
 
+import { notifyInApp } from '../modules/notifications.js';
 import { obterUsuarioAtual } from '../modules/auth.js';
 import { 
     getFirebaseDB, 
@@ -94,10 +95,10 @@ async function carregarNotificacoes() {
             return;
         }
 
-        const db = getFirebaseDB();
+        const db = getFirebaseDB();  // ✅ v9+
         const notifRef = collection(db, 'empresas', empresaId, 'notificacoes');
-        const q = query(notifRef, orderBy('createdAt', 'desc'), limit(50));
-        const snapshot = await getDocs(q);
+        const q = query(notifRef, orderBy('createdAt', 'desc'), limit(50));  // ✅ v9+
+        const snapshot = await getDocs(q);  // ✅ v9+
 
         notificacoes = snapshot.docs.map(doc => ({
             id: doc.id,
@@ -185,9 +186,9 @@ async function marcarComoLida(notificacaoId) {
         const usuario = obterUsuarioAtual();
         if (!usuario || !usuario.empresaId) return;
 
-        const db = getFirebaseDB();
+        const db = getFirebaseDB();  // ✅ v9+
         const docRef = doc(db, 'empresas', usuario.empresaId, 'notificacoes', notificacaoId);
-        await updateDoc(docRef, { read: true });
+        await updateDoc(docRef, { read: true });  // ✅ v9+
 
         const notif = notificacoes.find(n => n.id === notificacaoId);
         if (notif) notif.read = true;
@@ -209,7 +210,7 @@ async function marcarTodasComoLidas() {
         const usuario = obterUsuarioAtual();
         if (!usuario || !usuario.empresaId) return;
 
-        const db = getFirebaseDB();
+        const db = getFirebaseDB();  // ✅ v9+
         const batch = [];
 
         for (const notif of naoLidas) {

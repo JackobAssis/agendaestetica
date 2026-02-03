@@ -19,9 +19,9 @@ export async function getTheme(empresaId){
     if(!empresaId) return 'free';
     
     try{
-        const db = getFirebaseDB();
+        const db = getFirebaseDB();  // ✅ v9+
         const docRef = doc(db, 'empresas', empresaId);
-        const snap = await getDoc(docRef);
+        const snap = await getDoc(docRef);  // ✅ v9+
         
         if(!snap.exists()) return 'free';
         const data = snap.data();
@@ -37,12 +37,12 @@ export async function setTheme(empresaId, themeName){
     if(!empresaId) return true;
     
     try{
-        const db = getFirebaseDB();
+        const db = getFirebaseDB();  // ✅ v9+
         const docRef = doc(db, 'empresas', empresaId);
         await updateDoc(docRef, { 
             theme: themeName, 
             themeUpdatedAt: new Date().toISOString() 
-        });
+        });  // ✅ v9+
         return true;
     }catch(e){ console.warn('setTheme error', e); return false; }
 }
