@@ -1,8 +1,6 @@
 /**
  * Login Page Logic
  * Reference: PLANO-MESTRE-TECNICO.md > Seção 8 Fluxo 1 (Login e Cadastro)
- * 
- * Suporte a Email ou Telefone para login/cadastro
  */
 
 import { 
@@ -20,25 +18,12 @@ let modoAtual = 'login'; // 'login' ou 'cadastro'
 let roleAtual = 'profissional'; // 'profissional' ou 'cliente'
 
 // ============================================================
-// Helpers
-// ============================================================
-
-function isEmail(input) {
-    return input && input.includes('@') && input.includes('.');
-}
-
-function isPhone(input) {
-    const phoneRegex = /^(\+55)?[1-9]{2}[9]?\d{8,9}$/;
-    return phoneRegex.test(input.replace(/[\s\-\(\)]/g, ''));
-}
-
-// ============================================================
-// DOM Elements
+// DOM Elements - Buscar imediatamente
 // ============================================================
 
 const formLogin = document.getElementById('form-login');
 const formCadastro = document.getElementById('form-cadastro');
-const toggleButtons = document.querySelectorAll('.toggle-buttons');
+const toggleButtons = document.querySelectorAll('[data-mode]');
 const roleBtnsProfissional = document.querySelectorAll('[data-role="profissional"]');
 const roleBtnsCliente = document.querySelectorAll('[data-role="cliente"]');
 const grupoProfissao = document.getElementById('grupo-profissao');
@@ -49,52 +34,30 @@ const mensagemDiv = document.getElementById('mensagem');
 const linkEsqueciSenha = document.getElementById('link-esqueci-senha');
 
 // ============================================================
-// Event Listeners
+// Inicialização - Executar imediatamente quando o módulo carrega
 // ============================================================
 
-document.addEventListener('DOMContentLoaded', () => {
+if (formLogin || formCadastro) {
+    init();
+}
+
+function init() {
     setupToggleButtons();
     setupFormListeners();
     setupRoleButtons();
-    
-    // Setup input listeners para detectar email vs telefone
-    setupInputDetection();
-});
-
-/**
- * Detectar se input é email ou telefone para ajustar UI
- */
-function setupInputDetection() {
-    const loginEmail = document.getElementById('login-email');
-    const cadastroEmail = document.getElementById('cadastro-email');
-    
-    const handleInput = (e) => {
-        const valor = e.target.value.trim();
-        
-        if (isEmail(valor)) {
-            // É email - mostrar senha
-            if (grupoSenhaLogin) grupoSenhaLogin.style.display = 'block';
-            if (grupoSenhaCadastro) grupoSenhaCadastro.style.display = 'block';
-            if (grupoSenhaConfirma) grupoSenhaConfirma.style.display = 'block';
-        } else if (isPhone(valor)) {
-            // É telefone - esconder senha
-            if (grupoSenhaLogin) grupoSenhaLogin.style.display = 'none';
-            if (grupoSenhaCadastro) grupoSenhaCadastro.style.display = 'none';
-            if (grupoSenhaConfirma) grupoSenhaConfirma.style.display = 'none';
-        }
-    };
-    
-    if (loginEmail) loginEmail.addEventListener('input', handleInput);
-    if (cadastroEmail) cadastroEmail.addEventListener('input', handleInput);
+    atualizarUIRole();
+    console.log('✅ Login page initialized');
 }
+
+// ============================================================
+// Event Listeners
+// ============================================================
 
 /**
  * Setup toggle entre Login e Cadastro
  */
 function setupToggleButtons() {
-    const toggleBtns = document.querySelectorAll('[data-mode]');
-    
-    toggleBtns.forEach(btn => {
+    toggleButtons.forEach(btn => {
         btn.addEventListener('click', (e) => {
             e.preventDefault();
             
@@ -102,7 +65,7 @@ function setupToggleButtons() {
             modoAtual = modo;
             
             // Atualizar UI
-            toggleBtns.forEach(b => b.classList.remove('active'));
+            toggleButtons.forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
             
             // Mostrar/Esconder forms
@@ -168,10 +131,15 @@ function atualizarUIRole() {
         if (grupoSenhaConfirma) grupoSenhaConfirma.style.display = 'block';
         
         // Validações
-        document.getElementById('cadastro-profissao').required = true;
-        document.getElementById('cadastro-senha').required = true;
-        document.getElementById('cadastro-senha-confirma').required = true;
-        document.getElementById('login-senha').required = true;
+        const profissaoInput = document.getElementById('cadastro-profissao');
+        const senhaLogin = document.getElementById('login-senha');
+        const senhaCadastro = document.getElementById('cadastro-senha');
+        const senhaConfirma = document.getElementById('cadastro-senha-confirma');
+        
+        if (profissaoInput) profissaoInput.required = true;
+        if (senhaLogin) senhaLogin.required = true;
+        if (senhaCadastro) senhaCadastro.required = true;
+        if (senhaConfirma) senhaConfirma.required = true;
         
     } else { // cliente
         if (grupoProfissao) grupoProfissao.style.display = 'none';
@@ -180,10 +148,15 @@ function atualizarUIRole() {
         if (grupoSenhaConfirma) grupoSenhaConfirma.style.display = 'none';
         
         // Remover validações
-        document.getElementById('cadastro-profissao').required = false;
-        document.getElementById('cadastro-senha').required = false;
-        document.getElementById('cadastro-senha-confirma').required = false;
-        document.getElementById('login-senha').required = false;
+        const profissaoInput = document.getElementById('cadastro-profissao');
+        const senhaLogin = document.getElementById('login-senha');
+        const senhaCadastro = document.getElementById('cadastro-senha');
+        const senhaConfirma = document.getElementById('cadastro-senha-confirma');
+        
+        if (profissaoInput) profissaoInput.required = false;
+        if (senhaLogin) senhaLogin.required = false;
+        if (senhaCadastro) senhaCadastro.required = false;
+        if (senhaConfirma) senhaConfirma.required = false;
     }
 }
 
@@ -192,16 +165,20 @@ function atualizarUIRole() {
  */
 function setupFormListeners() {
     // Login form
-    formLogin.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        await handleLogin();
-    });
+    if (formLogin) {
+        formLogin.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            await handleLogin();
+        });
+    }
     
     // Cadastro form
-    formCadastro.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        await handleCadastro();
-    });
+    if (formCadastro) {
+        formCadastro.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            await handleCadastro();
+        });
+    }
     
     // Esqueci senha
     if (linkEsqueciSenha) {
@@ -213,14 +190,14 @@ function setupFormListeners() {
 }
 
 /**
- * Handle Login - Suporta Email ou Telefone
+ * Handle Login
  */
 async function handleLogin() {
     try {
-        const emailOuTelefone = document.getElementById('login-email').value.trim();
+        const email = document.getElementById('login-email').value.trim();
         
-        if (!emailOuTelefone) {
-            mostrarErro('Email ou telefone é obrigatório');
+        if (!email) {
+            mostrarErro('Email é obrigatório');
             return;
         }
         
@@ -230,21 +207,17 @@ async function handleLogin() {
         btn.innerHTML = '<span class="loading-spinner"></span>Entrando...';
         
         if (roleAtual === 'profissional') {
-            let senha = null;
+            const senha = document.getElementById('login-senha').value;
             
-            // Se for email, senha é obrigatória
-            if (isEmail(emailOuTelefone)) {
-                senha = document.getElementById('login-senha').value;
-                if (!senha) {
-                    mostrarErro('Senha é obrigatória para login por email');
-                    btn.disabled = false;
-                    btn.innerHTML = '<span id="login-btn-texto">Entrar</span>';
-                    return;
-                }
+            if (!senha) {
+                mostrarErro('Senha é obrigatória para profissionais');
+                btn.disabled = false;
+                btn.innerHTML = '<span id="login-btn-texto">Entrar</span>';
+                return;
             }
             
-            // Login profissional (email ou telefone)
-            await loginProfissional(emailOuTelefone, senha);
+            // Login profissional
+            await loginProfissional(email, senha);
             mostrarSucesso('Login realizado! Redirecionando...');
             
             // Pequeno delay para mostrar mensagem
@@ -253,8 +226,8 @@ async function handleLogin() {
             }, 1000);
             
         } else {
-            // Login cliente (por email ou telefone)
-            await loginCliente(emailOuTelefone);
+            // Login cliente (por email)
+            await loginCliente(email);
             mostrarSucesso('Bem-vindo! Redirecionando...');
             
             setTimeout(() => {
@@ -272,15 +245,15 @@ async function handleLogin() {
 }
 
 /**
- * Handle Cadastro - Suporta Email ou Telefone
+ * Handle Cadastro
  */
 async function handleCadastro() {
     try {
         const nome = document.getElementById('cadastro-nome').value.trim();
-        const emailOuTelefone = document.getElementById('cadastro-email').value.trim();
+        const email = document.getElementById('cadastro-email').value.trim();
         
-        if (!nome || !emailOuTelefone) {
-            mostrarErro('Nome e email/telefone são obrigatórios');
+        if (!nome || !email) {
+            mostrarErro('Nome e email são obrigatórios');
             return;
         }
         
@@ -291,39 +264,33 @@ async function handleCadastro() {
         
         if (roleAtual === 'profissional') {
             const profissao = document.getElementById('cadastro-profissao').value;
-            let senha = null;
-            let senhaConfirma = null;
+            const senha = document.getElementById('cadastro-senha').value;
+            const senhaConfirma = document.getElementById('cadastro-senha-confirma').value;
             
-            // Se for email, senha é obrigatória
-            if (isEmail(emailOuTelefone)) {
-                senha = document.getElementById('cadastro-senha').value;
-                senhaConfirma = document.getElementById('cadastro-senha-confirma').value;
-                
-                // Validações
-                if (!profissao) {
-                    mostrarErro('Profissão é obrigatória');
-                    btn.disabled = false;
-                    btn.innerHTML = '<span id="cadastro-btn-texto">Criar Conta</span>';
-                    return;
-                }
-                
-                if (!senha || !senhaConfirma) {
-                    mostrarErro('Senha e confirmação são obrigatórias para cadastro por email');
-                    btn.disabled = false;
-                    btn.innerHTML = '<span id="cadastro-btn-texto">Criar Conta</span>';
-                    return;
-                }
-                
-                if (senha !== senhaConfirma) {
-                    mostrarErro('As senhas não coincidem');
-                    btn.disabled = false;
-                    btn.innerHTML = '<span id="cadastro-btn-texto">Criar Conta</span>';
-                    return;
-                }
+            // Validações
+            if (!profissao) {
+                mostrarErro('Profissão é obrigatória');
+                btn.disabled = false;
+                btn.innerHTML = '<span id="cadastro-btn-texto">Criar Conta</span>';
+                return;
+            }
+            
+            if (!senha || !senhaConfirma) {
+                mostrarErro('Senha e confirmação são obrigatórias');
+                btn.disabled = false;
+                btn.innerHTML = '<span id="cadastro-btn-texto">Criar Conta</span>';
+                return;
+            }
+            
+            if (senha !== senhaConfirma) {
+                mostrarErro('As senhas não coincidem');
+                btn.disabled = false;
+                btn.innerHTML = '<span id="cadastro-btn-texto">Criar Conta</span>';
+                return;
             }
             
             // Cadastro profissional
-            await cadastroProfissional(emailOuTelefone, senha, nome, profissao);
+            await cadastroProfissional(email, senha, nome, profissao);
             mostrarSucesso('Cadastro realizado! Redirecionando para onboarding...');
             
             setTimeout(() => {
@@ -332,7 +299,7 @@ async function handleCadastro() {
             
         } else {
             // Cadastro cliente
-            await cadastroCliente(emailOuTelefone, nome);
+            await cadastroCliente(email, nome);
             mostrarSucesso('Cadastro realizado! Você será redirecionado...');
             
             setTimeout(() => {
@@ -368,6 +335,7 @@ function mostraModoRecuperarSenha() {
  * Mostrar erro
  */
 function mostrarErro(mensagem) {
+    if (!mensagemDiv) return;
     mensagemDiv.className = 'error-message';
     mensagemDiv.textContent = '❌ ' + mensagem;
     mensagemDiv.classList.remove('hidden');
@@ -377,6 +345,7 @@ function mostrarErro(mensagem) {
  * Mostrar sucesso
  */
 function mostrarSucesso(mensagem) {
+    if (!mensagemDiv) return;
     mensagemDiv.className = 'success-message';
     mensagemDiv.textContent = '✅ ' + mensagem;
     mensagemDiv.classList.remove('hidden');
@@ -386,8 +355,7 @@ function mostrarSucesso(mensagem) {
  * Limpar mensagem
  */
 function limparMensagem() {
+    if (!mensagemDiv) return;
     mensagemDiv.classList.add('hidden');
 }
 
-// Inicializar UI do role
-atualizarUIRole();

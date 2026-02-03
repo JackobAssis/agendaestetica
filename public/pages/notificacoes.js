@@ -1,27 +1,55 @@
 /**
- * Página de Notificações - Firebase v9+ Modular SDK
- * CORRIGIDO para Firebase v9+ modular
+ * Notificações Page - Firebase v9+ Modular SDK
+ * Page to view and manage user notifications
  */
 
 import { notifyInApp } from '../modules/notifications.js';
 import { obterUsuarioAtual } from '../modules/auth.js';
+
+// ============================================================
+// Firebase v9+ Modular SDK Imports
+// ============================================================
+
 import { 
-    getFirebaseDB, 
+    getFirestore, 
+    collection, 
     doc, 
     getDoc, 
-    collection, 
-    query, 
-    orderBy, 
-    limit, 
     getDocs, 
-    updateDoc 
-} from '../modules/firebase.js';
+    updateDoc, 
+    query, 
+    where, 
+    orderBy,
+    limit,
+    writeBatch,
+    serverTimestamp 
+} from 'https://www.gstatic.com/firebasejs/10.5.0/firebase-firestore.js';
 
+// ============================================================
+// Firebase Instance Factory
+// ============================================================
+
+/**
+ * Obter instância do Firestore - USA a instância global do index.html
+ */
+function getFirebaseDB() {
+    if (typeof window !== 'undefined' && window.firebaseApp) {
+        return getFirestore(window.firebaseApp);
+    }
+    throw new Error('Firebase Firestore não inicializado. Verifique index.html');
+}
+
+// ============================================================
+// Notification Page Functions
+// ============================================================
+
+// DOM Elements
 const listaNotificacoes = document.getElementById('lista-notificacoes');
 const mensagem = document.getElementById('mensagem');
 const modalDetalhes = document.getElementById('modal-detalhes');
 const btnMarcarTodas = document.getElementById('btn-marcar-todas');
 
+// State
 let notificacoes = [];
 let filtroAtual = 'nao-lidas';
 let notifSelecionada = null;
@@ -75,17 +103,20 @@ async function carregarNotificacoes() {
         return;
     }
 
+    // Determinar empresaId baseado no role
     let empresaId = null;
     if (usuario.role === 'profissional') {
         empresaId = usuario.empresaId;
     } else if (usuario.clienteUid) {
-        // Cliente - placeholder
+        // Cliente - precisaria buscar empresa do agendamento
+        // Por enquanto, we'll show placeholder
     }
 
     listaNotificacoes.innerHTML = '<div class="loading">Carregando notificações...</div>';
 
     try {
         if (!empresaId) {
+            // Para clientes ou sem empresa, mostrar estado vazio
             listaNotificacoes.innerHTML = `
                 <div class="empty-state">
                     <p>As notificações aparecerão aqui quando houver atualizações sobre seus agendamentos.</p>
@@ -95,10 +126,11 @@ async function carregarNotificacoes() {
             return;
         }
 
-        const db = getFirebaseDB();  // ✅ v9+
+        const db = getFirebaseDB();
         const notifRef = collection(db, 'empresas', empresaId, 'notificacoes');
-        const q = query(notifRef, orderBy('createdAt', 'desc'), limit(50));  // ✅ v9+
-        const snapshot = await getDocs(q);  // ✅ v9+
+        const q = query(notifRef, orderBy('createdAt', 'desc'), limit(50));
+        
+        const snapshot = await getDocs(q);
 
         notificacoes = snapshot.docs.map(doc => ({
             id: doc.id,
@@ -144,6 +176,7 @@ function renderNotificacoes() {
         </div>
     `).join('');
 
+    // Add click handlers
     document.querySelectorAll('.notificacao-card').forEach(card => {
         card.addEventListener('click', () => {
             const id = card.dataset.id;
@@ -164,10 +197,12 @@ function mostrarDetalhes(notif) {
         </div>
     `;
 
+    // Botão ver agendamento se houver referência
     const btnVer = document.getElementById('btn-ver-agendamento');
     if (notif.meta && notif.meta.agendamentoId) {
         btnVer.style.display = 'inline-block';
         btnVer.onclick = () => {
+            // Redirecionar para agendamento
             window.location.href = `/agendamentos?id=${notif.meta.agendamentoId}`;
         };
     } else {
@@ -176,6 +211,7 @@ function mostrarDetalhes(notif) {
 
     modalDetalhes.classList.remove('hidden');
 
+    // Marcar como lida
     if (!notif.read) {
         marcarComoLida(notif.id);
     }
@@ -186,10 +222,11 @@ async function marcarComoLida(notificacaoId) {
         const usuario = obterUsuarioAtual();
         if (!usuario || !usuario.empresaId) return;
 
-        const db = getFirebaseDB();  // ✅ v9+
-        const docRef = doc(db, 'empresas', usuario.empresaId, 'notificacoes', notificacaoId);
-        await updateDoc(docRef, { read: true });  // ✅ v9+
+        const db = getFirebaseDB();
+        const notifRef = doc(db, 'empresas', usuario.empresaId, 'notificacoes', notificacaoId);
+        await updateDoc(notifRef, { read: true });
 
+        // Update local state
         const notif = notificacoes.find(n => n.id === notificacaoId);
         if (notif) notif.read = true;
 
@@ -210,16 +247,17 @@ async function marcarTodasComoLidas() {
         const usuario = obterUsuarioAtual();
         if (!usuario || !usuario.empresaId) return;
 
-        const db = getFirebaseDB();  // ✅ v9+
-        const batch = [];
+        const db = getFirebaseDB();
+        const batch = writeBatch(db);
 
-        for (const notif of naoLidas) {
-            const docRef = doc(db, 'empresas', usuario.empresaId, 'notificacoes', notif.id);
-            batch.push(updateDoc(docRef, { read: true }));
-        }
+        naoLidas.forEach(notif => {
+            const ref = doc(db, 'empresas', usuario.empresaId, 'notificacoes', notif.id);
+            batch.update(ref, { read: true });
+        });
 
-        await Promise.all(batch);
+        await batch.commit();
 
+        // Update local state
         naoLidas.forEach(n => n.read = true);
 
         showMsg('Todas marcadas como lidas', 'success');
@@ -230,6 +268,7 @@ async function marcarTodasComoLidas() {
     }
 }
 
+// Tab switching
 document.querySelectorAll('.tab-btn').forEach(btn => {
     btn.addEventListener('click', () => {
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -239,7 +278,10 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
     });
 });
 
-btnMarcarTodas.addEventListener('click', marcarTodasComoLidas);
+// Events
+if (btnMarcarTodas) {
+    btnMarcarTodas.addEventListener('click', marcarTodasComoLidas);
+}
 document.getElementById('fechar-modal').addEventListener('click', () => {
     modalDetalhes.classList.add('hidden');
 });
@@ -249,5 +291,6 @@ modalDetalhes.addEventListener('click', (e) => {
     }
 });
 
+// Initialize
 document.addEventListener('DOMContentLoaded', carregarNotificacoes);
 

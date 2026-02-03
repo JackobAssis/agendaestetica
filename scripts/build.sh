@@ -52,9 +52,15 @@ echo ""
 echo "📂 Estrutura do public/:"
 find "$PROJECT_DIR/public" -maxdepth 2 -type f -name "*.js" -o -name "*.html" | head -20
 
+# Inject Firebase configuration
+echo ""
+echo "🔧 Injetando configuração do Firebase..."
+cd "$SCRIPT_DIR"
+node inject-config.js
+
 echo ""
 echo "✅ Build concluído com sucesso!"
 echo "📦 Pasta public/ pronta para deploy"
 echo ""
-echo "💡 Firebase config será carregado via import.meta.env.VITE_FIREBASE_*"
+echo "💡 Firebase config foi injetado via inject-config.js"
 

@@ -8,21 +8,41 @@
     
     <title>AgendaEstética - Login</title>
     
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/assets/images/favicon.svg">
+    <link rel="apple-touch-icon" href="/assets/images/favicon.svg">
+    
     <link rel="stylesheet" href="/styles/global.css">
     <link rel="stylesheet" href="/styles/login.css">
     
-<!-- Firebase Configuration Placeholder -->
-<!-- ⚠️ NÃO EDITE ESTE BLOCO - será substituído durante o build -->
-<!-- Configuração será injetada via scripts/inject-config.js -->
-<!-- Para desenvolvimento local: configure as variáveis no .env.local -->
-<!-- Para Vercel: configure VITE_FIREBASE_* em Settings > Environment Variables -->
-<script>
+<!-- Firebase Configuration -->
+
+// Firebase Configuration - INJETADO VIA BUILD
+// NÃO EDITE ESTE BLOCO MANUALMENTE
 (function() {
-    // Este script será substituído pelo inject-config.js durante o build
-    // Verifique se window.APP_CONFIG.firebase contém a configuração válida
-    console.log('Firebase config placeholder - aguardando injeção do build');
+    // Verificar se já existe configuração
+    if (window.APP_CONFIG && window.APP_CONFIG.firebase) {
+        console.log('✅ Firebase config já carregada');
+        return;
+    }
+    
+    // Configuração do Firebase
+    window.APP_CONFIG = {
+        firebase: {
+            apiKey: "AIzaSyDj3cSnhFusveRRzCm8OGOIboiqQjCYy94",
+            authDomain: "agendaestetica-fe8b9.firebaseapp.com",
+            projectId: "agendaestetica-fe8b9",
+            storageBucket: "agendaestetica-fe8b9.firebasestorage.app",
+            messagingSenderId: "735305856969",
+            appId: "1:735305856969:web:9d28f77af9d302f2699a18"
+        }
+    };
+    
+    console.log('✅ Firebase config injetada com sucesso');
+    console.log('Project ID:', window.APP_CONFIG.firebase.projectId);
 })();
-</script>
+// FIM Firebase Configuration
+
 <!-- End Firebase Configuration -->
     
     <script>

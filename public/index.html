@@ -8,154 +8,181 @@
     
     <title>AgendaEstética - Login</title>
     
-    <link rel="stylesheet" href="styles/global.css">
-    <link rel="stylesheet" href="styles/login.css">
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/assets/images/favicon.svg">
+    <link rel="apple-touch-icon" href="/assets/images/favicon.svg">
+    
+    <link rel="stylesheet" href="/styles/global.css">
+    <link rel="stylesheet" href="/styles/login.css">
+    
+<!-- Firebase Configuration -->
+
+// Firebase Configuration - INJETADO VIA BUILD
+// NÃO EDITE ESTE BLOCO MANUALMENTE
+(function() {
+    // Verificar se já existe configuração
+    if (window.APP_CONFIG && window.APP_CONFIG.firebase) {
+        console.log('✅ Firebase config já carregada');
+        return;
+    }
+    
+    // Configuração do Firebase
+    window.APP_CONFIG = {
+        firebase: {
+            apiKey: "AIzaSyDj3cSnhFusveRRzCm8OGOIboiqQjCYy94",
+            authDomain: "agendaestetica-fe8b9.firebaseapp.com",
+            projectId: "agendaestetica-fe8b9",
+            storageBucket: "agendaestetica-fe8b9.firebasestorage.app",
+            messagingSenderId: "735305856969",
+            appId: "1:735305856969:web:9d28f77af9d302f2699a18"
+        }
+    };
+    
+    console.log('✅ Firebase config injetada com sucesso');
+    console.log('Project ID:', window.APP_CONFIG.firebase.projectId);
+})();
+// FIM Firebase Configuration
+
+<!-- End Firebase Configuration -->
+    
+    <script>
+    // Verificar se configuração foi injetada
+    (function() {
+        if (typeof window !== 'undefined' && window.APP_CONFIG && window.APP_CONFIG.firebase) {
+            console.log('✅ Firebase config carregada do build');
+            return;
+        }
+        console.warn('⚠️ Firebase config não encontrada - modo demo');
+    })();
+    </script>
 </head>
 <body>
     <div id="app">
+        <!-- Loading state -->
         <div class="loading-screen" id="loading-screen">
             <div class="loading-spinner"></div>
             <p>Carregando AgendaEstética...</p>
         </div>
     </div>
     
-    <!-- Main Application Module -->
     <script type="module">
-        // Firebase v9+ modular SDK imports
+        import firebaseConfig from './config.js';
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.5.0/firebase-app.js';
         import { getAuth, setPersistence, browserLocalPersistence } from 'https://www.gstatic.com/firebasejs/10.5.0/firebase-auth.js';
         import { getFirestore } from 'https://www.gstatic.com/firebasejs/10.5.0/firebase-firestore.js';
         import { getStorage } from 'https://www.gstatic.com/firebasejs/10.5.0/firebase-storage.js';
-        
-        // Import config from single source of truth
-        import { firebaseConfig, firebaseConfigValid, firebaseDemoMode } from './config.js';
-        
-        // Import router
         import { setupRouter } from './router.js';
         
-        // ==========================================
-        // UI Helper Functions
-        // ==========================================
-        
-        function showCriticalError() {
-            const screen = document.getElementById('loading-screen');
-            if (screen) {
-                screen.innerHTML = `
-                    <div class="error-screen">
-                        <h2>Configuração Necessária</h2>
-                        <p>Firebase não está configurado.</p>
-                        <p>Configure VITE_FIREBASE_* no Vercel Dashboard.</p>
-                    </div>
-                `;
-            }
+        // ✅ Verificação RIGOROSA de configuração
+        function isFirebaseConfigValid(config) {
+            if (!config) return false;
+            if (typeof config.apiKey !== 'string') return false;
+            if (config.apiKey.length <= 10) return false;
+            if (config.apiKey.includes('placeholder')) return false;
+            if (config.apiKey.includes('undefined')) return false;
+            if (config.apiKey.includes('null')) return false;
+            if (!config.apiKey.startsWith('AIzaSy')) return false;
+            return true;
         }
         
-        function showDemoMode() {
-            const screen = document.getElementById('loading-screen');
-            if (screen) {
-                screen.innerHTML = `
-                    <div class="demo-mode-screen">
-                        <h2>Modo Demo</h2>
-                        <p>Firebase não configurado.</p>
-                        <p>Configure .env.local para testar localmente.</p>
-                    </div>
-                `;
-            }
-        }
-        
-        // ==========================================
-        // Firebase Initialization
-        // ==========================================
-        
-        let firebaseApp = null;
-        let firebaseAuth = null;
-        let firebaseDB = null;
-        let firebaseStorage = null;
-        
-        async function initializeFirebase() {
-            if (!firebaseConfigValid) {
-                console.warn('[Firebase] Config invalid, skipping initialization');
-                return false;
-            }
-            
-            try {
-                firebaseApp = initializeApp(firebaseConfig);
-                firebaseAuth = getAuth(firebaseApp);
-                firebaseDB = getFirestore(firebaseApp);
-                firebaseStorage = getStorage(firebaseApp);
-                
-                // Set persistence
-                try {
-                    await setPersistence(firebaseAuth, browserLocalPersistence);
-                } catch (e) {
-                    console.warn('[Firebase] Persistence warning:', e.message);
-                }
-                
-                // Expose globally for auth.js and other modules
-                window.firebaseApp = firebaseApp;
-                window.firebaseAuth = firebaseAuth;
-                window.firebaseDB = firebaseDB;
-                window.firebaseStorage = firebaseStorage;
-                
-                console.log('[Firebase] Initialized successfully');
-                return true;
-            } catch (error) {
-                console.error('[Firebase] Initialization failed:', error);
-                return false;
-            }
-        }
-        
-        // ==========================================
-        // App Setup
-        // ==========================================
-        
-        async function setupApp() {
-            await setupRouter();
-            
-            // Check session after router is set up
-            if (firebaseConfigValid && firebaseAuth) {
-                const { verificarSessao } = await import('./modules/auth.js');
-                await verificarSessao();
-            }
-        }
-        
-        // ==========================================
-        // Main Flow Control
-        // ==========================================
-        
+        const isValidConfig = isFirebaseConfigValid(firebaseConfig);
         const isProduction = window.location.hostname !== 'localhost' && 
                             window.location.hostname !== '127.0.0.1';
         
-        // Initialize based on config status
-        async function main() {
-            console.log('[App] Starting... Mode:', firebaseDemoMode ? 'DEMO' : 'PROD');
-            
-            if (firebaseConfigValid) {
-                const initialized = await initializeFirebase();
-                if (initialized) {
-                    await setupApp();
-                } else {
-                    // Initialization failed but config was valid
-                    if (isProduction) {
-                        showCriticalError();
-                    } else {
-                        showDemoMode();
-                    }
-                    setupRouter();
-                }
-            } else {
-                // Config invalid
-                if (isProduction) {
-                    showCriticalError();
-                } else {
-                    showDemoMode();
-                }
-                setupRouter();
+        // Função para exibir tela de erro crítico
+        function showCriticalError() {
+            document.getElementById('loading-screen').innerHTML = `
+                <div class="error-screen">
+                    <h2>⚠️ Erro Crítico de Configuração</h2>
+                    <p>Firebase não está configurado corretamente.</p>
+                    <p class="error-details">O app não pode funcionar sem configuração válida.</p>
+                    <p><strong>Para resolver:</strong></p>
+                    <ul>
+                        <li>Configure VITE_FIREBASE_* no Vercel Dashboard</li>
+                        <li>Verifique FIREBASE-SETUP.md</li>
+                    </ul>
+                    <p class="error-details">Error: Firebase configuration missing</p>
+                </div>
+            `;
+        }
+        
+        // Função para exibir tela de modo demo
+        function showDemoMode() {
+            document.getElementById('loading-screen').innerHTML = `
+                <div class="demo-mode-screen">
+                    <h2>🧪 Modo Desenvolvimento</h2>
+                    <p>Firebase não configurado - modo demo.</p>
+                    <p>Configure .env.local para testar autenticação.</p>
+                    <ul>
+                        <li>VITE_FIREBASE_API_KEY</li>
+                        <li>VITE_FIREBASE_AUTH_DOMAIN</li>
+                        <li>VITE_FIREBASE_PROJECT_ID</li>
+                        <li>VITE_FIREBASE_STORAGE_BUCKET</li>
+                        <li>VITE_FIREBASE_MESSAGING_SENDER_ID</li>
+                        <li>VITE_FIREBASE_APP_ID</li>
+                    </ul>
+                </div>
+            `;
+        }
+        
+        // Função para inicializar Firebase
+        async function initializeFirebase() {
+            try {
+                const app = initializeApp(firebaseConfig);
+                const auth = getAuth(app);
+                const db = getFirestore(app);
+                const storage = getStorage(app);
+                
+                // Persistência
+                setPersistence(auth, browserLocalPersistence)
+                    .catch(error => console.warn('Persistence warning:', error.message));
+                
+                // Expor globalmente
+                window.firebaseApp = app;
+                window.firebase = { app, auth, db, storage, firestore: db };
+                
+                const { verificarSessao } = await import('./modules/auth.js');
+                
+                document.addEventListener('DOMContentLoaded', async () => {
+                    await setupRouter();
+                    await verificarSessao();
+                });
+            } catch (error) {
+                console.error('Firebase init error:', error);
+                document.getElementById('loading-screen').innerHTML = `
+                    <div class="error-screen">
+                        <h2>Erro de Inicialização</h2>
+                        <p>${error.message}</p>
+                    </div>
+                `;
             }
         }
         
-        // Start the app
-        main();
+        // ✅ Fluxo principal - decide o que fazer baseado na configuração
+        if (isValidConfig) {
+            // Configuração válida - inicializar Firebase normalmente
+            console.log('✅ Firebase config válida - inicializando...');
+            initializeFirebase();
+        } else if (isProduction) {
+            // Produção sem config válida - erro crítico
+            console.error('❌ Firebase config INVÁLIDA ou AUSENTE em produção!');
+            console.error('API Key:', firebaseConfig?.apiKey || 'NÃO DEFINIDA');
+            showCriticalError();
+            
+            // Setup router mesmo assim para permitir navegação
+            document.addEventListener('DOMContentLoaded', async () => {
+                await setupRouter();
+            });
+        } else {
+            // Desenvolvimento sem config - modo demo
+            console.warn('⚠️ Firebase config não encontrada - modo demo');
+            showDemoMode();
+            
+            // Setup router em modo demo
+            document.addEventListener('DOMContentLoaded', async () => {
+                await setupRouter();
+            });
+        }
     </script>
     
     <style>
@@ -165,14 +192,14 @@
             align-items: center;
             justify-content: center;
             min-height: 100vh;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-family: var(--font-family, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif);
         }
         
         .loading-spinner {
             width: 48px;
             height: 48px;
-            border: 4px solid #e0e0e0;
-            border-top-color: #6B46C1;
+            border: 4px solid var(--color-border, #e0e0e0);
+            border-top-color: var(--color-primary, #6B46C1);
             border-radius: 50%;
             animation: spin 1s linear infinite;
             margin-bottom: 16px;
@@ -190,6 +217,7 @@
         }
         
         .demo-mode-screen h2 { color: #e65100; margin-bottom: 16px; }
+        .demo-mode-screen ul { text-align: left; font-size: 13px; color: #666; margin: 16px 0; }
         
         .error-screen {
             text-align: center;
@@ -201,6 +229,7 @@
         }
         
         .error-screen h2 { color: #c62828; margin-bottom: 16px; }
+        .error-details { font-size: 12px; color: #666; margin-top: 8px; }
     </style>
 </body>
 </html>
