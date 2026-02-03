@@ -116,10 +116,13 @@
             });
             
             // ✅ Não inicializar Firebase com config inválida
+            // Em produção, não há mais nada a fazer
             if (isProduction) {
-                throw new Error('Firebase configuration required for production');
+                // Já mostrou o erro crítico acima
+                return;
             }
-            return; // Sai sem inicializar Firebase
+            // Em dev, sai sem inicializar Firebase
+            return;
         }
         
         // ✅ Configuração válida - inicializar Firebase
