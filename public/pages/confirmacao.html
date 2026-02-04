@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro Realizado - AgendaEstética</title>
+    <link rel="stylesheet" href="/styles/global.css">
+    <link rel="stylesheet" href="/styles/login.css">
+</head>
+<body>
+    <div class="container">
+        <div class="card confirmation-card">
+            <div class="icon-success">✅</div>
+            
+            <h1>Cadastro Realizado com Sucesso!</h1>
+            
+            <p class="message">
+                Bem-vindo ao AgendaEstética, <span id="user-name">Cliente</span>!
+            </p>
+            
+            <p class="details">
+                Seu email: <span id="user-email"></span>
+                <br>
+                Tipo: <span id="user-role"></span>
+            </p>
+            
+            <div class="actions">
+                <button id="continue-btn" class="btn btn-primary">
+                    Continuar
+                </button>
+            </div>
+            
+            <p class="help-text">
+                Em caso de dúvidas, entre em contato com o suporte.
+            </p>
+        </div>
+    </div>
+    
+    <script type="module">
+        // Importar funções de autenticação
+        import { obterUsuarioAtual } from '../modules/auth.js';
+        
+        console.log('✅ confirmacao.js loaded');
+        
+        document.addEventListener('DOMContentLoaded', async () => {
+            console.log('🔧 Confirmation page initializing');
+            
+            const usuario = obterUsuarioAtual();
+            
+            if (usuario) {
+                // User is logged in
+                document.getElementById('user-name').textContent = usuario.nome || 'Cliente';
+                document.getElementById('user-email').textContent = usuario.email || '';
+                document.getElementById('user-role').textContent = 
+                    usuario.role === 'profissional' ? 'Profissional' : 'Cliente';
+                
+                const continueBtn = document.getElementById('continue-btn');
+                continueBtn.onclick = () => {
+                    window.location.href = usuario.role === 'profissional' 
+                        ? '/dashboard' 
+                        : '/meus-agendamentos';
+                };
+            } else {
+                // No user - show generic confirmation
+                document.getElementById('user-name').textContent = 'Bem-vindo!';
+                
+                const continueBtn = document.getElementById('continue-btn');
+                continueBtn.onclick = () => {
+                    window.location.href = '/login';
+                };
+            }
+        });
+    </script>
+    
+    <style>
+        .confirmation-card {
+            max-width: 450px;
+            margin: 60px auto;
+            text-align: center;
+            padding: 40px;
+        }
+        
+        .icon-success {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+        
+        .message {
+            font-size: 18px;
+            color: var(--text-color, #333);
+            margin: 20px 0;
+        }
+        
+        .details {
+            font-size: 14px;
+            color: var(--text-muted, #666);
+            margin: 20px 0;
+        }
+        
+        .actions {
+            margin: 30px 0;
+        }
+        
+        .help-text {
+            font-size: 12px;
+            color: var(--text-muted, #999);
+        }
+    </style>
+</body>
+</html>
+

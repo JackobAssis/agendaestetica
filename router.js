@@ -28,6 +28,7 @@ const PAGES = {
     PAGINA_PUBLICA: { path: '/agenda/:profissionalId', file: '/pages/pagina-publica.html', public: true, requireAuth: false },
     LINK_AGENDAMENTO: { path: '/agendar/:profissionalId', file: '/pages/agendar-cliente.html', public: true, requireAuth: false },
     CONFIRMACAO: { path: '/confirmacao', file: '/pages/confirmacao.html', public: true, requireAuth: false },
+    AGENDAR_CLIENTE: { path: '/agendar-cliente', file: '/pages/agendar-cliente.html', public: true, requireAuth: false },
     HOME: { path: '/', file: '/index.html', public: true, requireAuth: false },
 };
 
