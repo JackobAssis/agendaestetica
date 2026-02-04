@@ -20,7 +20,6 @@ import {
     getFirebaseDB,
     createUserWithEmailAndPassword, 
     signInWithEmailAndPassword, 
-    signInAnonymously, 
     signOut, 
     sendPasswordResetEmail,
     updateProfile,
@@ -493,30 +492,36 @@ export async function loginProfissional(emailOuTelefone, senha) {
 
 /**
  * Login de Cliente
+ * Reference: 2.0.md - Login simplificado sem signInAnonymously
  */
 export async function loginCliente(email) {
-    const auth = getFirebaseAuth();
+    console.log('🔧 Iniciando login de cliente');
+    console.log('   Email:', email);
+    
     const db = getFirebaseDB();
     
     if (!email || !isValidEmail(email)) {
+        console.error('❌ Email inválido');
         throw new Error('Email inválido');
     }
     
+    console.log('✅ Email válido - consultando Firestore...');
+    
     const q = query(
         collection(db, 'usuarios'),
-        where('email', '==', email),
+        where('email', '==', email.toLowerCase().trim()),
         where('role', '==', 'cliente')
     );
     
     const querySnapshot = await getDocs(q);
     
     if (querySnapshot.empty) {
+        console.error('❌ Cliente não encontrado');
         throw new Error('Cliente não encontrado');
     }
     
     const clienteData = querySnapshot.docs[0].data();
-    
-    await signInAnonymously();
+    console.log('✅ Cliente encontrado - UID:', clienteData.uid);
     
     const usuario = {
         uid: clienteData.uid,
@@ -526,6 +531,7 @@ export async function loginCliente(email) {
     };
     
     localStorage.setItem('usuarioAtual', JSON.stringify(usuario));
+    console.log('✅ Login de cliente concluído');
     
     return usuario;
 }

@@ -16,23 +16,6 @@ import { getAuth } from 'https://www.gstatic.com/firebasejs/10.5.0/firebase-auth
 import { getFirestore } from 'https://www.gstatic.com/firebasejs/10.5.0/firebase-firestore.js';
 import { getStorage } from 'https://www.gstatic.com/firebasejs/10.5.0/firebase-storage.js';
 
-// ============================================================
-// Instance Cache - Singleton Pattern
-// ============================================================
-
-let _auth = null;
-let _db = null;
-let _storage = null;
-let _firebaseInitialized = false;
-
-/**
- * Check if Firebase is already initialized
- * Prevents multiple initializeApp() calls
- */
-function isFirebaseReady() {
-    return _firebaseInitialized && typeof window !== 'undefined' && window.firebaseApp;
-}
-
 /**
  * Get Firebase App instance
  * Uses window.firebaseApp (initialized in index.html)
@@ -53,7 +36,6 @@ export function getFirebaseApp() {
  * This marks that Firebase has been properly initialized
  */
 export function markFirebaseInitialized() {
-    _firebaseInitialized = true;
     console.log('✅ Firebase marcado como inicializado');
 }
 
@@ -64,15 +46,8 @@ export function markFirebaseInitialized() {
  * Reference: 2.0.md > Tarefa 3 - Reutilizar a mesma instância
  */
 export function getFirebaseAuth() {
-    if (_auth) return _auth;
-    
     const app = getFirebaseApp();
-    if (!app) {
-        throw new Error('Firebase Auth não pode ser obtido: App não inicializado');
-    }
-    
-    _auth = getAuth(app);
-    return _auth;
+    return getAuth(app);
 }
 
 /**
@@ -80,15 +55,8 @@ export function getFirebaseAuth() {
  * Uses window.firebaseApp if available, otherwise throws
  */
 export function getFirebaseDB() {
-    if (_db) return _db;
-    
     const app = getFirebaseApp();
-    if (!app) {
-        throw new Error('Firebase DB não pode ser obtido: App não inicializado');
-    }
-    
-    _db = getFirestore(app);
-    return _db;
+    return getFirestore(app);
 }
 
 /**
@@ -96,15 +64,8 @@ export function getFirebaseDB() {
  * Uses window.firebaseApp if available, otherwise throws
  */
 export function getFirebaseStorage() {
-    if (_storage) return _storage;
-    
     const app = getFirebaseApp();
-    if (!app) {
-        throw new Error('Firebase Storage não pode ser obtido: App não inicializado');
-    }
-    
-    _storage = getStorage(app);
-    return _storage;
+    return getStorage(app);
 }
 
 // ============================================================
@@ -136,7 +97,6 @@ export {
 export {
     createUserWithEmailAndPassword,
     signInWithEmailAndPassword,
-    signInAnonymously,
     signOut,
     sendPasswordResetEmail,
     updateProfile,
