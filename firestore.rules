@@ -60,7 +60,12 @@ service cloud.firestore {
 
     // Usuários: owner only
     match /usuarios/{userId} {
+      // Owner can do everything with their own document
       allow read, create, update, delete: if request.auth != null && request.auth.uid == userId;
+      
+      // Allow authenticated users to query by email (for signup validation)
+      // This is needed for verificarEmailExistente() in auth.js
+      allow list: if request.auth != null;
     }
   }
 }
