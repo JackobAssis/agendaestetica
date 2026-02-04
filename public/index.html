@@ -59,6 +59,7 @@
         
         // App imports
         import firebaseConfig from './config.js';
+        import { markFirebaseInitialized } from './modules/firebase.js';
         
         // ✅ Verificação RIGOROSA de configuração
         function isFirebaseConfigValid(config) {
@@ -113,6 +114,7 @@
         }
         
         // Função para inicializar Firebase PRIMEIRO
+        // Reference: 2.0.md > Tarefa 3 - Inicialização correta do Firebase
         async function initializeFirebaseFirst() {
             try {
                 console.log('🔧 Inicializando Firebase...');
@@ -128,6 +130,10 @@
                 // Expor globalmente ANTES de carregar módulos
                 window.firebaseApp = app;
                 window.firebase = { app, auth, db, storage, firestore: db };
+                
+                // ✅ Marcar Firebase como inicializado
+                // Reference: 2.0.md > Tarefa 3 - Evitar múltiplos initializeApp
+                markFirebaseInitialized();
                 
                 console.log('✅ Firebase inicializado com sucesso');
                 return { app, auth, db, storage };
@@ -237,3 +243,4 @@
     </style>
 </body>
 </html>
+

@@ -7,6 +7,8 @@
  * - Controle de sessão com Firebase Auth
  * - Persistência de dados do usuário em Firestore
  * - Logout e reset de senha
+ * 
+ * Reference: 2.0.md - Correção do Cadastro de Cliente
  */
 
 // ============================================================
@@ -37,6 +39,10 @@ import {
 // Helper Functions
 // ============================================================
 
+/**
+ * Validar email localmente
+ * Reference: 2.0.md > Tarefa 2 - Validar localmente antes do signup
+ */
 function isEmail(input) {
     return input && typeof input === 'string' && input.includes('@') && input.includes('.');
 }
@@ -63,83 +69,225 @@ function generateRandomPassword() {
     return Math.random().toString(36).slice(-12);
 }
 
+/**
+ * Mapear códigos de erro do Firebase para mensagens legíveis
+ * Reference: 2.0.md > Tarefa 1 - Tratamento correto de erros do Firebase Auth
+ */
+function getAuthErrorMessage(errorCode) {
+    const errorMessages = {
+        'auth/email-already-in-use': 'Este email já está cadastrado',
+        'auth/weak-password': 'A senha deve conter no mínimo 6 caracteres',
+        'auth/invalid-email': 'Email inválido',
+        'auth/operation-not-allowed': 'Cadastro por email está desativado. Entre em contato com o suporte.',
+        'auth/user-disabled': 'Esta conta foi desativada',
+        'auth/user-not-found': 'Usuário não encontrado',
+        'auth/wrong-password': 'Senha incorreta',
+        'auth/invalid-credential': 'Credenciais inválidas',
+        'auth/too-many-requests': 'Muitas tentativas consecutivas. Tente novamente mais tarde.',
+        'auth/network-request-failed': 'Erro de conexão. Verifique sua internet.',
+        'auth/internal-error': 'Erro interno. Tente novamente.',
+    };
+    
+    return errorMessages[errorCode] || 'Erro ao processar solicitação. Tente novamente.';
+}
+
+/**
+ * Verificar se email já existe no Firestore
+ * Reference: 2.0.md > Tarefa 2 - Consultar o Firestore antes do signup
+ */
+async function verificarEmailExistente(email, role = 'cliente') {
+    console.log('🔍 Verificando se email já existe:', email);
+    
+    const db = getFirebaseDB();
+    const q = query(
+        collection(db, 'usuarios'),
+        where('email', '==', email.toLowerCase().trim())
+    );
+    
+    const querySnapshot = await getDocs(q);
+    const exists = !querySnapshot.empty;
+    
+    if (exists) {
+        console.log('❌ Email já existe no Firestore');
+        const existingUser = querySnapshot.docs[0].data();
+        console.log('   Usuário existente:', existingUser.role, '- UID:', existingUser.uid);
+    } else {
+        console.log('✅ Email não encontrado - livre para cadastro');
+    }
+    
+    return exists;
+}
+
 // ============================================================
 // Main Authentication Functions
 // ============================================================
 
 /**
  * Cadastro de Profissional
+ * Reference: 2.0.md - Tarefas 1, 2, 4, 5
  */
 export async function cadastroProfissional(emailOuTelefone, senha, nome, profissao) {
-    const auth = getFirebaseAuth();
-    const db = getFirebaseDB();
+    console.log('🔧 Iniciando cadastro de profissional');
+    console.log('   Email/Telefone:', emailOuTelefone);
+    console.log('   Nome:', nome);
+    console.log('   Profissão:', profissao);
+    
+    // ============================================================
+    // Validação local
+    // Reference: 2.0.md > Tarefa 2 - Validar localmente antes do signup
+    // ============================================================
     
     if (!nome || !profissao) {
+        console.error('❌ Validação local falhou: nome ou profissão vazios');
         throw new Error('Nome e profissão são obrigatórios');
     }
+    
+    console.log('✅ Validação local (nome/profissão) passou');
+    
+    const auth = getFirebaseAuth();
+    const db = getFirebaseDB();
     
     let user;
     let email = null;
     let telefone = null;
     
     if (isEmail(emailOuTelefone)) {
+        // ============================================================
+        // Cadastro por Email
+        // ============================================================
+        
         if (!senha || senha.length < 6) {
+            console.error('❌ Validação local falhou: senha fraca');
             throw new Error('Senha deve ter no mínimo 6 caracteres');
         }
+        
         if (!isValidEmail(emailOuTelefone)) {
+            console.error('❌ Validação local falhou: email inválido');
             throw new Error('Email inválido');
         }
         
-        const result = await createUserWithEmailAndPassword(auth, emailOuTelefone, senha);
-        user = result.user;
-        email = emailOuTelefone;
+        console.log('✅ Validação local (email/senha) passou');
+        
+        // ============================================================
+        // Validação preventiva - Verificar email no Firestore
+        // Reference: 2.0.md > Tarefa 2 - Consultar o Firestore antes do signup
+        // ============================================================
+        
+        const emailExists = await verificarEmailExistente(emailOuTelefone, 'profissional');
+        
+        if (emailExists) {
+            console.error('❌ Email já existe - bloqueando signup');
+            throw new Error('Este email já está cadastrado');
+        }
+        
+        console.log('✅ Email validado - prosseguindo com signup');
+        
+        try {
+            console.log('🔧 Criando usuário no Firebase Auth...');
+            
+            const result = await createUserWithEmailAndPassword(
+                auth, 
+                emailOuTelefone.toLowerCase().trim(), 
+                senha
+            );
+            user = result.user;
+            email = emailOuTelefone.toLowerCase().trim();
+            
+            console.log('✅ Firebase Auth criado com sucesso - UID:', user.uid);
+            
+        } catch (error) {
+            // ============================================================
+            // Tratamento de erros do Firebase Auth
+            // Reference: 2.0.md > Tarefa 1 - Mapear erros para mensagens legíveis
+            // ============================================================
+            
+            console.error('❌ Erro durante cadastro de profissional:', error.code || error.message);
+            
+            if (error.code && error.code.startsWith('auth/')) {
+                const userMessage = getAuthErrorMessage(error.code);
+                console.error('   Erro traduzido:', userMessage);
+                throw new Error(userMessage);
+            }
+            
+            throw error;
+        }
         
     } else if (isPhone(emailOuTelefone)) {
+        // ============================================================
+        // Cadastro por Telefone (não implementado completamente)
+        // ============================================================
+        
         const phoneNumber = normalizePhone(emailOuTelefone);
         const telefoneUtilizado = await verificarTelefoneExistente(phoneNumber);
+        
         if (telefoneUtilizado) {
+            console.error('❌ Telefone já existe');
             throw new Error('Este telefone já está cadastrado');
         }
+        
+        console.log('⚠️ Cadastro por telefone requer verificação SMS');
         throw new Error('Para cadastro por telefone, verifique o código enviado por SMS');
+        
     } else {
+        console.error('❌ Validação local falhou: email ou telefone inválido');
         throw new Error('Email ou telefone inválido');
     }
     
-    await updateProfile(user, { displayName: nome });
+    // ============================================================
+    // Atualizar perfil e criar documentos no Firestore
+    // Reference: 2.0.md > Tarefa 4 - Estrutura consistente de dados
+    // ============================================================
     
-    const empresaId = `prof_${user.uid}`;
-    
-    await setDoc(doc(db, 'usuarios', user.uid), {
-        uid: user.uid,
-        email: email,
-        telefone: telefone,
-        nome: nome,
-        profissao: profissao,
-        role: 'profissional',
-        empresaId: empresaId,
-        criadoEm: new Date().toISOString(),
-        ativo: true,
-    });
-    
-    await setDoc(doc(db, 'empresas', empresaId), {
-        empresaId: empresaId,
-        proprietarioUid: user.uid,
-        nome: nome,
-        profissao: profissao,
-        contato: telefone || email,
-        criadoEm: new Date().toISOString(),
-        ativo: true,
-        plano: 'free',
-    });
-    
-    return {
-        uid: user.uid,
-        email: email,
-        telefone: telefone,
-        nome: nome,
-        role: 'profissional',
-        empresaId: empresaId,
-    };
+    try {
+        await updateProfile(user, { displayName: nome });
+        console.log('✅ Perfil atualizado com nome');
+        
+        const empresaId = `prof_${user.uid}`;
+        
+        console.log('🔧 Salvando profissional no Firestore...');
+        
+        // Criar documento do usuário
+        await setDoc(doc(db, 'usuarios', user.uid), {
+            uid: user.uid,
+            email: email,
+            telefone: telefone,
+            nome: nome,
+            profissao: profissao,
+            role: 'profissional',
+            empresaId: empresaId,
+            criadoEm: new Date().toISOString(),
+            ativo: true,
+        });
+        
+        console.log('✅ Profissional salvo no Firestore');
+        
+        // Criar documento da empresa
+        await setDoc(doc(db, 'empresas', empresaId), {
+            empresaId: empresaId,
+            proprietarioUid: user.uid,
+            nome: nome,
+            profissao: profissao,
+            contato: telefone || email,
+            criadoEm: new Date().toISOString(),
+            ativo: true,
+            plano: 'free',
+        });
+        
+        console.log('✅ Empresa criada no Firestore');
+        
+        return {
+            uid: user.uid,
+            email: email,
+            telefone: telefone,
+            nome: nome,
+            role: 'profissional',
+            empresaId: empresaId,
+        };
+        
+    } catch (error) {
+        console.error('❌ Erro ao salvar dados no Firestore:', error);
+        throw error;
+    }
 }
 
 /**
@@ -157,41 +305,114 @@ async function verificarTelefoneExistente(telefone) {
 
 /**
  * Cadastro de Cliente
+ * Reference: 2.0.md - Tarefas 1, 2, 4, 5
  */
 export async function cadastroCliente(email, nome) {
-    const auth = getFirebaseAuth();
-    const db = getFirebaseDB();
+    console.log('🔧 Iniciando cadastro de cliente');
+    console.log('   Email:', email);
+    console.log('   Nome:', nome);
+    
+    // ============================================================
+    // Validação local
+    // Reference: 2.0.md > Tarefa 2 - Validar localmente antes do signup
+    // ============================================================
     
     if (!email || !nome) {
+        console.error('❌ Validação local falhou: email ou nome vazios');
         throw new Error('Email e nome são obrigatórios');
     }
+    
     if (!isValidEmail(email)) {
+        console.error('❌ Validação local falhou: email inválido');
         throw new Error('Email inválido');
     }
     
-    const { user } = await createUserWithEmailAndPassword(
-        auth,
-        email,
-        generateRandomPassword()
-    );
+    console.log('✅ Validação local passou');
     
-    await updateProfile(user, { displayName: nome });
+    // ============================================================
+    // Validação preventiva - Verificar email no Firestore
+    // Reference: 2.0.md > Tarefa 2 - Consultar o Firestore antes do signup
+    // ============================================================
     
-    await setDoc(doc(db, 'usuarios', user.uid), {
-        uid: user.uid,
-        email: email,
-        nome: nome,
-        role: 'cliente',
-        criadoEm: new Date().toISOString(),
-        ativo: true,
-    });
+    const emailExists = await verificarEmailExistente(email, 'cliente');
     
-    return {
-        uid: user.uid,
-        email: user.email,
-        nome: nome,
-        role: 'cliente',
-    };
+    if (emailExists) {
+        console.error('❌ Email já existe - bloqueando signup');
+        throw new Error('Este email já está cadastrado');
+    }
+    
+    console.log('✅ Email validado - prosseguindo com signup');
+    
+    // ============================================================
+    // Firebase Auth - Criar usuário
+    // ============================================================
+    
+    const auth = getFirebaseAuth();
+    const db = getFirebaseDB();
+    
+    try {
+        console.log('🔧 Criando usuário no Firebase Auth...');
+        
+        const { user } = await createUserWithEmailAndPassword(
+            auth,
+            email.toLowerCase().trim(),
+            generateRandomPassword()
+        );
+        
+        console.log('✅ Firebase Auth criado com sucesso - UID:', user.uid);
+        
+        // Atualizar perfil com nome
+        await updateProfile(user, { displayName: nome });
+        console.log('✅ Perfil atualizado com nome');
+        
+        // ============================================================
+        // Criar documento no Firestore
+        // Reference: 2.0.md > Tarefa 4 - Estrutura consistente de dados
+        // ============================================================
+        
+        console.log('🔧 Salvando cliente no Firestore...');
+        
+        const clienteData = {
+            uid: user.uid,
+            email: email.toLowerCase().trim(),
+            nome: nome,
+            role: 'cliente',
+            criadoEm: new Date().toISOString(),
+            ativo: true,
+        };
+        
+        await setDoc(doc(db, 'usuarios', user.uid), clienteData);
+        
+        console.log('✅ Cliente salvo no Firestore');
+        console.log('   Document ID:', user.uid);
+        console.log('   Email:', email);
+        console.log('   Nome:', nome);
+        
+        return {
+            uid: user.uid,
+            email: user.email,
+            nome: nome,
+            role: 'cliente',
+        };
+        
+    } catch (error) {
+        // ============================================================
+        // Tratamento de erros do Firebase Auth
+        // Reference: 2.0.md > Tarefa 1 - Mapear erros para mensagens legíveis
+        // ============================================================
+        
+        console.error('❌ Erro durante cadastro de cliente:', error.code || error.message);
+        
+        // Se o erro é do Firebase Auth, traduzir para mensagem legível
+        if (error.code && error.code.startsWith('auth/')) {
+            const userMessage = getAuthErrorMessage(error.code);
+            console.error('   Erro traduzido:', userMessage);
+            throw new Error(userMessage);
+        }
+        
+        // Erro genérico
+        throw error;
+    }
 }
 
 /**
