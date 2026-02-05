@@ -592,11 +592,34 @@ export function obterUsuarioAtual() {
 
 /**
  * Logout
+ * Reference: 2.0.md - Logging e tratamento de erros
  */
 export async function logout() {
-    const auth = getFirebaseAuth();
+    console.log('🔧 Iniciando logout...');
+    
+    try {
+        const auth = getFirebaseAuth();
+        
+        // Verificar se há usuário logado
+        if (auth.currentUser) {
+            console.log('✅ Usuário logado:', auth.currentUser.uid);
+            await signOut(auth);
+            console.log('✅ SignOut realizado com sucesso');
+        } else {
+            console.log('⚠️ Nenhum usuário logado, apenas limpando localStorage');
+        }
+        
+    } catch (error) {
+        console.error('❌ Erro durante signOut:', error);
+        // Continuar mesmo se signOut falhar (pode ser que não há sessão ativa)
+    }
+    
+    // Sempre limpar localStorage e redirecionar
     localStorage.removeItem('usuarioAtual');
-    await signOut(auth);
+    console.log('✅ localStorage limpo');
+    console.log('🔄 Redirecionando para /login...');
+    
+    // Redirecionar para login
     window.location.href = '/login';
 }
 
