@@ -218,19 +218,87 @@ export async function listAgendamentosEmpresa(empresaId, opts = {}) {
 
 /**
  * Listar agendamentos de um cliente
+ * Busca em todas as empresas usando a estrutura do Firestore
  */
 export async function listAgendamentosCliente(clienteUid) {
-    const db = getFirebaseDB();  // ✅ v9+
+    const db = getFirebaseDB();
     
-    // Note: collectionGroup queries require composite indexes in Firestore
-    const q = query(
-        collection(db, 'agendamentos'),
-        where('clienteUid', '==', clienteUid),
-        orderBy('inicio', 'asc')
-    );
+    // Approach 1: Try collectionGroup query (requires composite index)
+    // This is the most efficient but requires Firestore composite index
+    try {
+        // Usar collectionGroup para buscar em todas as subcoleções 'agendamentos'
+        // Nota: Isso requer um índice composite no Firestore
+        const { getDocs, query, where, orderBy, collectionGroup } = await import('../modules/firebase.js');
+        
+        const q = query(
+            collectionGroup(db, 'agendamentos'),
+            where('clienteUid', '==', clienteUid),
+            orderBy('inicio', 'asc')
+        );
+        
+        const snap = await getDocs(q);
+        return snap.docs.map(d => ({
+            id: d.id,
+            ...d.data(),
+            refPath: d.ref.path,
+            // Extrair empresaId do path: empresas/{empresaId}/agendamentos/{agendamentoId}
+            empresaId: d.ref.path.split('/')[1]
+        }));
+    } catch (indexError) {
+        // Se falhar por índice, usar approach alternativo
+        console.warn('CollectionGroup query falhou (precisa de índice), usando approach alternativo:', indexError.message);
+    }
     
-    const snap = await getDocs(q);
-    return snap.docs.map(d => ({ id: d.id, ...d.data(), refPath: d.ref.path }));
+    // Approach 2: Fallback - buscar empresas primeiro, depois agendamentos
+    // Este approach funciona sem índice composite
+    try {
+        const { getDocs, query, where, collection, doc, getDoc } = await import('../modules/firebase.js');
+        
+        // Buscar dados do cliente para obter empresas vinculadas
+        const clienteDoc = await getDoc(doc(db, 'usuarios', clienteUid));
+        let empresas = [];
+        
+        if (clienteDoc.exists()) {
+            const clienteData = clienteDoc.data();
+            // Cliente pode ter campo 'empresas' com array de IDs
+            empresas = clienteData.empresas || [];
+        }
+        
+        // Se não tem empresas vinculadas, buscar todas as empresas e filtrar
+        // (menos eficiente mas garante funcionamento)
+        if (empresas.length === 0) {
+            const empresasSnap = await getDocs(collection(db, 'empresas'));
+            empresas = empresasSnap.docs.map(d => d.id);
+        }
+        
+        // Buscar agendamentos de cada empresa
+        const todosAgendamentos = [];
+        for (const empId of empresas) {
+            const agendamentosRef = collection(db, 'empresas', empId, 'agendamentos');
+            const q = query(
+                agendamentosRef,
+                where('clienteUid', '==', clienteUid)
+            );
+            
+            const snap = await getDocs(q);
+            for (const doc of snap.docs) {
+                todosAgendamentos.push({
+                    id: doc.id,
+                    ...doc.data(),
+                    refPath: doc.ref.path,
+                    empresaId: empId
+                });
+            }
+        }
+        
+        // Ordenar por data
+        return todosAgendamentos.sort((a, b) => 
+            new Date(a.inicio) - new Date(b.inicio)
+        );
+    } catch (error) {
+        console.error('Erro ao buscar agendamentos do cliente:', error);
+        throw error;
+    }
 }
 
 /**

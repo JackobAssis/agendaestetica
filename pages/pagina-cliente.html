@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AgendaEstética - Minha Página</title>
+  <link rel="stylesheet" href="/styles/global.css">
+  <link rel="stylesheet" href="/styles/pagina-cliente.css">
+</head>
+<body>
+  <main class="pagina-cliente-container" id="app">
+    <!-- Loading State -->
+    <div id="loading-state" class="loading-container">
+      <div class="loading-spinner"></div>
+      <p>Carregando seus dados...</p>
+    </div>
+
+    <!-- Error State -->
+    <div id="error-state" class="error-container hidden">
+      <h3>Ops! Algo deu errado</h3>
+      <p id="error-message">Não foi possível carregar seus dados.</p>
+      <button class="btn btn-primary" onclick="window.location.reload()">Tentar novamente</button>
+    </div>
+
+    <!-- Main Content -->
+    <div id="main-content" class="hidden">
+      <!-- Identidade do Profissional -->
+      <header class="profissional-header">
+        <div class="profissional-banner" id="profissional-banner">
+          <span class="profissional-banner-placeholder" id="banner-initial"></span>
+        </div>
+        <h1 class="profissional-nome" id="profissional-nome">Carregando...</h1>
+        <p class="profissional-profissao" id="profissional-profissao"></p>
+      </header>
+
+      <!-- Próximo Agendamento -->
+      <section class="secao-agendamento">
+        <h2 class="secao-titulo">Próximo Agendamento</h2>
+        
+        <!-- Com Agendamento -->
+        <div id="com-agendamento" class="hidden">
+          <div class="agendamento-card">
+            <div class="agendamento-info">
+              <p class="agendamento-data-hora" id="agendamento-data-hora">--</p>
+              <p class="agendamento-servico" id="agendamento-servico">Serviço</p>
+              <span class="agendamento-status" id="agendamento-status">Status</span>
+            </div>
+            <div class="agendamento-acoes" id="agendamento-acoes">
+              <button class="btn btn-troca" id="btn-solicitar-troca">Solicitar troca</button>
+              <button class="btn btn-cancelar" id="btn-cancelar-agendamento">Cancelar</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sem Agendamento -->
+        <div id="sem-agendamento" class="sem-agendamento hidden">
+          <p class="sem-agendamento-msg">Você não possui agendamentos ativos no momento.</p>
+          <a href="/" class="btn-ver-agenda">Ver agenda disponível</a>
+        </div>
+      </section>
+
+      <!-- Histórico de Agendamentos -->
+      <section class="secao-historico">
+        <h2 class="secao-titulo">Histórico</h2>
+        <div class="historico-lista" id="historico-lista">
+          <!-- Renderizado via JS -->
+        </div>
+      </section>
+
+      <!-- Cursos (Condicional) -->
+      <section class="secao-cursos hidden" id="secao-cursos">
+        <h2 class="secao-titulo">Cursos Disponíveis</h2>
+        <div class="cursos-lista" id="cursos-lista">
+          <!-- Renderizado via JS -->
+        </div>
+      </section>
+
+      <!-- Perfil do Cliente -->
+      <section class="secao-perfil">
+        <h2 class="secao-titulo">Meu Perfil</h2>
+        <div class="perfil-card">
+          <div class="perfil-item">
+            <span class="perfil-label">Nome</span>
+            <span class="perfil-valor" id="cliente-nome">--</span>
+          </div>
+          <div class="perfil-item">
+            <span class="perfil-label">Email</span>
+            <span class="perfil-valor" id="cliente-email">--</span>
+          </div>
+          <div class="perfil-item">
+            <span class="perfil-label">Telefone</span>
+            <span class="perfil-valor" id="cliente-telefone">--</span>
+          </div>
+          <div class="perfil-editar">
+            <button class="btn" id="btn-sair">Sair</button>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- Modal: Solicitar Troca -->
+    <div id="modal-troca" class="modal-overlay hidden" role="dialog" aria-labelledby="modal-troca-title" aria-modal="true">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3 id="modal-troca-title">Solicitar Troca de Data</h3>
+          <button class="modal-close" id="fechar-modal-troca" aria-label="Fechar">&times;</button>
+        </div>
+        <div class="modal-body">
+          <p>Agendamento atual: <strong id="troca-atual"></strong></p>
+          
+          <label for="troca-data">Nova Data</label>
+          <select id="troca-data" required>
+            <option value="">Selecione uma data</option>
+          </select>
+          
+          <label for="troca-hora">Novo Horário</label>
+          <select id="troca-hora" required disabled>
+            <option value="">Selecione uma data primeiro</option>
+          </select>
+          
+          <label for="troca-motivo">Motivo (opcional)</label>
+          <textarea id="troca-motivo" placeholder="Explique o motivo da troca..."></textarea>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-modal-secondary" id="cancelar-modal-troca">Cancelar</button>
+          <button class="btn btn-modal-primary" id="enviar-troca">Enviar Solicitação</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal: Confirmar Cancelamento -->
+    <div id="modal-cancelar" class="modal-overlay hidden" role="dialog" aria-labelledby="modal-cancelar-title" aria-modal="true">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3 id="modal-cancelar-title">Confirmar Cancelamento</h3>
+          <button class="modal-close" id="fechar-modal-cancelar" aria-label="Fechar">&times;</button>
+        </div>
+        <div class="modal-body">
+          <p>Tem certeza que deseja cancelar este agendamento?</p>
+          <p class="text-secondary">Esta ação não pode ser desfeita.</p>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-modal-secondary" id="nao-cancelar">Não, manter</button>
+          <button class="btn btn-modal-primary" id="confirmar-cancelar">Sim, cancelar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Feedback Message -->
+    <div id="feedback-message" class="feedback-message hidden"></div>
+  </main>
+
+  <script type="module" src="/pages/pagina-cliente.js"></script>
+</body>
+</html>
+
