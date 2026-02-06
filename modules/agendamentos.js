@@ -7,6 +7,7 @@ import {
     getFirebaseDB, 
     getFirebaseAuth,
     collection, 
+    collectionGroup,
     doc, 
     addDoc, 
     getDoc, 

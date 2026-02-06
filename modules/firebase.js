@@ -74,6 +74,7 @@ export function getFirebaseStorage() {
 
 export {
     collection,
+    collectionGroup,
     doc,
     setDoc,
     getDoc,

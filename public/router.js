@@ -22,6 +22,7 @@ const PAGES = {
     CLIENTES: { path: '/clientes', file: '/pages/clientes.html', public: false, requireAuth: true },
     PERFIL: { path: '/perfil', file: '/pages/perfil.html', public: false, requireAuth: true },
     MEUS_AGENDAMENTOS: { path: '/meus-agendamentos', file: '/pages/meus-agendamentos.html', public: false, requireAuth: true, role: 'cliente' },
+    PAGINA_CLIENTE: { path: '/pagina-cliente', file: '/pages/pagina-cliente.html', public: false, requireAuth: true, role: 'cliente' },
     SOLICITACOES_TROCA: { path: '/solicitacoes-troca', file: '/pages/solicitacoes-troca.html', public: false, requireAuth: true, role: 'profissional' },
     NOTIFICACOES: { path: '/notificacoes', file: '/pages/notificacoes.html', public: false, requireAuth: true },
     RELATORIOS: { path: '/relatorios', file: '/pages/relatorios.html', public: false, requireAuth: true, role: 'profissional' },
