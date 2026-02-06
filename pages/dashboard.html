@@ -1,286 +1,217 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" data-theme="neo">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AgendaEstética - Dashboard do Profissional</title>
+    <title>AgendaEstética - Dashboard</title>
     <link rel="stylesheet" href="/styles/global.css">
+    <link rel="stylesheet" href="/styles/theme.css">
     <link rel="stylesheet" href="/styles/dashboard.css">
 </head>
 <body>
     <div id="app">
-        <div class="dashboard-container">
+        
+        <!-- HEADER FIXO -->
+        <header class="app-header dashboard-header">
+            <button id="mobile-menu-toggle" class="menu-toggle">☰</button>
+            <div class="header-title">
+                <h1 class="logo">📅 AgendaEstética</h1>
+            </div>
+            <div class="header-actions">
+                <button id="btn-logout" class="btn-icon" title="Logout">🚪</button>
+            </div>
+        </header>
+        
+        <!-- CONTEÚDO PRINCIPAL -->
+        <main class="app-main">
             
-            <!-- Header -->
-            <header class="header">
-                <div class="header-content">
-                    <div class="header-left">
-                        <h1 class="logo">📅 AgendaEstética</h1>
-                        <p id="usuario-info" class="usuario-info">Carregando...</p>
-                    </div>
-                    <div class="header-right">
-                        <button id="btn-logout" class="btn-logout">Logout</button>
-                    </div>
+            <!-- Welcome Card -->
+            <div class="welcome-card">
+                <div class="welcome-content">
+                    <h2 id="welcome-message">Carregando...</h2>
+                    <p class="welcome-subtitle">Aqui está o resumo do seu dia profissional</p>
                 </div>
-            </header>
+                <div class="welcome-actions">
+                    <a href="/agendar-cliente" class="btn">
+                        ➕ Novo Agendamento
+                    </a>
+                </div>
+            </div>
             
-            <!-- Navigation Sidebar -->
-            <nav class="sidebar">
-                <div class="sidebar-header">
-                    <div class="profissional-avatar">👤</div>
-                    <p id="profissional-nome" class="profissional-nome">Carregando...</p>
-                </div>
-                <ul class="nav-list">
-                    <li><a href="/dashboard" class="nav-link active">
-                        <span class="nav-icon">🏠</span> Dashboard
-                    </a></li>
-                    <li><a href="/agenda" class="nav-link">
-                        <span class="nav-icon">📅</span> Agenda
-                    </a></li>
-                    <li><a href="/agendamentos" class="nav-link">
-                        <span class="nav-icon">📋</span> Agendamentos
-                    </a></li>
-                    <li><a href="/clientes" class="nav-link">
-                        <span class="nav-icon">👥</span> Clientes
-                    </a></li>
-                    <li><a href="/relatorios" class="nav-link">
-                        <span class="nav-icon">📈</span> Relatórios
-                    </a></li>
-                    <li><a href="/notificacoes" class="nav-link">
-                        <span class="nav-icon">🔔</span> Notificações
-                    </a></li>
-                    <li><a href="/perfil" class="nav-link">
-                        <span class="nav-icon">⚙️</span> Configurações
-                    </a></li>
-                </ul>
-                <div class="sidebar-footer">
-                    <div class="plano-badge" id="plano-badge">
-                        <span class="badge plano-free">Free</span>
+            <!-- Stats Grid -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">📅</div>
+                    <div class="stat-info">
+                        <p class="stat-value" id="count-hoje">0</p>
+                        <p class="stat-label">Hoje</p>
                     </div>
                 </div>
-            </nav>
+                <div class="stat-card">
+                    <div class="stat-icon">👥</div>
+                    <div class="stat-info">
+                        <p class="stat-value" id="count-clientes">0</p>
+                        <p class="stat-label">Clientes</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">⏰</div>
+                    <div class="stat-info">
+                        <p class="stat-value" id="count-pendentes">0</p>
+                        <p class="stat-label">Pendentes</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">💰</div>
+                    <div class="stat-info">
+                        <p class="stat-value" id="receita-hoje">R$ 0</p>
+                        <p class="stat-label">Receita</p>
+                    </div>
+                </div>
+            </div>
             
-            <!-- Mobile Menu Toggle -->
-            <button id="mobile-menu-toggle" class="mobile-menu-toggle">
-                ☰
-            </button>
+            <!-- AGENDA DE HOJE -->
+            <section class="card">
+                <div class="card-header">
+                    <h3>📅 Agenda de Hoje</h3>
+                    <a href="/agenda" class="card-link">Ver todos →</a>
+                </div>
+                <div id="agenda-hoje-container" class="card-body">
+                    <div class="state-loading">
+                        <p>Carregando...</p>
+                    </div>
+                </div>
+            </section>
             
-            <!-- Main Content -->
-            <main class="main-content">
-                
-                <!-- ============================================ -->
-                <!-- MÓDULO 1: VISÃO GERAL -->
-                <!-- ============================================ -->
-                
-                <section class="visao-geral-section">
-                    
-                    <!-- Welcome Card -->
-                    <div class="welcome-card">
-                        <div class="welcome-content">
-                            <h2 id="welcome-message">Carregando...</h2>
-                            <p class="welcome-subtitle">Aqui está o resumo do seu dia profissional</p>
-                        </div>
-                        <div class="welcome-actions">
-                            <a href="/agendar-cliente" class="btn-primary">
-                                ➕ Novo Agendamento
-                            </a>
-                        </div>
-                    </div>
-                    
-                    <!-- Stats Grid -->
-                    <div class="stats-grid">
-                        <div class="stat-card">
-                            <div class="stat-icon">📅</div>
-                            <div class="stat-info">
-                                <p class="stat-value" id="count-hoje">0</p>
-                                <p class="stat-label">Agendamentos Hoje</p>
-                            </div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-icon">👥</div>
-                            <div class="stat-info">
-                                <p class="stat-value" id="count-clientes">0</p>
-                                <p class="stat-label">Total de Clientes</p>
-                            </div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-icon">⏰</div>
-                            <div class="stat-info">
-                                <p class="stat-value" id="count-pendentes">0</p>
-                                <p class="stat-label">Pendentes</p>
-                            </div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-icon">💰</div>
-                            <div class="stat-info">
-                                <p class="stat-value" id="receita-hoje">R$ 0,00</p>
-                                <p class="stat-label">Receita Hoje</p>
-                            </div>
-                        </div>
-                    </div>
-                    
-                </section>
-                
-                <!-- ============================================ -->
-                <!-- MÓDULO 2: AGENDA DO DIA & PRÓXIMOS -->
-                <!-- ============================================ -->
-                
-                <div class="dashboard-grid">
-                    
-                    <!-- Agenda de Hoje -->
-                    <section class="dashboard-card agenda-hoje">
-                        <div class="card-header">
-                            <h3>📅 Agenda de Hoje</h3>
-                            <a href="/agenda" class="card-link">Ver agenda completa →</a>
-                        </div>
-                        <div id="agenda-hoje-container" class="card-content">
-                            <div class="loading-state">
-                                <p>Carregando agendamentos...</p>
-                            </div>
-                        </div>
-                    </section>
-                    
-                    <!-- Próximos Atendimentos -->
-                    <section class="dashboard-card proximos-atendimentos">
-                        <div class="card-header">
-                            <h3>📆 Próximos Atendimentos</h3>
-                            <a href="/agendamentos" class="card-link">Ver todos →</a>
-                        </div>
-                        <div id="proximos-container" class="card-content">
-                            <div class="loading-state">
-                                <p>Carregando...</p>
-                            </div>
-                        </div>
-                    </section>
-                    
+            <!-- PRÓXIMOS ATENDIMENTOS -->
+            <section class="card">
+                <div class="card-header">
+                    <h3>📆 Próximos</h3>
+                    <a href="/agendamentos" class="card-link">Ver todos →</a>
                 </div>
-                
-                <!-- ============================================ -->
-                <!-- MÓDULO 3: ALERTAS & STATUS -->
-                <!-- ============================================ -->
-                
-                <section class="alertas-section">
-                    <div class="card-header">
-                        <h3>⚠️ Alertas e Status</h3>
+                <div id="proximos-container" class="card-body">
+                    <div class="state-loading">
+                        <p>Carregando...</p>
                     </div>
-                    <div id="alertas-container" class="alertas-grid">
-                        <div class="loading-state">
-                            <p>Carregando alertas...</p>
-                        </div>
+                </div>
+            </section>
+            
+            <!-- ALERTAS -->
+            <section class="card">
+                <div class="card-header">
+                    <h3>⚠️ Alertas</h3>
+                </div>
+                <div id="alertas-container" class="card-body">
+                    <div class="state-loading">
+                        <p>Carregando...</p>
                     </div>
-                </section>
-                
-                <!-- ============================================ -->
-                <!-- MÓDULO 4: LINK PÚBLICO & CONFIGURAÇÕES -->
-                <!-- ============================================ -->
-                
-                <div class="dashboard-grid">
-                    
-                    <!-- Link Público -->
-                    <section class="dashboard-card link-publico">
-                        <div class="card-header">
-                            <h3>🔗 Seu Link Público</h3>
-                        </div>
-                        <div id="link-publico-container" class="card-content">
-                            <div class="loading-state">
-                                <p>Carregando link...</p>
-                            </div>
-                        </div>
-                    </section>
-                    
-                    <!-- Configurações Rápidas -->
-                    <section class="dashboard-card configuracoes-rapidas">
-                        <div class="card-header">
-                            <h3>⚡ Ações Rápidas</h3>
-                        </div>
-                        <div class="card-content">
-                            <div class="quick-actions-grid">
-                                <a href="/agenda" class="quick-action">
-                                    <span class="qa-icon">📅</span>
-                                    <span class="qa-label">Agenda</span>
-                                </a>
-                                <a href="/clientes" class="quick-action">
-                                    <span class="qa-icon">👥</span>
-                                    <span class="qa-label">Clientes</span>
-                                </a>
-                                <a href="/relatorios" class="quick-action" id="action-relatorios">
-                                    <span class="qa-icon">📈</span>
-                                    <span class="qa-label">Relatórios</span>
-                                </a>
-                                <a href="/perfil" class="quick-action">
-                                    <span class="qa-icon">⚙️</span>
-                                    <span class="qa-label">Perfil</span>
-                                </a>
-                            </div>
-                            
-                            <!-- Tema Selector -->
-                            <div class="theme-selector">
-                                <label for="theme-select">🎨 Tema:</label>
-                                <select id="theme-select">
-                                    <option value="free">Padrão (Gratuito)</option>
-                                    <option value="premium">Premium</option>
-                                </select>
-                                <p class="theme-hint" id="theme-hint"></p>
-                            </div>
-                        </div>
-                    </section>
-                    
                 </div>
-                
-                <!-- ============================================ -->
-                <!-- MÓDULOS 5-7: CURSO, PERSONALIZAÇÃO, MONETIZAÇÃO -->
-                <!-- ============================================ -->
-                
-                <div class="modulos-condicionais-grid">
-                    
-                    <!-- Módulo Cursos (Premium) -->
-                    <section id="modulo-cursos" class="dashboard-card modulo-condicional">
-                        <!-- Conteúdo injetado via JS -->
-                    </section>
-                    
-                    <!-- Módulo Personalização (Premium) -->
-                    <section id="modulo-personalizacao" class="dashboard-card modulo-condicional">
-                        <!-- Conteúdo injetado via JS -->
-                    </section>
-                    
-                    <!-- Módulo Monetização -->
-                    <section id="modulo-monetizacao" class="dashboard-card modulo-condicional">
-                        <!-- Conteúdo injetado via JS -->
-                    </section>
-                    
+            </section>
+            
+            <!-- LINK PÚBLICO -->
+            <section class="card">
+                <div class="card-header">
+                    <h3>🔗 Seu Link Público</h3>
                 </div>
-                
-                <!-- ============================================ -->
-                <!-- MÓDULO 8: CONFIGURAÇÕES GERAIS -->
-                <!-- ============================================ -->
-                
-                <section id="modulo-configuracoes" class="dashboard-card modulo-configuracoes">
-                    <!-- Conteúdo injetado via JS -->
-                </section>
-                
-                <!-- Status do Plano -->
-                <section class="plano-status-section">
-                    <div class="plano-info-card">
-                        <div class="plano-badge-large">
-                            <span id="plano-atual" class="badge plano-free">Free</span>
-                        </div>
-                        <div class="plano-details">
-                            <h4>Plano Atual</h4>
-                            <p id="plano-descricao">Você está no plano gratuito</p>
-                        </div>
-                        <a href="/perfil?upgrade=true" class="btn-upgrade-plan">
-                            ⭐ Fazer Upgrade
+                <div id="link-publico-container" class="card-body">
+                    <div class="state-loading">
+                        <p>Carregando...</p>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- AÇÕES RÁPIDAS -->
+            <section class="card">
+                <div class="card-header">
+                    <h3>⚡ Ações Rápidas</h3>
+                </div>
+                <div class="card-body">
+                    <div class="quick-actions-grid">
+                        <a href="/agenda" class="quick-action">
+                            <span class="qa-icon">📅</span>
+                            <span class="qa-label">Agenda</span>
+                        </a>
+                        <a href="/clientes" class="quick-action">
+                            <span class="qa-icon">👥</span>
+                            <span class="qa-label">Clientes</span>
+                        </a>
+                        <a href="/relatorios" class="quick-action">
+                            <span class="qa-icon">📈</span>
+                            <span class="qa-label">Relatórios</span>
+                        </a>
+                        <a href="/perfil" class="quick-action">
+                            <span class="qa-icon">⚙️</span>
+                            <span class="qa-label">Perfil</span>
                         </a>
                     </div>
-                </section>
-                
-            </main>
+                    
+                    <div class="theme-selector">
+                        <label for="theme-select">🎨 Tema:</label>
+                        <select id="theme-select" class="input-field input-select">
+                            <option value="neo">Neo Clinic (Padrão)</option>
+                            <option value="premium">Premium</option>
+                        </select>
+                    </div>
+                </div>
+            </section>
             
-        </div>
+            <!-- MÓDULOS CONDIÇÃOIS -->
+            <div class="modulos-condicionais-grid">
+                <section id="modulo-cursos" class="card modulo-card"></section>
+                <section id="modulo-personalizacao" class="card modulo-card"></section>
+                <section id="modulo-monetizacao" class="card modulo-card"></section>
+            </div>
+            
+            <!-- CONFIGURAÇÕES -->
+            <section id="modulo-configuracoes" class="card">
+                <div class="card-header">
+                    <h3>⚙️ Configurações</h3>
+                </div>
+                <div class="card-body"></div>
+            </section>
+            
+            <!-- INFO DO PLANO -->
+            <div class="plano-info-card">
+                <div class="plano-badge">
+                    <span id="plano-atual" class="badge badge-info">Free</span>
+                </div>
+                <div class="plano-details">
+                    <h4>Plano Atual</h4>
+                    <p id="plano-descricao">Plano gratuito</p>
+                </div>
+                <a href="/perfil?upgrade=true" class="btn">⭐ Upgrade</a>
+            </div>
+            
+            <p id="usuario-info" class="usuario-info-text"></p>
+            
+        </main>
+        
+        <!-- NAVEGAÇÃO INFERIOR -->
+        <nav class="app-bottom-nav">
+            <a href="/dashboard" class="nav-item active">
+                <span class="nav-icon">🏠</span>
+                <span class="nav-label">Dashboard</span>
+            </a>
+            <a href="/agenda" class="nav-item">
+                <span class="nav-icon">📅</span>
+                <span class="nav-label">Agenda</span>
+            </a>
+            <a href="/agendamentos" class="nav-item">
+                <span class="nav-icon">📋</span>
+                <span class="nav-label">Agendamentos</span>
+            </a>
+            <a href="/clientes" class="nav-item">
+                <span class="nav-icon">👥</span>
+                <span class="nav-label">Clientes</span>
+            </a>
+            <a href="/perfil" class="nav-item">
+                <span class="nav-icon">⚙️</span>
+                <span class="nav-label">Perfil</span>
+            </a>
+        </nav>
+        
     </div>
     
     <script type="module" src="/pages/dashboard.js"></script>
-    <link rel="stylesheet" href="/styles/theme.css">
 </body>
 </html>
-

@@ -1,20 +1,400 @@
+/**
+ * Theme System - Neo Clinic (Default)
+ * Reference: visualdaplataforma.md
+ * 
+ * Sistema de temas via CSS Variables
+ * Todos os temas funcionam via body[data-theme="nome"]
+ */
+
 :root {
-  --bg: #ffffff;
-  --text: #111827;
-  --muted: #6b7280;
-  --primary: #2563eb; /* blue */
-  --accent: #f97316; /* orange */
+  /* ============================================
+     PALETA DE CORES (Neo Clinic - Default)
+     ============================================ */
+  
+  /* Fundo */
+  --bg-app: #F4F6F8;        /* cinza muito claro */
+  --bg-card: #FFFFFF;        /* branco */
+  --bg-secondary: #F9FAFB;   /* cinza suave */
+  --bg-hover: #F3F4F6;       /* para estados hover */
+  
+  /* Texto */
+  --text-main: #111827;      /* títulos */
+  --text-body: #374151;      /* texto normal */
+  --text-muted: #6B7280;     /* texto secundário */
+  --text-placeholder: #9CA3AF;
+  
+  /* Cores Primárias */
+  --color-primary: #2563EB;   /* azul clínico */
+  --color-primary-light: #3B82F6;
+  --color-primary-dark: #1D4ED8;
+  --color-primary-hover: #1E40AF;
+  
+  /* Cores Secundárias */
+  --color-secondary: #6B7280;
+  
+  /* Cores de Status */
+  --color-success: #10B981;   /* verde */
+  --color-success-bg: #D1FAE5;
+  --color-warning: #F59E0B;   /* amarelo/laranja */
+  --color-warning-bg: #FEF3C7;
+  --color-danger: #EF4444;    /* vermelho */
+  --color-danger-bg: #FEE2E2;
+  --color-info: #3B82F6;      /* azul info */
+  --color-info-bg: #DBEAFE;
+  
+  /* Bordas */
+  --border-color: #E5E7EB;
+  --border-focus: #2563EB;
+  
+  /* Sombras */
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  
+  /* Bordas Arredondadas */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --radius-full: 9999px;
+  
+  /* Tipografia */
+  --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.875rem;
+  --font-size-base: 1rem;
+  --font-size-lg: 1.125rem;
+  --font-size-xl: 1.25rem;
+  --font-size-2xl: 1.5rem;
+  
+  /* Espaçamento */
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
+  --spacing-xl: 2rem;
+  --spacing-2xl: 3rem;
+  
+  /* Transições */
+  --transition-fast: 0.15s ease;
+  --transition-normal: 0.3s ease;
 }
 
-/* Premium overrides */
+/* ============================================
+   TEMA DARK NEON (Premium)
+   ============================================ */
+
+:root[data-theme='dark'] {
+  --bg-app: #0F172A;
+  --bg-card: #1E293B;
+  --bg-secondary: #334155;
+  --text-main: #F1F5F9;
+  --text-body: #E2E8F0;
+  --text-muted: #94A3B8;
+  --color-primary: #8B5CF6;
+  --color-primary-hover: #7C3AED;
+  --color-success: #34D399;
+  --color-warning: #FBBF24;
+  --color-danger: #F87171;
+  --border-color: #334155;
+}
+
+/* ============================================
+   TEMA CLASSIC WOOD (Premium)
+   ============================================ */
+
+:root[data-theme='wood'] {
+  --bg-app: #FEF3E8;
+  --bg-card: #FFFBF5;
+  --bg-secondary: #F5E6D3;
+  --text-main: #3E2723;
+  --text-body: #4E342E;
+  --text-muted: #795548;
+  --color-primary: #A1887F;
+  --color-primary-hover: #5D4037;
+  --border-color: #D7CCC8;
+}
+
+/* ============================================
+   TEMA PREMIUM
+   ============================================ */
+
 :root[data-theme='premium'] {
-  --bg: #0f172a;
-  --text: #e6eef8;
-  --muted: #9aa6bb;
-  --primary: #7c3aed; /* purple */
-  --accent: #f59e0b; /* amber */
+  --bg-app: #F8FAFC;
+  --bg-card: #FFFFFF;
+  --text-main: #0F172A;
+  --text-body: #1E293B;
+  --text-muted: #64748B;
+  --color-primary: #7C3AED;
+  --color-primary-hover: #5B21B6;
+  --border-color: #E2E8F0;
 }
 
-body { background: var(--bg); color: var(--text); }
-.btn { background: var(--primary); color: #fff; border: none; padding:8px 12px; border-radius:6px }
-.card { background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0)); border:1px solid rgba(0,0,0,0.06); }
+/* ============================================
+   APLICAÇÃO BASE
+   ============================================ */
+
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-family);
+  font-size: 16px;
+  line-height: 1.5;
+  background-color: var(--bg-app);
+  color: var(--text-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: var(--color-primary);
+  text-decoration: none;
+}
+
+a:hover {
+  color: var(--color-primary-hover);
+}
+
+/* ============================================
+   COMPONENTES BASE
+   ============================================ */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm) var(--spacing-lg);
+  background-color: var(--color-primary);
+  color: #FFFFFF;
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.btn:hover {
+  background-color: var(--color-primary-hover);
+  transform: translateY(-1px);
+}
+
+.btn-secondary {
+  background-color: transparent;
+  color: var(--color-primary);
+  border: 1px solid var(--color-primary);
+}
+
+.btn-secondary:hover {
+  background-color: var(--color-primary);
+  color: #FFFFFF;
+}
+
+.btn-danger {
+  background-color: var(--color-danger);
+}
+
+/* Card */
+.card {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+.card-header {
+  padding: var(--spacing-md) var(--spacing-lg);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.card-body {
+  padding: var(--spacing-lg);
+}
+
+/* ============================================
+   BADGES DE STATUS
+   ============================================ */
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  font-size: var(--font-size-xs);
+  font-weight: 500;
+  border-radius: var(--radius-full);
+  text-transform: uppercase;
+}
+
+.badge-success,
+.badge-confirmado {
+  background-color: var(--color-success-bg);
+  color: var(--color-success);
+}
+
+.badge-warning,
+.badge-pendente {
+  background-color: var(--color-warning-bg);
+  color: var(--color-warning);
+}
+
+.badge-danger,
+.badge-cancelado {
+  background-color: var(--color-danger-bg);
+  color: var(--color-danger);
+}
+
+.badge-info {
+  background-color: var(--color-info-bg);
+  color: var(--color-info);
+}
+
+/* ============================================
+   ESTRUTURA MOBILE-FIRST
+   ============================================ */
+
+.app-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 60px;
+  background-color: var(--bg-card);
+  border-bottom: 1px solid var(--border-color);
+  box-shadow: var(--shadow-xs);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  padding: 0 var(--spacing-md);
+}
+
+.app-main {
+  flex: 1;
+  margin-top: 60px;
+  margin-bottom: 70px;
+  padding: var(--spacing-md);
+  min-height: calc(100vh - 130px);
+  overflow-y: auto;
+}
+
+.app-bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 70px;
+  background-color: var(--bg-card);
+  border-top: 1px solid var(--border-color);
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+  z-index: 100;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: 0 var(--spacing-sm);
+}
+
+/* ============================================
+   ESTADOS DA INTERFACE
+   ============================================ */
+
+.state-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-2xl);
+  color: var(--text-muted);
+}
+
+.state-loading::before {
+  content: '';
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--border-color);
+  border-top-color: var(--color-primary);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin-bottom: var(--spacing-md);
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.state-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-2xl);
+  text-align: center;
+  color: var(--text-muted);
+}
+
+.state-empty .empty-icon {
+  font-size: 3rem;
+  margin-bottom: var(--spacing-md);
+}
+
+.state-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-2xl);
+  text-align: center;
+  color: var(--color-danger);
+}
+
+.state-error .error-icon {
+  font-size: 3rem;
+  margin-bottom: var(--spacing-md);
+}
+
+/* ============================================
+   INPUTS E FORMULÁRIOS
+   ============================================ */
+
+.input-group {
+  margin-bottom: var(--spacing-md);
+}
+
+.input-label {
+  display: block;
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  color: var(--text-body);
+  margin-bottom: var(--spacing-xs);
+}
+
+.input-field {
+  width: 100%;
+  padding: var(--spacing-sm) var(--spacing-md);
+  font-size: var(--font-size-base);
+  color: var(--text-body);
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  transition: all var(--transition-fast);
+  box-sizing: border-box;
+}
+
+.input-field:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+/* ============================================
+   RESPONSIVIDADE
+   ============================================ */
+
+@media (min-width: 768px) {
+  .app-main {
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+
