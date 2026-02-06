@@ -353,11 +353,8 @@ async function handleCadastro() {
  * Mostrar modo de recuperar senha
  */
 function mostraModoRecuperarSenha() {
-    const email = prompt('Digite seu email:');
-    if (!email) return;
-    
-    // TODO: Implementar em FASE 2+
-    mostrarSucesso('Um email de recuperação foi enviado. Verifique sua caixa de entrada.');
+    // Navegar para pagina de recuperacao de senha
+    window.location.href = '/recuperar-senha';
 }
 
 // ============================================================

@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AgendaEstética - Recuperar Senha</title>
+    <link rel="stylesheet" href="/styles/global.css">
+    <link rel="stylesheet" href="/styles/login.css">
+    <link rel="stylesheet" href="/styles/theme.css">
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-card">
+            <div class="auth-header">
+                <div class="auth-logo">📅</div>
+                <h1>AgendaEstética</h1>
+                <p class="auth-subtitle">Recuperar sua senha</p>
+            </div>
+            
+            <!-- Step 1: Request Email -->
+            <div id="step-request" class="auth-step">
+                <p class="auth-description">
+                    Digite seu email cadastrado e enviaremos um link para redefinir sua senha.
+                </p>
+                
+                <form id="request-form" class="auth-form">
+                    <div class="input-group">
+                        <label for="email" class="input-label">Email</label>
+                        <input 
+                            type="email" 
+                            id="email" 
+                            class="input-field" 
+                            placeholder="seu@email.com"
+                            required
+                            autocomplete="email"
+                        >
+                        <span id="email-error" class="input-error"></span>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary btn-full" id="btn-request">
+                        Enviar Link de Recuperação
+                    </button>
+                </form>
+            </div>
+            
+            <!-- Step 2: Email Sent Success -->
+            <div id="step-success" class="auth-step" style="display: none;">
+                <div class="success-icon">📧</div>
+                <h2>Email Enviado!</h2>
+                <p class="auth-description">
+                    Verifique sua caixa de entrada e clique no link enviado para <strong id="sent-email"></strong>
+                </p>
+                <div class="info-box">
+                    <p>O email pode levar alguns minutos para chegar</p>
+                    <p>Nao esqueca de verificar a pasta de spam</p>
+                </div>
+                
+                <button id="btn-resend" class="btn btn-secondary btn-full">
+                    Reenviar Email
+                </button>
+                
+                <a href="/login" class="auth-link">← Voltar ao login</a>
+            </div>
+            
+            <!-- Step 3: New Password -->
+            <div id="step-reset" class="auth-step" style="display: none;">
+                <div class="success-icon">🔐</div>
+                <h2>Nova Senha</h2>
+                <p class="auth-description">
+                    Digite sua nova senha
+                </p>
+                
+                <form id="reset-form" class="auth-form">
+                    <div class="input-group">
+                        <label for="new-password" class="input-label">Nova Senha</label>
+                        <input 
+                            type="password" 
+                            id="new-password" 
+                            class="input-field" 
+                            placeholder="Minimo 6 caracteres"
+                            required
+                            minlength="6"
+                        >
+                        <span id="password-error" class="input-error"></span>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="confirm-password" class="input-label">Confirmar Senha</label>
+                        <input 
+                            type="password" 
+                            id="confirm-password" 
+                            class="input-field" 
+                            placeholder="Digite novamente"
+                            required
+                        >
+                        <span id="confirm-error" class="input-error"></span>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary btn-full" id="btn-reset">
+                        Alterar Senha
+                    </button>
+                </form>
+            </div>
+            
+            <!-- Step 4: Reset Success -->
+            <div id="step-complete" class="auth-step" style="display: none;">
+                <div class="success-icon">✅</div>
+                <h2>Senha Alterada!</h2>
+                <p class="auth-description">
+                    Sua senha foi alterada com sucesso. Agora voce pode fazer login com a nova senha.
+                </p>
+                
+                <a href="/login" class="btn btn-primary btn-full">Ir para Login</a>
+            </div>
+            
+            <div class="auth-footer">
+                <a href="/login" class="auth-link">← Voltar ao Login</a>
+            </div>
+        </div>
+    </div>
+    
+    <script type="module" src="/pages/recuperar-senha.js"></script>
+</body>
+</html>
+

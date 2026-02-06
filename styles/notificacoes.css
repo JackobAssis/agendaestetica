@@ -1,15 +1,47 @@
+
 /**
- * Notificações Styles
+ * Notificações Styles - Improved with Push & Badges
+ * Reference: ROADMAP-IMPLEMENTACAO.md - Semana 4
  */
 
-/* Container */
-.notificacoes-container {
-    max-width: 600px;
-    margin: 0 auto;
-    padding: var(--spacing-lg);
+:root {
+    --color-primary: #6B46C1;
+    --color-primary-light: #9F7AEA;
+    --color-success: #48BB78;
+    --color-warning: #ECC94B;
+    --color-danger: #F56565;
+    --color-info: #4299E1;
+    --color-surface: #FFFFFF;
+    --color-background: #F7FAFC;
+    --color-text: #2D3748;
+    --color-text-secondary: #718096;
+    --color-border: #E2E8F0;
+    --radius-md: 10px;
+    --radius-lg: 16px;
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.07);
+    --spacing-sm: 8px;
+    --spacing-md: 16px;
+    --spacing-lg: 24px;
+    --spacing-xl: 32px;
 }
 
-/* Header */
+/* ============================================
+   CONTAINER
+   ============================================ */
+
+.notificacoes-container {
+    max-width: 700px;
+    margin: 0 auto;
+    padding: var(--spacing-lg);
+    min-height: 100vh;
+    background: var(--color-background);
+}
+
+/* ============================================
+   HEADER
+   ============================================ */
+
 .page-header {
     display: flex;
     flex-wrap: wrap;
@@ -22,48 +54,150 @@
 
 .page-header h1 {
     flex: 1;
-    font-size: var(--font-size-xl);
+    font-size: 1.5rem;
     margin: 0;
-    order: 1;
 }
 
 .back-link {
     color: var(--color-primary);
     text-decoration: none;
     font-weight: 500;
-    order: 0;
 }
 
 .back-link:hover {
     text-decoration: underline;
 }
 
-.btn-secondary {
-    order: 2;
-    padding: var(--spacing-xs) var(--spacing-sm);
-    font-size: var(--font-size-sm);
+/* Notification Badge in Header */
+.notification-badge {
+    position: relative;
 }
 
-/* Tabs */
+.notif-badge-count {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background: var(--color-danger);
+    color: white;
+    font-size: 0.7rem;
+    font-weight: 700;
+    min-width: 18px;
+    height: 18px;
+    border-radius: 9px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 4px;
+    border: 2px solid white;
+}
+
+.btn-secondary {
+    padding: var(--spacing-sm) var(--spacing-md);
+    background: none;
+    color: var(--color-text-secondary);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-secondary:hover {
+    background: var(--color-background);
+}
+
+/* ============================================
+   PUSH NOTIFICATION SETTINGS
+   ============================================ */
+
+.push-settings {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-md);
+    margin-bottom: var(--spacing-lg);
+}
+
+.push-settings-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--spacing-md);
+}
+
+.push-settings-header h3 {
+    margin: 0;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+.push-toggle {
+    position: relative;
+    width: 50px;
+    height: 26px;
+}
+
+.push-toggle input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: var(--color-border);
+    transition: 0.3s;
+    border-radius: 26px;
+}
+
+.toggle-slider:before {
+    position: absolute;
+    content: "";
+    height: 20px;
+    width: 20px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: 0.3s;
+    border-radius: 50%;
+}
+
+.push-toggle input:checked + .toggle-slider {
+    background-color: var(--color-primary);
+}
+
+.push-toggle input:checked + .toggle-slider:before {
+    transform: translateX(24px);
+}
+
+/* ============================================
+   TABS
+   ============================================ */
+
 .tabs {
     display: flex;
     gap: var(--spacing-xs);
     margin-bottom: var(--spacing-lg);
     border-bottom: 2px solid var(--color-border);
-    order: 3;
-    width: 100%;
 }
 
 .tab-btn {
-    padding: var(--spacing-sm) var(--spacing-md);
+    padding: var(--spacing-sm) var(--spacing-lg);
     background: none;
     border: none;
-    font-size: var(--font-size-base);
+    font-size: 0.875rem;
     font-weight: 500;
     color: var(--color-text-secondary);
     cursor: pointer;
     position: relative;
-    transition: color var(--transition-fast);
+    transition: color 0.2s;
 }
 
 .tab-btn:hover {
@@ -84,7 +218,20 @@
     background: var(--color-primary);
 }
 
-/* Notificações List */
+.tab-badge {
+    background: var(--color-danger);
+    color: white;
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 10px;
+    margin-left: var(--spacing-xs);
+}
+
+/* ============================================
+   NOTIFICAÇÕES LIST
+   ============================================ */
+
 .notificacoes-list {
     display: flex;
     flex-direction: column;
@@ -100,23 +247,23 @@
     border: 1px solid var(--color-border);
     border-radius: var(--radius-md);
     cursor: pointer;
-    transition: all var(--transition-fast);
+    transition: all 0.2s;
 }
 
 .notificacao-card:hover {
     box-shadow: var(--shadow-sm);
-    border-color: var(--color-primary);
+    border-color: var(--color-primary-light);
 }
 
 .notificacao-card.unread {
-    background: linear-gradient(to right, var(--color-primary-light), transparent 5%);
+    background: linear-gradient(135deg, rgba(107, 70, 193, 0.05) 0%, rgba(107, 70, 193, 0.02) 100%);
     border-left: 3px solid var(--color-primary);
 }
 
 .notificacao-icon {
-    font-size: var(--font-size-xl);
-    width: 40px;
-    height: 40px;
+    font-size: 1.5rem;
+    width: 44px;
+    height: 44px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -135,22 +282,22 @@
     justify-content: space-between;
     align-items: flex-start;
     gap: var(--spacing-sm);
-    margin-bottom: var(--spacing-xs);
+    margin-bottom: 4px;
 }
 
 .notificacao-header strong {
-    font-size: var(--font-size-base);
+    font-size: 0.95rem;
     color: var(--color-text);
 }
 
 .notificacao-tempo {
-    font-size: var(--font-size-xs);
+    font-size: 0.75rem;
     color: var(--color-text-secondary);
     white-space: nowrap;
 }
 
 .notificacao-body {
-    font-size: var(--font-size-sm);
+    font-size: 0.875rem;
     color: var(--color-text-secondary);
     margin: 0;
     line-height: 1.4;
@@ -158,22 +305,46 @@
 
 .notificacao-actions {
     flex-shrink: 0;
+    display: flex;
+    gap: var(--spacing-xs);
 }
 
-/* Empty State */
+/* ============================================
+   EMPTY STATE
+   ============================================ */
+
 .empty-state,
 .loading,
 .error-state {
     text-align: center;
-    padding: var(--spacing-xl);
+    padding: var(--spacing-2xl);
     color: var(--color-text-secondary);
 }
 
-.error-state {
-    color: var(--color-error);
+.empty-state {
+    background: var(--color-surface);
+    border-radius: var(--radius-md);
+    border: 1px dashed var(--color-border);
 }
 
-/* Modal */
+.empty-icon {
+    font-size: 3rem;
+    margin-bottom: var(--spacing-md);
+}
+
+.empty-state h3 {
+    margin: 0 0 var(--spacing-sm) 0;
+    color: var(--color-text);
+}
+
+.error-state {
+    color: var(--color-danger);
+}
+
+/* ============================================
+   MODAL
+   ============================================ */
+
 .modal {
     position: fixed;
     top: 0;
@@ -186,6 +357,12 @@
     justify-content: center;
     z-index: 1000;
     padding: var(--spacing-md);
+    animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
 }
 
 .modal.hidden {
@@ -194,64 +371,92 @@
 
 .modal-content {
     background: var(--color-surface);
-    border-radius: var(--radius-md);
+    border-radius: var(--radius-lg);
     max-width: 450px;
     width: 100%;
     max-height: 90vh;
     overflow-y: auto;
-    box-shadow: var(--shadow-lg);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+    animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+    from { transform: translateY(20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
 }
 
 .modal-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: var(--spacing-md);
+    padding: var(--spacing-lg);
     border-bottom: 1px solid var(--color-border);
 }
 
 .modal-header h2 {
     margin: 0;
-    font-size: var(--font-size-lg);
+    font-size: 1.125rem;
 }
 
 .modal-close {
     background: none;
     border: none;
-    font-size: var(--font-size-xl);
+    font-size: 1.5rem;
     cursor: pointer;
     color: var(--color-text-secondary);
     padding: 0;
     line-height: 1;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: background 0.2s;
+}
+
+.modal-close:hover {
+    background: var(--color-background);
 }
 
 .modal-body {
-    padding: var(--spacing-md);
+    padding: var(--spacing-lg);
 }
 
 .modal-footer {
     display: flex;
     justify-content: flex-end;
-    padding: var(--spacing-md);
+    gap: var(--spacing-md);
+    padding: var(--spacing-lg);
     border-top: 1px solid var(--color-border);
 }
 
-/* Notif Detalhes */
+/* ============================================
+   NOTIF DETALHES
+   ============================================ */
+
+.notif-detalhes {
+    text-align: left;
+}
+
 .notif-detalhes p {
     margin-bottom: var(--spacing-sm);
 }
 
 .notif-tempo {
-    font-size: var(--font-size-sm);
+    font-size: 0.875rem;
     color: var(--color-text-secondary);
 }
 
-/* Badge */
+/* ============================================
+   BADGE
+   ============================================ */
+
 .badge {
     display: inline-block;
-    padding: 2px 8px;
-    border-radius: 10px;
-    font-size: 10px;
+    padding: 3px 8px;
+    border-radius: 12px;
+    font-size: 0.7rem;
     font-weight: 600;
     text-transform: uppercase;
 }
@@ -261,31 +466,44 @@
     color: white;
 }
 
-/* Buttons */
+.badge-success {
+    background: var(--color-success);
+    color: white;
+}
+
+.badge-danger {
+    background: var(--color-danger);
+    color: white;
+}
+
+/* ============================================
+   BUTTONS
+   ============================================ */
+
 .btn-primary {
-    padding: var(--spacing-sm) var(--spacing-md);
+    padding: var(--spacing-sm) var(--spacing-lg);
     background: var(--color-primary);
     color: white;
     border: none;
-    border-radius: var(--radius-sm);
-    font-weight: 500;
+    border-radius: var(--radius-md);
+    font-weight: 600;
     cursor: pointer;
-    transition: background var(--transition-fast);
+    transition: all 0.2s;
 }
 
 .btn-primary:hover {
-    background: var(--color-primary-dark);
+    background: #553C9A;
 }
 
 .btn-secondary {
-    padding: var(--spacing-sm) var(--spacing-md);
+    padding: var(--spacing-sm) var(--spacing-lg);
     background: none;
     color: var(--color-text-secondary);
     border: 1px solid var(--color-border);
-    border-radius: var(--radius-sm);
+    border-radius: var(--radius-md);
     font-weight: 500;
     cursor: pointer;
-    transition: all var(--transition-fast);
+    transition: all 0.2s;
 }
 
 .btn-secondary:hover {
@@ -293,16 +511,21 @@
     border-color: var(--color-text-secondary);
 }
 
-/* Messages */
+/* ============================================
+   MESSAGES
+   ============================================ */
+
 .message {
     position: fixed;
-    bottom: var(--spacing-lg);
+    bottom: var(--spacing-xl);
     left: 50%;
     transform: translateX(-50%);
-    padding: var(--spacing-md) var(--spacing-lg);
+    padding: var(--spacing-md) var(--spacing-xl);
     border-radius: var(--radius-md);
     font-weight: 500;
     z-index: 1001;
+    box-shadow: var(--shadow-lg);
+    animation: slideUp 0.3s ease;
 }
 
 .message.hidden {
@@ -315,12 +538,15 @@
 }
 
 .error-message {
-    background: var(--color-error);
+    background: var(--color-danger);
     color: white;
 }
 
-/* Responsive */
-@media (max-width: 480px) {
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+
+@media (max-width: 600px) {
     .notificacoes-container {
         padding: var(--spacing-md);
     }
@@ -330,22 +556,20 @@
         align-items: flex-start;
     }
 
-    .page-header h1 {
-        order: 1;
-    }
-
-    .back-link {
-        order: 0;
+    .push-settings-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--spacing-md);
     }
 
     .tabs {
-        order: 2;
         width: 100%;
         overflow-x: auto;
     }
 
-    .btn-secondary {
-        order: 3;
+    .tab-btn {
+        padding: var(--spacing-sm) var(--spacing-md);
+        white-space: nowrap;
     }
 
     .notificacao-card {
@@ -353,9 +577,19 @@
     }
 
     .notificacao-icon {
-        width: 36px;
-        height: 36px;
-        font-size: var(--font-size-lg);
+        width: 40px;
+        height: 40px;
+        font-size: 1.25rem;
+    }
+
+    .notificacao-header {
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .modal-content {
+        margin: var(--spacing-md);
+        max-height: calc(100vh - var(--spacing-md) * 2);
     }
 
     .modal-footer {

@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -6,25 +7,46 @@
   <title>AgendaEstética - Notificações</title>
   <link rel="stylesheet" href="/styles/global.css">
   <link rel="stylesheet" href="/styles/notificacoes.css">
+  <!-- Firebase Cloud Messaging -->
+  <script type="module" src="/pages/notificacoes.js"></script>
 </head>
 <body>
   <main class="notificacoes-container">
     <header class="page-header">
       <a href="/dashboard" class="back-link">← Voltar</a>
-      <h1>Notificações</h1>
+      <h1>🔔 Notificações</h1>
       <button id="btn-marcar-todas" class="btn-secondary">Marcar todas como lidas</button>
     </header>
 
+    <!-- Push Notification Settings -->
+    <section class="push-settings">
+      <div class="push-settings-header">
+        <h3>📱 Notificações Push</h3>
+        <label class="push-toggle">
+          <input type="checkbox" id="push-enabled">
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+      <p style="margin: 0; font-size: 0.875rem; color: var(--color-text-secondary);">
+        Receba notificações sobre novos agendamentos, confirmações e lembretes no seu dispositivo.
+      </p>
+    </section>
+
+    <!-- Tabs -->
     <nav class="tabs">
-      <button class="tab-btn active" data-tab="nao-lidas">Não Lidas</button>
+      <button class="tab-btn active" data-tab="nao-lidas">
+        Não Lidas
+        <span class="tab-badge" id="badge-nao-lidas" style="display: none;">0</span>
+      </button>
       <button class="tab-btn" data-tab="todas">Todas</button>
     </nav>
 
+    <!-- Notifications List -->
     <section class="notificacoes-list" id="lista-notificacoes">
       <div class="loading">Carregando notificações...</div>
     </section>
 
-    <!-- Modal de Detalhes -->
+    <!-- Details Modal -->
     <div id="modal-detalhes" class="modal hidden">
       <div class="modal-content">
         <div class="modal-header">
@@ -32,7 +54,7 @@
           <button class="modal-close" id="fechar-modal">&times;</button>
         </div>
         <div class="modal-body" id="modal-corpo">
-          <!-- Conteúdo dinâmico -->
+          <!-- Dynamic content -->
         </div>
         <div class="modal-footer" id="modal-actions">
           <button class="btn-primary" id="btn-ver-agendamento">Ver Agendamento</button>
@@ -40,10 +62,20 @@
       </div>
     </div>
 
+    <!-- Toast Message -->
     <div id="mensagem" class="message hidden"></div>
   </main>
 
-  <script type="module" src="/pages/notificacoes.js"></script>
+  <!-- Firebase SDK for Cloud Messaging -->
+  <script type="module">
+    // Firebase imports handled in notificacoes.js
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.5.0/firebase-app.js';
+    import { getMessaging, getToken, onMessage } from 'https://www.gstatic.com/firebasejs/10.5.0/firebase-messaging.js';
+    
+    // Make Firebase Messaging available globally
+    window.firebaseMessaging = { getMessaging, getToken, onMessage };
+    window.firebaseApp = window.firebaseApp || null;
+  </script>
 </body>
 </html>
 

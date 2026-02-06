@@ -77,6 +77,9 @@ async function inicializarDashboard() {
         await renderizarVisaoGeral(usuario.empresaId, plano, features);
         renderizarModulosCondicionais(features, plano);
         
+        // Carregar contagem de notificações
+        await carregarContagemNotificacoes(usuario.empresaId);
+        
         // Event listeners
         setupEventListeners();
         setupThemeListener(usuario.empresaId);
@@ -706,6 +709,43 @@ async function setupThemeListener(empresaId) {
         applyTheme(newTheme);
         await setTheme(empresaId, newTheme);
     });
+}
+
+/**
+ * ============================================
+ * MÓDULO: NOTIFICAÇÕES
+ * ============================================
+ */
+
+/**
+ * Carregar contagem de notificações não lidas
+ */
+async function carregarContagemNotificacoes(empresaId) {
+    try {
+        if (!empresaId) return;
+        
+        const db = getFirebaseDB();
+        const notifRef = collection(db, 'empresas', empresaId, 'notificacoes');
+        const q = query(notifRef, where('read', '==', false));
+        const snapshot = await getDocs(q);
+        
+        const count = snapshot.size;
+        const badge = document.getElementById('nav-notif-badge');
+        
+        if (badge) {
+            if (count > 0) {
+                badge.textContent = count > 99 ? '99+' : count;
+                badge.style.display = 'flex';
+            } else {
+                badge.style.display = 'none';
+            }
+        }
+        
+        return count;
+    } catch (error) {
+        console.warn('Erro ao carregar contagem de notificações:', error);
+        return 0;
+    }
 }
 
 /**

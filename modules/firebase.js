@@ -102,6 +102,10 @@ export {
     sendPasswordResetEmail,
     updateProfile,
     onAuthStateChanged,
-    getIdToken
+    getIdToken,
+    confirmPasswordReset,
+    verifyPasswordResetCode,
+    checkActionCode,
+    applyActionCode
 } from 'https://www.gstatic.com/firebasejs/10.5.0/firebase-auth.js';
 

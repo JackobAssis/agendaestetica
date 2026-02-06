@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -6,29 +7,104 @@
   <title>AgendaEstética - Agendamentos</title>
   <link rel="stylesheet" href="/styles/global.css">
   <link rel="stylesheet" href="/styles/agendamentos.css">
+  <!-- Chart.js via CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-  <main class="agendamentos-container">
-    <div class="agendamentos-card">
-      <header>
-        <h1>Agendamentos</h1>
-        <p class="text-secondary">Lista de solicitações e agendamentos confirmados.</p>
-      </header>
+  <div class="agendamentos-layout">
+    
+    <!-- Header -->
+    <header class="page-header">
+      <div class="header-content">
+        <h1>📅 Agendamentos</h1>
+        <p class="text-secondary">Gerencie e acompanhe todos os seus agendamentos</p>
+      </div>
+    </header>
 
-      <section class="filters">
-        <label for="filter-date-start">De</label>
-        <input id="filter-date-start" type="date" />
-        <label for="filter-date-end">Até</label>
-        <input id="filter-date-end" type="date" />
+    <!-- Stats Cards -->
+    <section class="stats-row">
+      <div class="stat-card">
+        <div class="stat-icon success">✅</div>
+        <div class="stat-info">
+          <p class="stat-value" id="count-confirmados">0</p>
+          <p class="stat-label">Confirmados</p>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon warning">⏳</div>
+        <div class="stat-info">
+          <p class="stat-value" id="count-pendentes">0</p>
+          <p class="stat-label">Pendentes</p>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon danger">❌</div>
+        <div class="stat-info">
+          <p class="stat-value" id="count-cancelados">0</p>
+          <p class="stat-label">Cancelados</p>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon primary">📊</div>
+        <div class="stat-info">
+          <p class="stat-value" id="count-total">0</p>
+          <p class="stat-label">Total</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Charts Section -->
+    <section class="charts-section">
+      <div class="chart-card">
+        <h3>📈 Agendamentos por Dia</h3>
+        <canvas id="chart-agendamentos-dia"></canvas>
+      </div>
+      <div class="chart-card">
+        <h3>📊 Status dos Agendamentos</h3>
+        <canvas id="chart-status"></canvas>
+      </div>
+    </section>
+
+    <!-- Filters -->
+    <section class="filters-section">
+      <h3>🔍 Filtros</h3>
+      <div class="filters-row">
+        <div class="filter-group">
+          <label for="filter-date-start">De</label>
+          <input id="filter-date-start" type="date" />
+        </div>
+        <div class="filter-group">
+          <label for="filter-date-end">Até</label>
+          <input id="filter-date-end" type="date" />
+        </div>
+        <div class="filter-group">
+          <label for="filter-status">Status</label>
+          <select id="filter-status">
+            <option value="">Todos</option>
+            <option value="solicitado">Solicitado</option>
+            <option value="confirmado">Confirmado</option>
+            <option value="cancelado">Cancelado</option>
+          </select>
+        </div>
         <button id="btn-filter" class="submit-btn">Filtrar</button>
-      </section>
+        <button id="btn-clear" class="btn-secondary">Limpar</button>
+      </div>
+    </section>
 
-      <section id="lista-agendamentos" class="lista-agendamentos">
-        <!-- items serão injetados aqui -->
-      </section>
-    </div>
-  </main>
+    <!-- List -->
+    <section class="lista-section">
+      <div class="list-header">
+        <h3>📋 Lista de Agendamentos</h3>
+        <span id="count-display" class="count-badge">0 agendamentos</span>
+      </div>
+      <div id="lista-agendamentos" class="lista-agendamentos">
+        <div class="loading-state">Carregando...</div>
+      </div>
+    </section>
+
+  </div>
 
   <script type="module" src="/pages/agendamentos.js"></script>
 </body>
 </html>
+

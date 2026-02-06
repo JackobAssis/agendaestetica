@@ -15,6 +15,7 @@ import { obterUsuarioAtual } from './modules/auth.js';
 
 const PAGES = {
     LOGIN: { path: '/login', file: '/pages/login.html', public: true, requireAuth: false },
+    RECUPERAR_SENHA: { path: '/recuperar-senha', file: '/pages/recuperar-senha.html', public: true, requireAuth: false },
     DASHBOARD_PROF: { path: '/dashboard', file: '/pages/dashboard.html', public: false, requireAuth: true, role: 'profissional' },
     ONBOARDING: { path: '/onboarding', file: '/pages/onboarding.html', public: false, requireAuth: true },
     AGENDA: { path: '/agenda', file: '/pages/agenda.html', public: false, requireAuth: true },
