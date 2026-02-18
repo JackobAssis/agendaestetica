@@ -107,11 +107,31 @@ async function loadPage(path) {
         
         const html = await response.text();
         
+        // Parse HTML and extract body content
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, 'text/html');
+        
+        // Get the body content
+        const bodyContent = doc.body.innerHTML;
+        
         // Inject into app
         const app = document.getElementById('app');
         if (app) {
-            app.innerHTML = html;
+            app.innerHTML = bodyContent;
         }
+        
+        // Also inject any additional stylesheets from the page's head
+        const existingStyles = document.querySelectorAll('link[data-dynamic]');
+        existingStyles.forEach(style => style.remove());
+        
+        const links = doc.head.querySelectorAll('link[rel="stylesheet"]');
+        links.forEach(link => {
+            const newLink = document.createElement('link');
+            newLink.rel = 'stylesheet';
+            newLink.href = link.href;
+            newLink.setAttribute('data-dynamic', 'true');
+            document.head.appendChild(newLink);
+        });
         
         // Load associated JS
         const jsFile = page.file.replace('.html', '.js');
