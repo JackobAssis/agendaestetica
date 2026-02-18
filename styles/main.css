@@ -1,0 +1,145 @@
+/**
+ * ==========================================
+ * MAIN CSS - AgendaEstética v2
+ * 
+ * Este é o arquivo principal que importa
+ * todos os módulos CSS na ordem correta.
+ * 
+ * Ordem de carregamento:
+ * 1. reset - Normalização
+ * 2. tokens - Design system
+ * 3. base - Estilos base
+ * 4. layout - Estrutura
+ * 5. components - Componentes UI
+ * 6. utilities - Classes utilitárias
+ * 7. pages - Estilos específicos de páginas
+ * ==========================================
+ */
+
+/* 1. Reset e Normalização */
+@import url('./v2/reset.css');
+
+/* 2. Tokens - Design System */
+@import url('./v2/tokens.css');
+
+/* 3. Estilos Base */
+@import url('./v2/base.css');
+
+/* 4. Layout */
+@import url('./v2/layout.css');
+
+/* 5. Componentes */
+@import url('./v2/components.css');
+
+/* 6. Utilitários */
+@import url('./v2/utilities.css');
+
+/* 7. Páginas específicas (opcional - apenas quando necessário) */
+/* @import url('./v2/pages/dashboard.css'); */
+/* @import url('./v2/pages/login.css'); */
+/* @import url('./v2/pages/agenda.css'); */
+
+/* ==========================================
+ * ESTILOS ADICIONAIS DO PROJETO
+ * Adicione estilos específicos do projeto aqui
+ * que não se encaixam nos módulos acima.
+ * ========================================== */
+
+/* Marca d'água - Free vs Premium */
+.marca-dagua {
+    position: fixed;
+    bottom: var(--spacing-4);
+    right: var(--spacing-4);
+    font-size: var(--text-xs);
+    color: var(--color-text-tertiary);
+    opacity: 0.5;
+    z-index: 9999;
+    pointer-events: none;
+    text-align: right;
+    line-height: 1.4;
+}
+
+.marca-dagua a {
+    color: inherit;
+    text-decoration: underline;
+}
+
+body.premium .marca-dagua,
+.premium .marca-dagua {
+    display: none !important;
+}
+
+body.free .marca-dagua,
+.free .marca-dagua {
+    display: block;
+}
+
+/* Wrapper para evitar overflow horizontal */
+#app {
+    overflow-x: hidden;
+    min-height: 100vh;
+}
+
+/* Loading screen do app */
+.loading-screen {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    background-color: var(--color-bg);
+}
+
+.loading-screen .loading-spinner {
+    width: 48px;
+    height: 48px;
+    border: 4px solid var(--color-border);
+    border-top-color: var(--color-primary);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: var(--spacing-4);
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Error page */
+.error-page {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: var(--spacing-4);
+    text-align: center;
+}
+
+.error-page h1 {
+    font-size: var(--text-3xl);
+    color: var(--color-danger);
+    margin-bottom: var(--spacing-4);
+}
+
+/* Print styles */
+@media print {
+    .app-nav,
+    .app-header,
+    .marca-dagua,
+    .no-print {
+        display: none !important;
+    }
+    
+    .app-main {
+        margin: 0;
+        padding: 0;
+    }
+    
+    body {
+        background: white;
+        color: black;
+    }
+}
+
