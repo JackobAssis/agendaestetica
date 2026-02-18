@@ -3,44 +3,89 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="AgendaEstética - Agendar Atendimento">
+  <meta name="theme-color" content="#8b5cf6">
+  
   <title>AgendaEstética - Agendar</title>
-  <link rel="stylesheet" href="../styles/global.css">
-  <link rel="stylesheet" href="../styles/agendar-cliente.css">
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="../assets/images/favicon.svg">
+  <link rel="apple-touch-icon" href="../assets/images/favicon.svg">
+  
+  <!-- CSS Principal (Design System v2) -->
+  <link rel="stylesheet" href="../styles/main.css">
 </head>
 <body>
   <main class="agendar-container">
     <div class="agendar-card">
-      <header>
-        <h1 id="profissional-nome">Agendar Atendimento</h1>
+      
+      <!-- Header -->
+      <header class="agendar-header">
+        <h1 id="profissional-nome" class="agendar-title">Agendar Atendimento</h1>
         <p id="profissional-info" class="text-secondary">Carregando informações do profissional...</p>
       </header>
 
-      <section class="passo-servico">
-        <label for="servico-select">Selecione o serviço</label>
-        <select id="servico-select"></select>
+      <!-- Passo 1: Serviço -->
+      <section class="passo-servico card">
+        <div class="card__header">
+          <h2 class="card__title">Selecione o serviço</h2>
+        </div>
+        <div class="card__body">
+          <div class="form-group">
+            <label for="servico-select" class="form-label">Serviço</label>
+            <select id="servico-select" class="form-input form-select" required>
+              <option value="">Selecione um serviço</option>
+            </select>
+          </div>
+        </div>
       </section>
 
-      <section class="passo-email">
-        <label for="cliente-nome">Seu nome</label>
-        <input id="cliente-nome" type="text" required />
-        <label for="cliente-email">Seu email</label>
-        <input id="cliente-email" type="email" required />
-        <label for="cliente-telefone">Telefone</label>
-        <input id="cliente-telefone" type="tel" />
+      <!-- Passo 2: Dados do Cliente -->
+      <section class="passo-email card">
+        <div class="card__header">
+          <h2 class="card__title">Seus dados</h2>
+        </div>
+        <div class="card__body">
+          <div class="form-group">
+            <label for="cliente-nome" class="form-label form-label--required">Seu nome</label>
+            <input id="cliente-nome" type="text" class="form-input" required />
+          </div>
+          <div class="form-group">
+            <label for="cliente-email" class="form-label form-label--required">Seu email</label>
+            <input id="cliente-email" type="email" class="form-input" required />
+          </div>
+          <div class="form-group">
+            <label for="cliente-telefone" class="form-label">Telefone</label>
+            <input id="cliente-telefone" type="tel" class="form-input" placeholder="(11) 99999-9999" />
+          </div>
+        </div>
       </section>
 
-      <section class="passo-data">
-        <label for="date-select">Escolha a data</label>
-        <input id="date-select" type="date" />
-        <button id="btn-gerar-slots" class="submit-btn">Verificar Slots</button>
+      <!-- Passo 3: Data -->
+      <section class="passo-data card">
+        <div class="card__header">
+          <h2 class="card__title">Escolha a data</h2>
+        </div>
+        <div class="card__body">
+          <div class="form-group">
+            <label for="date-select" class="form-label">Data</label>
+            <input id="date-select" type="date" class="form-input" />
+          </div>
+          <button id="btn-gerar-slots" class="btn btn--primary w-full">Verificar Slots Disponíveis</button>
+        </div>
       </section>
 
-      <section id="slots-list" class="slots-list"></section>
+      <!-- Slots -->
+      <section id="slots-list" class="slots-list">
+        <!-- Slots serão renderizados aqui -->
+      </section>
 
-      <div id="agendar-mensagem" class="hidden"></div>
+      <!-- Mensagem -->
+      <div id="agendar-mensagem" class="alert alert--primary d-none" role="alert"></div>
     </div>
   </main>
 
   <script type="module" src="../pages/agendar-cliente.js"></script>
 </body>
 </html>
+

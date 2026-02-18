@@ -3,32 +3,132 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="AgendaEstética - Agendamentos">
+  <meta name="theme-color" content="#8b5cf6">
+  
   <title>AgendaEstética - Agendamentos</title>
-  <link rel="stylesheet" href="../styles/global.css">
-  <link rel="stylesheet" href="../styles/agendamentos.css">
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="../assets/images/favicon.svg">
+  <link rel="apple-touch-icon" href="../assets/images/favicon.svg">
+  
+  <!-- CSS Principal (Design System v2) -->
+  <link rel="stylesheet" href="../styles/main.css">
+  
+  <!-- Chart.js via CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
   <main class="agendamentos-container">
-    <div class="agendamentos-card">
-      <header>
-        <h1>Agendamentos</h1>
-        <p class="text-secondary">Lista de solicitações e agendamentos confirmados.</p>
-      </header>
+    
+    <!-- Header -->
+    <header class="page-header">
+      <div class="page-header__content">
+        <h1 class="page-header__title">Agendamentos</h1>
+        <p class="page-header__subtitle text-secondary">Gerencie e acompanhe todos os seus agendamentos</p>
+      </div>
+    </header>
 
-      <section class="filters">
-        <label for="filter-date-start">De</label>
-        <input id="filter-date-start" type="date" />
-        <label for="filter-date-end">Até</label>
-        <input id="filter-date-end" type="date" />
-        <button id="btn-filter" class="submit-btn">Filtrar</button>
-      </section>
+    <!-- Stats Cards -->
+    <section class="stats-section">
+      <div class="stats-grid">
+        <div class="stat-card stat-card--success">
+          <div class="stat-card__icon">✅</div>
+          <div class="stat-card__info">
+            <p class="stat-card__value" id="count-confirmados">0</p>
+            <p class="stat-card__label">Confirmados</p>
+          </div>
+        </div>
+        
+        <div class="stat-card stat-card--warning">
+          <div class="stat-card__icon">⏳</div>
+          <div class="stat-card__info">
+            <p class="stat-card__value" id="count-pendentes">0</p>
+            <p class="stat-card__label">Pendentes</p>
+          </div>
+        </div>
+        
+        <div class="stat-card stat-card--danger">
+          <div class="stat-card__icon">❌</div>
+          <div class="stat-card__info">
+            <p class="stat-card__value" id="count-cancelados">0</p>
+            <p class="stat-card__label">Cancelados</p>
+          </div>
+        </div>
+        
+        <div class="stat-card stat-card--primary">
+          <div class="stat-card__icon">📊</div>
+          <div class="stat-card__info">
+            <p class="stat-card__value" id="count-total">0</p>
+            <p class="stat-card__label">Total</p>
+          </div>
+        </div>
+      </div>
+    </section>
 
-      <section id="lista-agendamentos" class="lista-agendamentos">
-        <!-- items serão injetados aqui -->
-      </section>
-    </div>
+    <!-- Charts Section -->
+    <section class="charts-section">
+      <div class="chart-card">
+        <h2 class="chart-card__title">Agendamentos por Dia</h2>
+        <canvas id="chart-agendamentos-dia"></canvas>
+      </div>
+      <div class="chart-card">
+        <h2 class="chart-card__title">Status dos Agendamentos</h2>
+        <canvas id="chart-status"></canvas>
+      </div>
+    </section>
+
+    <!-- Filters -->
+    <section class="filters-section card">
+      <div class="card__header">
+        <h2 class="card__title">Filtros</h2>
+      </div>
+      <div class="card__body">
+        <form id="form-filters" class="filters-form">
+          <div class="filters-grid">
+            <div class="form-group">
+              <label for="filter-date-start" class="form-label">De</label>
+              <input id="filter-date-start" type="date" class="form-input" />
+            </div>
+            <div class="form-group">
+              <label for="filter-date-end" class="form-label">Até</label>
+              <input id="filter-date-end" type="date" class="form-input" />
+            </div>
+            <div class="form-group">
+              <label for="filter-status" class="form-label">Status</label>
+              <select id="filter-status" class="form-input form-select">
+                <option value="">Todos</option>
+                <option value="solicitado">Solicitado</option>
+                <option value="confirmado">Confirmado</option>
+                <option value="cancelado">Cancelado</option>
+              </select>
+            </div>
+            <div class="filters-actions">
+              <button type="submit" class="btn btn--primary">Filtrar</button>
+              <button type="button" id="btn-clear" class="btn btn--secondary">Limpar</button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <!-- List -->
+    <section class="list-section">
+      <div class="list-header">
+        <h2 class="list-header__title">Lista de Agendamentos</h2>
+        <span id="count-display" class="badge badge--light">0 agendamentos</span>
+      </div>
+      <div id="lista-agendamentos" class="agendamentos-list">
+        <div class="loading-state">
+          <div class="loading-spinner"></div>
+          <p>Carregando...</p>
+        </div>
+      </div>
+    </section>
+
   </main>
 
   <script type="module" src="../pages/agendamentos.js"></script>
 </body>
 </html>
+

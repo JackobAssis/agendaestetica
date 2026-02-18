@@ -1,81 +1,96 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="AgendaEstética - Notificações">
+  <meta name="theme-color" content="#8b5cf6">
+  
   <title>AgendaEstética - Notificações</title>
-  <link rel="stylesheet" href="/styles/global.css">
-  <link rel="stylesheet" href="/styles/notificacoes.css">
-  <!-- Firebase Cloud Messaging -->
-  <script type="module" src="/pages/notificacoes.js"></script>
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="/assets/images/favicon.svg">
+  <link rel="apple-touch-icon" href="/assets/images/favicon.svg">
+  
+  <!-- CSS Principal (Design System v2) -->
+  <link rel="stylesheet" href="/styles/main.css">
 </head>
 <body>
   <main class="notificacoes-container">
+    
+    <!-- Header -->
     <header class="page-header">
-      <a href="/dashboard" class="back-link">← Voltar</a>
-      <h1>🔔 Notificações</h1>
-      <button id="btn-marcar-todas" class="btn-secondary">Marcar todas como lidas</button>
+      <a href="/dashboard" class="btn btn--ghost back-link">← Voltar</a>
+      <div class="page-header__content">
+        <h1 class="page-header__title">Notificações</h1>
+        <p class="page-header__subtitle text-secondary">Gerencie suas notificações</p>
+      </div>
+      <button id="btn-marcar-todas" class="btn btn--secondary">Marcar todas como lidas</button>
     </header>
 
     <!-- Push Notification Settings -->
-    <section class="push-settings">
-      <div class="push-settings-header">
-        <h3>📱 Notificações Push</h3>
-        <label class="push-toggle">
-          <input type="checkbox" id="push-enabled">
-          <span class="toggle-slider"></span>
-        </label>
+    <section class="push-settings card">
+      <div class="card__body">
+        <div class="push-settings-header">
+          <h2 class="card__title">Notificações Push</h2>
+          <label class="toggle">
+            <input type="checkbox" id="push-enabled">
+            <span class="toggle__slider"></span>
+          </label>
+        </div>
+        <p class="text-secondary mt-2">
+          Receba notificações sobre novos agendamentos, confirmações e lembretes no seu dispositivo.
+        </p>
       </div>
-      <p style="margin: 0; font-size: 0.875rem; color: var(--color-text-secondary);">
-        Receba notificações sobre novos agendamentos, confirmações e lembretes no seu dispositivo.
-      </p>
     </section>
 
     <!-- Tabs -->
-    <nav class="tabs">
-      <button class="tab-btn active" data-tab="nao-lidas">
+    <nav class="tabs" role="tablist">
+      <button class="tab tab--active" data-tab="nao-lidas" role="tab" aria-selected="true">
         Não Lidas
-        <span class="tab-badge" id="badge-nao-lidas" style="display: none;">0</span>
+        <span class="badge badge--primary ml-2" id="badge-nao-lidas" style="display: none;">0</span>
       </button>
-      <button class="tab-btn" data-tab="todas">Todas</button>
+      <button class="tab" data-tab="todas" role="tab" aria-selected="false">Todas</button>
     </nav>
 
     <!-- Notifications List -->
     <section class="notificacoes-list" id="lista-notificacoes">
-      <div class="loading">Carregando notificações...</div>
+      <div class="loading-state">
+        <div class="loading-spinner"></div>
+        <p>Carregando notificações...</p>
+      </div>
     </section>
 
     <!-- Details Modal -->
-    <div id="modal-detalhes" class="modal hidden">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h2 id="modal-titulo">Notificação</h2>
-          <button class="modal-close" id="fechar-modal">&times;</button>
+    <div id="modal-detalhes" class="modal-overlay" role="dialog" aria-labelledby="modal-detalhes-title" aria-modal="true">
+      <div class="modal">
+        <div class="modal__header">
+          <h2 id="modal-detalhes-title" class="modal__title">Notificação</h2>
+          <button class="modal__close" id="fechar-modal" aria-label="Fechar">&times;</button>
         </div>
-        <div class="modal-body" id="modal-corpo">
+        <div class="modal__body" id="modal-corpo">
           <!-- Dynamic content -->
         </div>
-        <div class="modal-footer" id="modal-actions">
-          <button class="btn-primary" id="btn-ver-agendamento">Ver Agendamento</button>
+        <div class="modal__footer" id="modal-actions">
+          <button class="btn btn--primary" id="btn-ver-agendamento">Ver Agendamento</button>
         </div>
       </div>
     </div>
 
     <!-- Toast Message -->
-    <div id="mensagem" class="message hidden"></div>
+    <div id="mensagem" class="toast-container" aria-live="polite"></div>
   </main>
 
   <!-- Firebase SDK for Cloud Messaging -->
   <script type="module">
-    // Firebase imports handled in notificacoes.js
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.5.0/firebase-app.js';
     import { getMessaging, getToken, onMessage } from 'https://www.gstatic.com/firebasejs/10.5.0/firebase-messaging.js';
     
-    // Make Firebase Messaging available globally
     window.firebaseMessaging = { getMessaging, getToken, onMessage };
     window.firebaseApp = window.firebaseApp || null;
   </script>
+  
+  <script type="module" src="/pages/notificacoes.js"></script>
 </body>
 </html>
 

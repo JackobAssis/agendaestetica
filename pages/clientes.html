@@ -3,43 +3,97 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="AgendaEstética - Clientes">
+  <meta name="theme-color" content="#8b5cf6">
+  
   <title>AgendaEstética - Clientes</title>
-  <link rel="stylesheet" href="/styles/global.css">
-  <link rel="stylesheet" href="/styles/clientes.css">
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="/assets/images/favicon.svg">
+  <link rel="apple-touch-icon" href="/assets/images/favicon.svg">
+  
+  <!-- CSS Principal (Design System v2) -->
+  <link rel="stylesheet" href="/styles/main.css">
 </head>
 <body>
   <main class="clientes-container">
-    <div class="header">
-      <h1>Clientes</h1>
-      <div>
-        <button id="btn-refresh" class="btn">Atualizar</button>
+    
+    <!-- Header -->
+    <header class="page-header">
+      <div class="page-header__content">
+        <h1 class="page-header__title">Clientes</h1>
+        <p class="page-header__subtitle text-secondary">Gerencie sua base de clientes</p>
       </div>
-    </div>
+      <button id="btn-refresh" class="btn btn--secondary">Atualizar</button>
+    </header>
 
+    <!-- Adicionar Cliente -->
     <section class="card">
-      <h2>Adicionar Cliente</h2>
-      <form id="form-add-client">
-        <div class="form-row"><input id="cliente-nome" placeholder="Nome" required></div>
-        <div class="form-row"><input id="cliente-email" placeholder="Email"></div>
-        <div class="form-row"><input id="cliente-tel" placeholder="Telefone"></div>
-        <div class="form-row"><button type="submit" class="btn">Adicionar</button></div>
-      </form>
+      <div class="card__header">
+        <h2 class="card__title">Adicionar Cliente</h2>
+      </div>
+      <div class="card__body">
+        <form id="form-add-client" class="form">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="cliente-nome" class="form-label">Nome</label>
+              <input id="cliente-nome" type="text" class="form-input" placeholder="Nome completo" required />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="cliente-email" class="form-label">Email</label>
+              <input id="cliente-email" type="email" class="form-input" placeholder="email@exemplo.com" />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="cliente-tel" class="form-label">Telefone</label>
+              <input id="cliente-tel" type="tel" class="form-input" placeholder="(11) 99999-9999" />
+            </div>
+          </div>
+          <div class="form-row">
+            <button type="submit" class="btn btn--primary">Adicionar Cliente</button>
+          </div>
+        </form>
+      </div>
     </section>
 
+    <!-- Lista de Clientes -->
     <section class="card">
-      <h2>Lista de Clientes</h2>
-      <div id="lista-clientes"></div>
+      <div class="card__header">
+        <h2 class="card__title">Lista de Clientes</h2>
+      </div>
+      <div class="card__body">
+        <div id="lista-clientes" class="clientes-list">
+          <!-- Lista de clientes será renderizada aqui -->
+        </div>
+      </div>
     </section>
 
-    <section class="card hidden" id="cliente-detalhes">
-      <h2>Detalhes</h2>
-      <div id="detalhes-content"></div>
-      <h3>Histórico de Agendamentos</h3>
-      <div id="cliente-historico"></div>
-      <h3>Adicionar Observação</h3>
-      <div><textarea id="obs-text" rows="3" placeholder="Observação interna"></textarea></div>
-      <div><button id="btn-add-obs" class="btn">Salvar observação</button></div>
+    <!-- Detalhes do Cliente -->
+    <section class="card d-none" id="cliente-detalhes">
+      <div class="card__header">
+        <h2 class="card__title">Detalhes do Cliente</h2>
+      </div>
+      <div class="card__body">
+        <div id="detalhes-content" class="cliente-detalhes">
+          <!-- Detalhes serão inseridos aqui -->
+        </div>
+        
+        <h3 class="mt-4 mb-3">Histórico de Agendamentos</h3>
+        <div id="cliente-historico" class="historico-lista">
+          <!-- Histórico será inserido aqui -->
+        </div>
+        
+        <h3 class="mt-4 mb-3">Adicionar Observação</h3>
+        <div class="form-group">
+          <textarea id="obs-text" class="form-input form-textarea" rows="3" placeholder="Observação interna"></textarea>
+        </div>
+        <button id="btn-add-obs" class="btn btn--primary">Salvar observação</button>
+      </div>
     </section>
+
   </main>
 
   <script type="module" src="/pages/clientes.js"></script>

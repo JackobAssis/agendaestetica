@@ -107,11 +107,11 @@ function setupToggleButtons() {
             
             // Mostrar/Esconder forms
             if (modo === 'login') {
-                formLogin.style.display = 'block';
-                formCadastro.style.display = 'none';
+                formLogin.classList.remove('d-none');
+                formCadastro.classList.add('d-none');
             } else {
-                formLogin.style.display = 'none';
-                formCadastro.style.display = 'block';
+                formLogin.classList.add('d-none');
+                formCadastro.classList.remove('d-none');
             }
             
             // Limpar mensagens
@@ -365,25 +365,39 @@ function mostraModoRecuperarSenha() {
  * Mostrar erro
  */
 function mostrarErro(mensagem) {
-    mensagemDiv.className = 'error-message';
-    mensagemDiv.textContent = '❌ ' + mensagem;
-    mensagemDiv.classList.remove('hidden');
+    mensagemDiv.className = 'alert alert--danger';
+    mensagemDiv.innerHTML = `
+        <svg class="alert__icon" width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+        </svg>
+        <div class="alert__content">
+            <p class="alert__message">${mensagem}</p>
+        </div>
+    `;
+    mensagemDiv.classList.remove('d-none');
 }
 
 /**
  * Mostrar sucesso
  */
 function mostrarSucesso(mensagem) {
-    mensagemDiv.className = 'success-message';
-    mensagemDiv.textContent = '✅ ' + mensagem;
-    mensagemDiv.classList.remove('hidden');
+    mensagemDiv.className = 'alert alert--success';
+    mensagemDiv.innerHTML = `
+        <svg class="alert__icon" width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+        </svg>
+        <div class="alert__content">
+            <p class="alert__message">${mensagem}</p>
+        </div>
+    `;
+    mensagemDiv.classList.remove('d-none');
 }
 
 /**
  * Limpar mensagem
  */
 function limparMensagem() {
-    mensagemDiv.classList.add('hidden');
+    mensagemDiv.classList.add('d-none');
 }
 
 // Inicializar UI do role

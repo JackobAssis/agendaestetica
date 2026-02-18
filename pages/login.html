@@ -3,93 +3,105 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AgendaEstética - Login / Cadastro</title>
-    <link rel="stylesheet" href="/styles/global.css">
-    <link rel="stylesheet" href="/styles/login.css">
+    <meta name="description" content="AgendaEstética - Login ou Cadastro">
+    <meta name="theme-color" content="#8b5cf6">
+    
+    <title>AgendaEstética - Login</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/assets/images/favicon.svg">
+    <link rel="apple-touch-icon" href="/assets/images/favicon.svg">
+    
+    <!-- CSS Principal (Design System v2) -->
+    <link rel="stylesheet" href="/styles/main.css">
 </head>
 <body>
-    <div class="login-container">
-        <div class="login-box">
+    <div class="auth-page">
+        <div class="auth-card">
             
             <!-- Header -->
-            <div class="login-header">
-                <div class="login-logo">📅</div>
-                <h1>AgendaEstética</h1>
-                <p style="color: var(--color-text-secondary); margin: 0;">Gerencie sua agenda online</p>
-            </div>
+            <header class="auth-card__header">
+                <div class="auth-card__logo">📅</div>
+                <h1 class="auth-card__title">AgendaEstética</h1>
+                <p class="text-secondary">Gerencie sua agenda online</p>
+            </header>
             
             <!-- Toggle entre Login e Cadastro -->
-            <div class="toggle-buttons">
+            <div class="btn-group mb-4">
                 <button class="toggle-btn active" data-mode="login">Login</button>
                 <button class="toggle-btn" data-mode="cadastro">Cadastro</button>
             </div>
             
             <!-- Mensagens de Erro/Sucesso -->
-            <div id="mensagem" class="hidden"></div>
+            <div id="mensagem" class="alert d-none" role="alert"></div>
             
             <!-- FORMULÁRIO LOGIN -->
-            <form id="form-login" class="login-form" style="display: block;">
+            <form id="form-login" class="auth-form">
                 
                 <!-- Toggle Profissional vs Cliente -->
-                <div class="toggle-buttons" style="margin-bottom: var(--spacing-lg);">
+                <div class="btn-group mb-4">
                     <button type="button" class="toggle-btn active" data-role="profissional">Profissional</button>
                     <button type="button" class="toggle-btn" data-role="cliente">Cliente</button>
                 </div>
                 
                 <!-- Email ou Telefone -->
                 <div class="form-group">
-                    <label for="login-email">Email ou Telefone</label>
+                    <label for="login-email" class="form-label">Email ou Telefone</label>
                     <input 
                         type="text" 
                         id="login-email" 
                         name="email"
+                        class="form-input"
                         placeholder="seu@email.com ou (11) 99999-9999"
                         required
+                        aria-describedby="login-email-hint"
                     />
-                    <small style="color: var(--color-text-secondary); font-size: 12px;">
+                    <small id="login-email-hint" class="form-hint">
                         Informe email ou telefone com DDD
                     </small>
                 </div>
                 
-                <!-- Senha (visível apenas para profissional e quando usar email) -->
-                <div class="form-group" id="grupo-senha-login" style="display: block;">
-                    <label for="login-senha">Senha</label>
+                <!-- Senha -->
+                <div class="form-group" id="grupo-senha-login">
+                    <label for="login-senha" class="form-label">Senha</label>
                     <input 
                         type="password" 
                         id="login-senha" 
                         name="senha"
+                        class="form-input"
                         placeholder="Mínimo 6 caracteres"
                     />
                 </div>
                 
                 <!-- Botão Login -->
-                <button type="submit" class="submit-btn">
+                <button type="submit" class="btn btn--primary w-full">
                     <span id="login-btn-texto">Entrar</span>
                 </button>
                 
                 <!-- Link Esqueci Senha -->
-                <div class="form-footer">
-                    <a href="#" id="link-esqueci-senha">Esqueci minha senha</a>
+                <div class="auth-card__footer">
+                    <a href="/recuperar-senha" id="link-esqueci-senha" class="btn btn--ghost">Esqueci minha senha</a>
                 </div>
                 
             </form>
             
             <!-- FORMULÁRIO CADASTRO -->
-            <form id="form-cadastro" class="login-form" style="display: none;">
+            <form id="form-cadastro" class="auth-form d-none">
                 
                 <!-- Toggle Profissional vs Cliente -->
-                <div class="toggle-buttons" style="margin-bottom: var(--spacing-lg);">
+                <div class="btn-group mb-4">
                     <button type="button" class="toggle-btn active" data-role="profissional">Profissional</button>
                     <button type="button" class="toggle-btn" data-role="cliente">Cliente</button>
                 </div>
                 
                 <!-- Nome -->
                 <div class="form-group">
-                    <label for="cadastro-nome">Nome Completo</label>
+                    <label for="cadastro-nome" class="form-label">Nome Completo</label>
                     <input 
                         type="text" 
                         id="cadastro-nome" 
                         name="nome"
+                        class="form-input"
                         placeholder="Seu nome"
                         required
                     />
@@ -97,23 +109,22 @@
                 
                 <!-- Email ou Telefone -->
                 <div class="form-group">
-                    <label for="cadastro-email">Email ou Telefone</label>
+                    <label for="cadastro-email" class="form-label">Email ou Telefone</label>
                     <input 
                         type="text" 
                         id="cadastro-email" 
                         name="email"
+                        class="form-input"
                         placeholder="seu@email.com ou (11) 99999-9999"
                         required
                     />
-                    <small style="color: var(--color-text-secondary); font-size: 12px;">
-                        Informe email ou telefone com DDD
-                    </small>
+                    <small class="form-hint">Informe email ou telefone com DDD</small>
                 </div>
                 
                 <!-- Profissão (visível apenas para profissional) -->
-                <div class="form-group" id="grupo-profissao" style="display: block;">
-                    <label for="cadastro-profissao">Profissão</label>
-                    <select id="cadastro-profissao" name="profissao" required>
+                <div class="form-group" id="grupo-profissao">
+                    <label for="cadastro-profissao" class="form-label form-label--required">Profissão</label>
+                    <select id="cadastro-profissao" name="profissao" class="form-input form-select" required>
                         <option value="">Selecione sua profissão</option>
                         <option value="cabeleireira">Cabeleireira</option>
                         <option value="esteticista">Esteticista</option>
@@ -125,48 +136,49 @@
                     </select>
                 </div>
                 
-                <!-- Senha (visível apenas para profissional e quando usar email) -->
-                <div class="form-group" id="grupo-senha-cadastro" style="display: block;">
-                    <label for="cadastro-senha">Senha</label>
+                <!-- Senha -->
+                <div class="form-group" id="grupo-senha-cadastro">
+                    <label for="cadastro-senha" class="form-label form-label--required">Senha</label>
                     <input 
                         type="password" 
                         id="cadastro-senha" 
                         name="senha"
+                        class="form-input"
                         placeholder="Mínimo 6 caracteres"
                     />
-                    <small style="color: var(--color-text-secondary); font-size: 12px;">
-                        Obrigatório apenas para cadastro por email
-                    </small>
+                    <small class="form-hint">Obrigatório apenas para cadastro por email</small>
                 </div>
                 
                 <!-- Confirmar Senha -->
-                <div class="form-group" id="grupo-senha-confirma" style="display: block;">
-                    <label for="cadastro-senha-confirma">Confirmar Senha</label>
+                <div class="form-group" id="grupo-senha-confirma">
+                    <label for="cadastro-senha-confirma" class="form-label form-label--required">Confirmar Senha</label>
                     <input 
                         type="password" 
                         id="cadastro-senha-confirma" 
                         name="senhaConfirma"
+                        class="form-input"
                         placeholder="Confirme a senha"
                     />
                 </div>
                 
                 <!-- Termos -->
-                <div class="form-group" style="margin-top: var(--spacing-lg);">
-                    <label style="display: flex; gap: var(--spacing-sm); align-items: flex-start;">
+                <div class="form-group mt-4">
+                    <label class="form-check">
                         <input 
                             type="checkbox" 
                             id="termos" 
                             name="termos"
-                            style="margin-top: 3px;"
+                            class="form-check-input"
+                            required
                         />
-                        <span style="font-size: var(--font-size-sm); color: var(--color-text-secondary);">
+                        <span class="form-check-label">
                             Concordo com os <a href="#">Termos de Serviço</a> e <a href="#">Política de Privacidade</a>
                         </span>
                     </label>
                 </div>
                 
                 <!-- Botão Cadastro -->
-                <button type="submit" class="submit-btn">
+                <button type="submit" class="btn btn--primary w-full">
                     <span id="cadastro-btn-texto">Criar Conta</span>
                 </button>
                 

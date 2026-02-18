@@ -3,81 +3,102 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="AgendaEstética - Meus Agendamentos">
+  <meta name="theme-color" content="#8b5cf6">
+  
   <title>AgendaEstética - Meus Agendamentos</title>
-  <link rel="stylesheet" href="../styles/global.css">
-  <link name="stylesheet" href="../styles/meus-agendamentos.css">
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="../assets/images/favicon.svg">
+  <link rel="apple-touch-icon" href="../assets/images/favicon.svg">
+  
+  <!-- CSS Principal (Design System v2) -->
+  <link rel="stylesheet" href="../styles/main.css">
 </head>
 <body>
   <main class="meus-agendamentos-container">
+    
+    <!-- Header -->
     <header class="page-header">
-      <a href="/" class="back-link">← Voltar</a>
-      <h1>Meus Agendamentos</h1>
+      <a href="/" class="btn btn--ghost back-link">← Voltar</a>
+      <h1 class="page-header__title">Meus Agendamentos</h1>
     </header>
 
-    <nav class="tabs">
-      <button class="tab-btn active" data-tab="futuros">Próximos</button>
-      <button class="tab-btn" data-tab="historico">Histórico</button>
+    <!-- Tabs Navigation -->
+    <nav class="tabs" role="tablist">
+      <button class="tab tab--active" data-tab="futuros" role="tab" aria-selected="true">Próximos</button>
+      <button class="tab" data-tab="historico" role="tab" aria-selected="false">Histórico</button>
     </nav>
 
-    <section id="agendamentos-futuros" class="agendamentos-section">
+    <!-- Agendamentos Futuros -->
+    <section id="agendamentos-futuros" class="agendamentos-section" role="tabpanel">
       <div class="agendamentos-list" id="lista-futuros">
-        <!-- Agendamentos futuros serão inseridos aqui -->
-        <div class="loading">Carregando...</div>
+        <div class="loading-state">
+          <div class="loading-spinner"></div>
+          <p>Carregando...</p>
+        </div>
       </div>
     </section>
 
-    <section id="agendamentos-historico" class="agendamentos-section hidden">
+    <!-- Histórico -->
+    <section id="agendamentos-historico" class="agendamentos-section d-none" role="tabpanel">
       <div class="agendamentos-list" id="lista-historico">
         <!-- Histórico será inserido aqui -->
       </div>
     </section>
 
     <!-- Modal de Detalhes -->
-    <div id="modal-detalhes" class="modal hidden">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h2>Detalhes do Agendamento</h2>
-          <button class="modal-close" id="fechar-modal">&times;</button>
+    <div id="modal-detalhes" class="modal-overlay" role="dialog" aria-labelledby="modal-detalhes-title" aria-modal="true">
+      <div class="modal">
+        <div class="modal__header">
+          <h2 id="modal-detalhes-title" class="modal__title">Detalhes do Agendamento</h2>
+          <button class="modal__close" id="fechar-modal" aria-label="Fechar">&times;</button>
         </div>
-        <div class="modal-body" id="detalhes-conteudo">
+        <div class="modal__body" id="detalhes-conteudo">
           <!-- Conteúdo dinâmico -->
         </div>
-        <div class="modal-footer">
-          <button id="btn-cancelar" class="btn-secondary">Solicitar Cancelamento</button>
-          <button id="btn-solicitar-troca" class="btn-primary">Solicitar Troca</button>
+        <div class="modal__footer">
+          <button id="btn-cancelar" class="btn btn--secondary">Solicitar Cancelamento</button>
+          <button id="btn-solicitar-troca" class="btn btn--primary">Solicitar Troca</button>
         </div>
       </div>
     </div>
 
     <!-- Modal de Troca -->
-    <div id="modal-troca" class="modal hidden">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h2>Solicitar Troca de Data</h2>
-          <button class="modal-close" id="fechar-modal-troca">&times;</button>
+    <div id="modal-troca" class="modal-overlay" role="dialog" aria-labelledby="modal-troca-title" aria-modal="true">
+      <div class="modal">
+        <div class="modal__header">
+          <h2 id="modal-troca-title" class="modal__title">Solicitar Troca de Data</h2>
+          <button class="modal__close" id="fechar-modal-troca" aria-label="Fechar">&times;</button>
         </div>
-        <div class="modal-body">
+        <div class="modal__body">
           <p class="text-secondary">Agendamento atual: <strong id="troca-atual"></strong></p>
           
-          <label for="troca-data">Nova Data</label>
-          <input type="date" id="troca-data" />
+          <div class="form-group">
+            <label for="troca-data" class="form-label">Nova Data</label>
+            <input type="date" id="troca-data" class="form-input" />
+          </div>
           
-          <label for="troca-hora">Novo Horário</label>
-          <select id="troca-hora">
-            <option value="">Selecione uma data primeiro</option>
-          </select>
+          <div class="form-group">
+            <label for="troca-hora" class="form-label">Novo Horário</label>
+            <select id="troca-hora" class="form-input form-select">
+              <option value="">Selecione uma data primeiro</option>
+            </select>
+          </div>
           
-          <label for="troca-motivo">Motivo (opcional)</label>
-          <textarea id="troca-motivo" placeholder="Explique o motivo da troca..."></textarea>
+          <div class="form-group">
+            <label for="troca-motivo" class="form-label">Motivo (opcional)</label>
+            <textarea id="troca-motivo" class="form-input form-textarea" placeholder="Explique o motivo da troca..."></textarea>
+          </div>
         </div>
-        <div class="modal-footer">
-          <button id="btn-enviar-troca" class="btn-primary">Enviar Solicitação</button>
+        <div class="modal__footer">
+          <button id="btn-enviar-troca" class="btn btn--primary">Enviar Solicitação</button>
         </div>
       </div>
     </div>
 
     <!-- Mensagens -->
-    <div id="mensagem" class="message hidden"></div>
+    <div id="mensagem" class="toast-container" aria-live="polite"></div>
   </main>
 
   <script type="module" src="../pages/meus-agendamentos.js"></script>
