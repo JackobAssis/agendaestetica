@@ -1,24 +1,37 @@
-<div class="page-container">
-  <div class="header">
-    <h1>Perfil</h1>
-  </div>
-
-  <section class="card">
-    <h2>Informações</h2>
-    <p id="perfil-nome"></p>
-    <p id="perfil-email"></p>
-  </section>
-
-  <section class="card">
-    <h2>Plano</h2>
-    <p>Plano atual: <strong id="plano-atual-text">Free</strong></p>
-    <label for="plano-select">Alterar Plano</label>
-    <select id="plano-select">
-      <option value="free">Free</option>
-      <option value="premium">Premium</option>
-    </select>
-    <div style="margin-top:12px;"><button id="btn-change-plan" class="btn">Salvar Plano</button></div>
-  </section>
-
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AgendaEstética - Perfil</title>
+  <link rel="stylesheet" href="/styles/global.css">
   <link rel="stylesheet" href="/styles/perfil.css">
-</div>
+</head>
+<body>
+  <main class="perfil-container">
+    <header class="page-header">
+      <h1>Perfil</h1>
+    </header>
+
+    <section class="card">
+      <h2>Informações</h2>
+      <p id="perfil-nome"></p>
+      <p id="perfil-email"></p>
+    </section>
+
+    <section class="card">
+      <h2>Plano</h2>
+      <p>Plano atual: <strong id="plano-atual-text">Free</strong></p>
+      <label for="plano-select">Alterar Plano</label>
+      <select id="plano-select">
+        <option value="free">Free</option>
+        <option value="premium">Premium</option>
+      </select>
+      <div style="margin-top:12px;"><button id="btn-change-plan" class="btn">Salvar Plano</button></div>
+    </section>
+  </main>
+
+  <script type="module" src="/pages/perfil.js"></script>
+</body>
+</html>
+
