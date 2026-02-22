@@ -57,7 +57,12 @@ async function gerarRelatorioPeriodo() {
         return;
     }
 
-    relatorioResultado.innerHTML = '<div class="loading">Gerando relatório...</div>';
+    // show loading
+    relatorioResultado.textContent = '';
+    const loading = document.createElement('div');
+    loading.className = 'loading';
+    loading.textContent = 'Gerando relatório...';
+    relatorioResultado.appendChild(loading);
 
     try {
         const inicio = new Date(dataInicio);
@@ -90,76 +95,101 @@ async function gerarRelatorioPeriodo() {
             porDia[dia] = (porDia[dia] || 0) + 1;
         });
 
-        // Render
-        let html = `
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <span class="stat-value">${total}</span>
-                    <span class="stat-label">Total</span>
-                </div>
-                <div class="stat-card success">
-                    <span class="stat-value">${confirmados.length}</span>
-                    <span class="stat-label">Confirmados</span>
-                </div>
-                <div class="stat-card warning">
-                    <span class="stat-value">${solicitados.length}</span>
-                    <span class="stat-label">Pendentes</span>
-                </div>
-                <div class="stat-card error">
-                    <span class="stat-value">${cancelados.length}</span>
-                    <span class="stat-label">Cancelados</span>
-                </div>
-            </div>
-
-            <h4>Por Serviço</h4>
-            <table class="data-table">
-                <thead>
-                    <tr>
-                        <th>Serviço</th>
-                        <th>Qtd</th>
-                        <th>%</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    ${Object.entries(porServico).map(([servico, qtd]) => `
-                        <tr>
-                            <td>${servico}</td>
-                            <td>${qtd}</td>
-                            <td>${total > 0 ? ((qtd / total) * 100).toFixed(1) : 0}%</td>
-                        </tr>
-                    `).join('')}
-                </tbody>
-            </table>
-        `;
-
-        if (Object.keys(porDia).length > 0) {
-            html += `
-                <h4>Por Dia da Semana</h4>
-                <div class="stats-row">
-                    ${Object.entries(porDia).map(([dia, qtd]) => `
-                        <div class="stat-mini">
-                            <span class="stat-num">${qtd}</span>
-                            <span class="stat-dia">${dia}</span>
-                        </div>
-                    `).join('')}
-                </div>
-            `;
-        }
+        // clear and render
+        relatorioResultado.textContent = '';
 
         if (filtrados.length === 0) {
-            html = '<div class="empty-state"><p>Nenhum agendamento encontrado no período selecionado.</p></div>';
-        }
+            const empty = document.createElement('div');
+            empty.className = 'empty-state';
+            const p = document.createElement('p');
+            p.textContent = 'Nenhum agendamento encontrado no período selecionado.';
+            empty.appendChild(p);
+            relatorioResultado.appendChild(empty);
+        } else {
+            const statsGrid = document.createElement('div');
+            statsGrid.className = 'stats-grid';
 
-        relatorioResultado.innerHTML = html;
+            const createStatCard = (value, label, extraClass) => {
+                const card = document.createElement('div');
+                card.className = `stat-card ${extraClass || ''}`.trim();
+                const v = document.createElement('span');
+                v.className = 'stat-value';
+                v.textContent = value;
+                const l = document.createElement('span');
+                l.className = 'stat-label';
+                l.textContent = label;
+                card.appendChild(v);
+                card.appendChild(l);
+                return card;
+            };
+
+            statsGrid.appendChild(createStatCard(total, 'Total'));
+            statsGrid.appendChild(createStatCard(confirmados.length, 'Confirmados', 'success'));
+            statsGrid.appendChild(createStatCard(solicitados.length, 'Pendentes', 'warning'));
+            statsGrid.appendChild(createStatCard(cancelados.length, 'Cancelados', 'error'));
+
+            relatorioResultado.appendChild(statsGrid);
+
+            // Por Serviço table
+            const h4 = document.createElement('h4');
+            h4.textContent = 'Por Serviço';
+            relatorioResultado.appendChild(h4);
+
+            const table = document.createElement('table');
+            table.className = 'data-table';
+            const thead = document.createElement('thead');
+            const trHead = document.createElement('tr');
+            ['Serviço','Qtd','%'].forEach(h => { const th = document.createElement('th'); th.textContent = h; trHead.appendChild(th); });
+            thead.appendChild(trHead);
+            table.appendChild(thead);
+            const tbody = document.createElement('tbody');
+            Object.entries(porServico).forEach(([servico, qtd]) => {
+                const tr = document.createElement('tr');
+                const td1 = document.createElement('td'); td1.textContent = servico;
+                const td2 = document.createElement('td'); td2.textContent = qtd;
+                const td3 = document.createElement('td'); td3.textContent = total > 0 ? ((qtd / total) * 100).toFixed(1) + '%' : '0%';
+                tr.appendChild(td1); tr.appendChild(td2); tr.appendChild(td3);
+                tbody.appendChild(tr);
+            });
+            table.appendChild(tbody);
+            relatorioResultado.appendChild(table);
+
+            // Por Dia
+            if (Object.keys(porDia).length > 0) {
+                const h4d = document.createElement('h4');
+                h4d.textContent = 'Por Dia da Semana';
+                relatorioResultado.appendChild(h4d);
+
+                const row = document.createElement('div');
+                row.className = 'stats-row';
+                Object.entries(porDia).forEach(([dia, qtd]) => {
+                    const mini = document.createElement('div');
+                    mini.className = 'stat-mini';
+                    const n = document.createElement('span'); n.className = 'stat-num'; n.textContent = qtd;
+                    const d = document.createElement('span'); d.className = 'stat-dia'; d.textContent = dia;
+                    mini.appendChild(n); mini.appendChild(d);
+                    row.appendChild(mini);
+                });
+                relatorioResultado.appendChild(row);
+            }
+        }
 
     } catch (error) {
         console.error('Erro ao gerar relatório:', error);
-        relatorioResultado.innerHTML = '<div class="error-state">Erro ao gerar relatório.</div>';
+        relatorioResultado.textContent = '';
+        const err = document.createElement('div');
+        err.className = 'error-state';
+        err.textContent = 'Erro ao gerar relatório.';
+        relatorioResultado.appendChild(err);
     }
 }
 
 async function gerarRelatorioClientes() {
-    clientesResultado.innerHTML = '<div class="loading">Gerando relatório...</div>';
+    clientesResultado.textContent = '';
+    const loadingCli = document.createElement('div');
+    loadingCli.className = 'loading';
+    loadingCli.textContent = 'Gerando relatório...';
+    clientesResultado.appendChild(loadingCli);
 
     try {
         // Contar agendamentos por cliente
@@ -186,38 +216,42 @@ async function gerarRelatorioClientes() {
             .sort((a, b) => b.count - a.count);
 
         // Render
-        let html = '';
-        
+        clientesResultado.textContent = '';
         if (ordenados.length === 0) {
-            html = '<div class="empty-state"><p>Nenhum cliente com agendamentos confirmados.</p></div>';
+            const empty = document.createElement('div');
+            empty.className = 'empty-state';
+            const p = document.createElement('p');
+            p.textContent = 'Nenhum cliente com agendamentos confirmados.';
+            empty.appendChild(p);
+            clientesResultado.appendChild(empty);
         } else {
-            html = `
-                <table class="data-table">
-                    <thead>
-                        <tr>
-                            <th>Cliente</th>
-                            <th>Atendimentos</th>
-                            <th>Última Visita</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${ordenados.map(c => `
-                            <tr>
-                                <td>${c.nome}</td>
-                                <td>${c.count}</td>
-                                <td>${new Date(c.ultimo).toLocaleDateString('pt-BR')}</td>
-                            </tr>
-                        `).join('')}
-                    </tbody>
-                </table>
-            `;
+            const table = document.createElement('table');
+            table.className = 'data-table';
+            const thead = document.createElement('thead');
+            const trHead2 = document.createElement('tr');
+            ['Cliente','Atendimentos','Última Visita'].forEach(h => { const th = document.createElement('th'); th.textContent = h; trHead2.appendChild(th); });
+            thead.appendChild(trHead2);
+            table.appendChild(thead);
+            const tbody = document.createElement('tbody');
+            ordenados.forEach(c => {
+                const tr = document.createElement('tr');
+                const td1 = document.createElement('td'); td1.textContent = c.nome;
+                const td2 = document.createElement('td'); td2.textContent = c.count;
+                const td3 = document.createElement('td'); td3.textContent = new Date(c.ultimo).toLocaleDateString('pt-BR');
+                tr.appendChild(td1); tr.appendChild(td2); tr.appendChild(td3);
+                tbody.appendChild(tr);
+            });
+            table.appendChild(tbody);
+            clientesResultado.appendChild(table);
         }
-
-        clientesResultado.innerHTML = html;
 
     } catch (error) {
         console.error('Erro ao gerar relatório de clientes:', error);
-        clientesResultado.innerHTML = '<div class="error-state">Erro ao gerar relatório.</div>';
+        clientesResultado.textContent = '';
+        const err2 = document.createElement('div');
+        err2.className = 'error-state';
+        err2.textContent = 'Erro ao gerar relatório.';
+        clientesResultado.appendChild(err2);
     }
 }
 

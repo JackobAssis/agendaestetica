@@ -80,7 +80,7 @@ async function carregarProfissional() {
 
         // Populate services
         const services = data.servicos || [];
-        servicoSelect.innerHTML = '';
+        servicoSelect.textContent = '';
         
         if (services.length === 0) {
             const opt = document.createElement('option');
@@ -104,7 +104,7 @@ async function carregarProfissional() {
 
 async function gerarSlots() {
     clearMsg();
-    slotsList.innerHTML = '';
+    slotsList.textContent = '';
     
     const date = dateSelect.value;
     if (!date) {
@@ -116,8 +116,7 @@ async function gerarSlots() {
         const slots = await generateSlotsForDate(profissionalId, date);
         
         if (!slots.length) {
-            slotsList.innerHTML = '<p class="text-secondary">Nenhum slot disponível</p>';
-            return;
+            const p = document.createElement('p'); p.className='text-secondary'; p.textContent='Nenhum slot disponível'; slotsList.appendChild(p); return;
         }
 
         slots.forEach(s => {

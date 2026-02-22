@@ -50,7 +50,7 @@ async function carregar() {
         document.getElementById('public-desc').textContent = data.profissao || '';
         
         const servicosEl = document.getElementById('public-servicos');
-        servicosEl.innerHTML = '';
+        servicosEl.textContent = '';
         
         (data.servicos || []).forEach(s => {
             const li = document.createElement('li');

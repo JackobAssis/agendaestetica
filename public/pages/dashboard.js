@@ -81,7 +81,12 @@ async function inicializar() {
                         hint.style.fontSize = '0.85rem';
                         hint.style.color = 'var(--muted)';
                         hint.style.marginTop = '6px';
-                        hint.innerHTML = 'Tema avançado disponível apenas no plano <a href="/perfil">Premium</a>.';
+                        // build hint with safe link
+                        hint.textContent = 'Tema avançado disponível apenas no plano ';
+                        const a = document.createElement('a');
+                        a.href = '/perfil';
+                        a.textContent = 'Premium';
+                        hint.appendChild(a);
                         themeSelect.parentNode && themeSelect.parentNode.appendChild(hint);
                     }
                 }

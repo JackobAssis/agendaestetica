@@ -40,6 +40,9 @@
  * que não se encaixam nos módulos acima.
  * ========================================== */
 
+/* App Shell e Tema Dark Neon (módulo separado) */
+@import url('./v2/app-shell.css');
+
 /* Marca d'água - Free vs Premium */
 .marca-dagua {
     position: fixed;

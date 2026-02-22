@@ -234,7 +234,11 @@ function renderEmpresaData(empresa) {
     
     // Banner
     if (empresa.bannerUrl) {
-        profissionalBanner.innerHTML = `<img src="${empresa.bannerUrl}" alt="Banner de ${empresa.nome}">`;
+        profissionalBanner.textContent = '';
+        const img = document.createElement('img');
+        img.src = empresa.bannerUrl;
+        img.alt = `Banner de ${empresa.nome}`;
+        profissionalBanner.appendChild(img);
     } else {
         const initial = (empresa.nome || 'P')[0].toUpperCase();
         bannerInitial.textContent = initial;
@@ -385,21 +389,38 @@ function renderHistorico() {
         .sort((a, b) => new Date(b.inicio) - new Date(a.inicio)); // Most recent first
     
     if (historico.length === 0) {
-        historicoLista.innerHTML = '<p class="historico-vazio">Nenhum agendamento no histórico.</p>';
+        historicoLista.textContent = '';
+        const p = document.createElement('p');
+        p.className = 'historico-vazio';
+        p.textContent = 'Nenhum agendamento no histórico.';
+        historicoLista.appendChild(p);
         return;
     }
-    
-    historicoLista.innerHTML = historico.map(ag => `
-        <div class="historico-item">
-            <div class="historico-info">
-                <p class="historico-data">${formatDateTime(ag.inicio)}</p>
-                <p class="historico-servico">${ag.servico || 'Atendimento'}</p>
-            </div>
-            <span class="historico-status ${getStatusClass(ag.status)}">
-                ${getStatusText(ag.status)}
-            </span>
-        </div>
-    `).join('');
+
+    historicoLista.textContent = '';
+    historico.forEach(ag => {
+        const item = document.createElement('div');
+        item.className = 'historico-item';
+
+        const info = document.createElement('div');
+        info.className = 'historico-info';
+        const pDate = document.createElement('p');
+        pDate.className = 'historico-data';
+        pDate.textContent = formatDateTime(ag.inicio);
+        const pServ = document.createElement('p');
+        pServ.className = 'historico-servico';
+        pServ.textContent = ag.servico || 'Atendimento';
+        info.appendChild(pDate);
+        info.appendChild(pServ);
+
+        const status = document.createElement('span');
+        status.className = `historico-status ${getStatusClass(ag.status)}`;
+        status.textContent = getStatusText(ag.status);
+
+        item.appendChild(info);
+        item.appendChild(status);
+        historicoLista.appendChild(item);
+    });
 }
 
 // ============================================================
@@ -417,7 +438,11 @@ function abrirModalTroca() {
     
     trocaAtual.textContent = formatDateTime(agendamentoSelecionado.inicio);
     trocaData.value = '';
-    trocaHora.innerHTML = '<option value="">Selecione uma data primeiro</option>';
+    trocaHora.textContent = '';
+    const optSel = document.createElement('option');
+    optSel.value = '';
+    optSel.textContent = 'Selecione uma data primeiro';
+    trocaHora.appendChild(optSel);
     trocaHora.disabled = true;
     trocaMotivo.value = '';
     
@@ -479,15 +504,19 @@ async function carregarDatasDisponiveis() {
             }
         }
         
-        // Populate date select
-        trocaData.innerHTML = dates.map(d => {
+        // Populate date select safely
+        trocaData.textContent = '';
+        dates.forEach(d => {
+            const option = document.createElement('option');
+            option.value = d;
             const displayDate = new Date(d).toLocaleDateString('pt-BR', {
                 weekday: 'short',
                 day: 'numeric',
                 month: 'short'
             });
-            return `<option value="${d}">${displayDate}</option>`;
-        }).join('');
+            option.textContent = displayDate;
+            trocaData.appendChild(option);
+        });
         
     } catch (error) {
         console.error('Erro ao carregar datas:', error);
@@ -502,7 +531,11 @@ async function carregarHorariosDisponiveis() {
     const dataSelecionada = trocaData.value;
     
     if (!dataSelecionada || !empresaId) {
-        trocaHora.innerHTML = '<option value="">Selecione uma data primeiro</option>';
+        trocaHora.textContent = '';
+        const opt = document.createElement('option');
+        opt.value = '';
+        opt.textContent = 'Selecione uma data primeiro';
+        trocaHora.appendChild(opt);
         trocaHora.disabled = true;
         return;
     }
@@ -511,20 +544,31 @@ async function carregarHorariosDisponiveis() {
         const slots = await generateSlotsForDate(empresaId, dataSelecionada);
         
         if (slots.length === 0) {
-            trocaHora.innerHTML = '<option value="">Nenhum horário disponível</option>';
+            trocaHora.textContent = '';
+            const optNone = document.createElement('option');
+            optNone.value = '';
+            optNone.textContent = 'Nenhum horário disponível';
+            trocaHora.appendChild(optNone);
             return;
         }
-        
-        trocaHora.innerHTML = slots.map(slot => {
-            const time = formatTime(slot.inicioISO);
-            return `<option value="${slot.inicioISO}">${time}</option>`;
-        }).join('');
-        
+
+        trocaHora.textContent = '';
+        slots.forEach(slot => {
+            const opt = document.createElement('option');
+            opt.value = slot.inicioISO;
+            opt.textContent = formatTime(slot.inicioISO);
+            trocaHora.appendChild(opt);
+        });
+
         trocaHora.disabled = false;
         
     } catch (error) {
         console.error('Erro ao carregar horários:', error);
-        trocaHora.innerHTML = '<option value="">Erro ao carregar horários</option>';
+        trocaHora.textContent = '';
+        const optErr = document.createElement('option');
+        optErr.value = '';
+        optErr.textContent = 'Erro ao carregar horários';
+        trocaHora.appendChild(optErr);
     }
 }
 

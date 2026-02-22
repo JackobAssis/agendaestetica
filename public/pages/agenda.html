@@ -16,18 +16,108 @@
   <link rel="stylesheet" href="../styles/main.css">
 </head>
 <body>
-  <main class="agenda-container">
-    
-    <!-- Header -->
-    <header class="page-header">
-      <div class="page-header__content">
-        <h1 class="page-header__title">Configurar Agenda</h1>
-        <p class="page-header__subtitle text-secondary">Defina dias, horário de trabalho e duração dos slots.</p>
+  <div id="app" class="app-shell">
+    <!-- Topbar -->
+    <header class="app-header">
+      <div class="app-brand">
+        <div class="app-brand__icon" aria-hidden>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="24" height="24" rx="6" fill="white" opacity="0.06"/></svg>
+        </div>
+        <div class="app-brand__title">AgendaEstética</div>
+      </div>
+      <div class="app-actions">
+          <button class="icon-btn" id="btn-notifications" title="Notificações">
+            <i data-lucide="bell"></i>
+          </button>
+          <button class="theme-toggle" id="theme-toggle" title="Alternar tema">
+            <i data-lucide="sun"></i>
+          </button>
       </div>
     </header>
 
-    <!-- Formulário de Configuração -->
-    <section class="card">
+    <!-- Sidebar (desktop) -->
+    <aside class="app-sidebar">
+      <nav class="app-nav" aria-label="Principal">
+        <a href="/" class="nav-item" data-page="dashboard">
+          <span class="nav-item__icon"><i data-lucide="home"></i></span>
+          <span>Dashboard</span>
+        </a>
+        <a href="../pages/agenda.html" class="nav-item" data-page="agenda">
+          <span class="nav-item__icon"><i data-lucide="calendar"></i></span>
+          <span>Agenda</span>
+        </a>
+        <a href="../pages/agendamentos.html" class="nav-item" data-page="agendamentos">
+          <span class="nav-item__icon"><i data-lucide="list"></i></span>
+          <span>Agendamentos</span>
+        </a>
+        <a href="../pages/clientes.html" class="nav-item" data-page="clientes">
+          <span class="nav-item__icon"><i data-lucide="users"></i></span>
+          <span>Clientes</span>
+        </a>
+      </nav>
+    </aside>
+
+    <!-- Main content -->
+    <main class="app-main">
+      <div class="app-grid">
+
+      <!-- KPI Cards (Linha 1) -->
+      <section class="kpi-grid" aria-label="KPI">
+        <div class="kpi-card">
+          <div class="kpi-icon"><i data-lucide="calendar"></i></div>
+          <div>
+            <div class="kpi-title">Agendamentos Hoje</div>
+            <div class="kpi-value" id="kpi-today">0</div>
+            <div class="kpi-meta">Última atualização: agora</div>
+          </div>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-icon"><i data-lucide="users"></i></div>
+          <div>
+            <div class="kpi-title">Total de Clientes</div>
+            <div class="kpi-value" id="kpi-clients">0</div>
+            <div class="kpi-meta">Crescimento mensal</div>
+          </div>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-icon"><i data-lucide="dollar-sign"></i></div>
+          <div>
+            <div class="kpi-title">Faturamento do Mês</div>
+            <div class="kpi-value" id="kpi-revenue">R$ 0,00</div>
+            <div class="kpi-meta">Estimativa atual</div>
+          </div>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-icon"><i data-lucide="award"></i></div>
+          <div>
+            <div class="kpi-title">Plano Atual</div>
+            <div class="kpi-value" id="kpi-plan">Free</div>
+            <div class="kpi-meta">Renovação: --/--/----</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Actions Grid (Linha 2) -->
+      <section class="actions-grid" aria-label="Ações rápidas">
+        <button class="action-btn" data-action="novo-agendamento"><i data-lucide="plus-circle"></i><span class="label">Novo Agendamento</span></button>
+        <button class="action-btn" data-action="novo-cliente"><i data-lucide="user-plus"></i><span class="label">Novo Cliente</span></button>
+        <button class="action-btn" data-action="config-horarios"><i data-lucide="clock"></i><span class="label">Configurar Horários</span></button>
+        <button class="action-btn" data-action="ver-relatorios"><i data-lucide="bar-chart-2"></i><span class="label">Ver Relatórios</span></button>
+      </section>
+
+      <!-- Header -->
+      <header class="page-header">
+        <div class="page-header__content">
+          <h1 class="page-header__title">Configurar Agenda</h1>
+          <p class="page-header__subtitle text-secondary">Defina dias, horário de trabalho e duração dos slots.</p>
+        </div>
+      </header>
+
+      <!-- Formulário de Configuração -->
+      <section class="card">
       <div class="card__header">
         <h2 class="card__title">Dias e Horários</h2>
       </div>
@@ -92,46 +182,11 @@
       </div>
     </section>
 
-    <!-- Bloqueios -->
-    <section class="card mt-4">
-      <div class="card__header">
-        <h2 class="card__title">Bloqueios</h2>
-      </div>
-      <div class="card__body">
-        <form id="form-bloqueio" class="bloqueio-form">
-          <div class="form-row">
-            <div class="form-group">
-              <label for="block-inicio" class="form-label">Início (data/hora)</label>
-              <input id="block-inicio" type="datetime-local" class="form-input" required />
-            </div>
-            <div class="form-group">
-              <label for="block-fim" class="form-label">Fim (data/hora)</label>
-              <input id="block-fim" type="datetime-local" class="form-input" required />
-            </div>
-          </div>
-          <div class="form-group">
-            <label for="block-motivo" class="form-label">Motivo</label>
-            <input id="block-motivo" type="text" class="form-input" placeholder="Ex: Férias, horário fechado" />
-          </div>
-          <div class="form-actions">
-            <button type="submit" class="btn btn--primary">Criar Bloqueio</button>
-          </div>
-          <div id="bloqueio-msg" class="alert alert--info d-none mt-4" role="status"></div>
-        </form>
-      </div>
-    </section>
+    <!-- Lucide Icons CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/lucide@0.250.0/dist/lucide.min.js"></script>
+    <script src="../scripts/ui-shell.js"></script>
 
-    <!-- Preview de Slots -->
-    <section class="card mt-4">
-      <div class="card__header">
-        <h2 class="card__title">Gerar Slots</h2>
-      </div>
-      <div class="card__body">
-        <div class="slots-preview">
-          <div class="form-group">
-            <label for="date-preview" class="form-label">Data</label>
-            <input id="date-preview" type="date" class="form-input" />
-          </div>
+    <script type="module" src="../pages/agenda.js"></script>
           <button id="btn-gerar" class="btn btn--secondary">Gerar Slots Disponíveis</button>
           <div id="slots-container" class="slots-container mt-4">
             <!-- Slots serão renderizados aqui -->
@@ -140,7 +195,68 @@
       </div>
     </section>
 
-  </main>
+    </div> <!-- .app-grid -->
+    </main> <!-- .app-main -->
+
+    <!-- Bottom navigation (mobile) -->
+    <div class="bottom-nav" role="navigation" aria-label="Navegação inferior">
+      <button class="nav-btn active">Agenda</button>
+      <button class="nav-btn">Novo</button>
+      <button class="nav-btn">Clientes</button>
+    </div>
+
+  </div> <!-- #app .app-shell -->
+  <!-- Lucide Icons CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.250.0/dist/lucide.min.js"></script>
+  <script>
+    // Initialize Lucide icons
+    if (window.lucide) { lucide.createIcons(); }
+
+    // Theme toggle: stores preference in localStorage and toggles data-theme on <html>
+    (function(){
+      const toggle = document.getElementById('theme-toggle');
+      const root = document.documentElement;
+      const stored = localStorage.getItem('ae_theme');
+      if(stored) root.setAttribute('data-theme', stored);
+      function setIcon(){
+        const icon = toggle.querySelector('i');
+        if(root.getAttribute('data-theme')==='light'){ icon.setAttribute('data-lucide','moon'); }
+        else { icon.setAttribute('data-lucide','sun'); }
+      }
+      setIcon();
+      lucide.createIcons();
+      toggle.addEventListener('click', ()=>{
+        const current = root.getAttribute('data-theme')==='light' ? 'dark' : 'light';
+        root.setAttribute('data-theme', current==='dark'? '' : 'light');
+        localStorage.setItem('ae_theme', current==='dark' ? '' : 'light');
+        setIcon();
+        lucide.createIcons();
+      });
+    })();
+
+    // Active nav highlighting based on filename
+    (function(){
+      const links = document.querySelectorAll('.app-nav .nav-item');
+      const href = location.href;
+      links.forEach(a=>{
+        const page = a.getAttribute('data-page');
+        if(page && href.includes(page+'.html')){ a.classList.add('active'); }
+      });
+    })();
+
+    // Actions grid handlers (non-invasive): navigates to existing pages or focuses form
+    (function(){
+      const handlers = {
+        'novo-agendamento': ()=> window.location.href = '../pages/agendar-cliente.html',
+        'novo-cliente': ()=> window.location.href = '../pages/clientes.html',
+        'config-horarios': ()=> { document.getElementById('hora-inicio')?.focus(); window.scrollTo({top: document.getElementById('form-agenda').offsetTop - 80, behavior:'smooth'}); },
+        'ver-relatorios': ()=> window.location.href = '../pages/relatorios.html'
+      };
+      document.querySelectorAll('.action-btn').forEach(b=> b.addEventListener('click', ()=>{
+        const a = b.getAttribute('data-action'); if(handlers[a]) handlers[a]();
+      }));
+    })();
+  </script>
 
   <script type="module" src="../pages/agenda.js"></script>
 </body>

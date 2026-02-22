@@ -4,7 +4,8 @@ service cloud.firestore {
 
     // Empresas (tenants)
     match /empresas/{empresaId} {
-      allow read: if true;
+      // Allow read if the document is explicitly public OR the requester is the proprietario
+      allow read: if (resource.data.public == true) || (request.auth != null && get(/databases/$(database)/documents/empresas/$(empresaId)).data.proprietarioUid == request.auth.uid);
 
       // Create empresa only by authenticated user who sets themselves as proprietarioUid
       allow create: if request.auth != null && request.resource.data.proprietarioUid == request.auth.uid;

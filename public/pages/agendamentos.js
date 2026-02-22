@@ -12,55 +12,55 @@ function formatDate(iso){
 }
 
 function buildCard(item){
-  const div = document.createElement('div');
-  div.className = 'agendamento-item';
-  div.innerHTML = `
-    <div class="meta">
-      <strong>${item.nomeCliente || item.clienteUid || 'Cliente'}</strong>
-      <span class="text-secondary">${item.servico || ''}</span>
-    </div>
-    <div class="time">${formatDate(item.inicio)} - ${formatDate(item.fim)}</div>
-    <div class="status">Status: <strong>${item.status}</strong></div>
-    <div class="actions">
-      ${item.status === 'solicitado' ? '<button class="btn-confirm">Confirmar</button>' : ''}
-      ${item.status !== 'cancelado' ? '<button class="btn-cancel">Cancelar</button>' : ''}
-    </div>
-  `;
+  const div = document.createElement('div'); div.className = 'agendamento-item';
 
-  // Attach handlers
+  const meta = document.createElement('div'); meta.className = 'meta';
+  const strong = document.createElement('strong'); strong.textContent = item.nomeCliente || item.clienteUid || 'Cliente';
+  const spanSvc = document.createElement('span'); spanSvc.className = 'text-secondary'; spanSvc.textContent = item.servico || '';
+  meta.appendChild(strong); meta.appendChild(spanSvc);
+
+  const time = document.createElement('div'); time.className = 'time'; time.textContent = `${formatDate(item.inicio)} - ${formatDate(item.fim)}`;
+
+  const status = document.createElement('div'); status.className = 'status';
+  status.textContent = 'Status: ';
+  const statusStrong = document.createElement('strong'); statusStrong.textContent = item.status;
+  status.appendChild(statusStrong);
+
+  const actions = document.createElement('div'); actions.className = 'actions';
   if (item.status === 'solicitado'){
-    const b = div.querySelector('.btn-confirm');
-    b.addEventListener('click', async ()=>{
+    const confirmBtn = document.createElement('button'); confirmBtn.className = 'btn-confirm'; confirmBtn.textContent = 'Confirmar';
+    confirmBtn.addEventListener('click', async ()=>{
       try{
-        b.disabled = true; b.textContent = 'Confirmando...';
-        const res = await confirmarAgendamento(obterUsuarioAtual().empresaId, item.id);
+        confirmBtn.disabled = true; confirmBtn.textContent = 'Confirmando...';
+        await confirmarAgendamento(obterUsuarioAtual().empresaId, item.id);
         showToast('Agendamento confirmado', 'success');
         // update UI
-        const statusEl = div.querySelector('.status');
-        if (statusEl) statusEl.innerHTML = 'Status: <strong>confirmado</strong>';
-        b.remove();
-        // optionally reload after short delay to refresh list
+        statusStrong.textContent = 'confirmado';
+        confirmBtn.remove();
         setTimeout(()=> window.location.reload(), 900);
       }catch(err){
         console.error('Erro confirmar', err);
         showToast(err.message || 'Erro ao confirmar', 'error');
-        b.disabled=false; b.textContent='Confirmar';
+        confirmBtn.disabled=false; confirmBtn.textContent='Confirmar';
       }
     });
+    actions.appendChild(confirmBtn);
   }
 
-  const bc = div.querySelector('.btn-cancel');
-  if (bc){
-    bc.addEventListener('click', async ()=>{
+  if (item.status !== 'cancelado'){
+    const cancelBtn = document.createElement('button'); cancelBtn.className = 'btn-cancel'; cancelBtn.textContent = 'Cancelar';
+    cancelBtn.addEventListener('click', async ()=>{
       if(!confirm('Confirmar cancelamento?')) return;
       try{
-        bc.disabled = true; bc.textContent = 'Cancelando...';
+        cancelBtn.disabled = true; cancelBtn.textContent = 'Cancelando...';
         await cancelarAgendamento(obterUsuarioAtual().empresaId, item.id, 'Cancelado pelo profissional');
         window.location.reload();
-      }catch(err){ alert(err.message || 'Erro ao cancelar'); bc.disabled=false; bc.textContent='Cancelar'; }
+      }catch(err){ alert(err.message || 'Erro ao cancelar'); cancelBtn.disabled=false; cancelBtn.textContent='Cancelar'; }
     });
+    actions.appendChild(cancelBtn);
   }
 
+  div.appendChild(meta); div.appendChild(time); div.appendChild(status); div.appendChild(actions);
   return div;
 }
 
@@ -78,7 +78,7 @@ function showToast(text, type='info'){
 }
 
 async function carregarLista(){
-  lista.innerHTML = '';
+  lista.textContent = '';
   try{
     const usuario = obterUsuarioAtual();
     if(!usuario || !usuario.empresaId){ window.location.href = '/login'; return; }
@@ -90,12 +90,12 @@ async function carregarLista(){
     }
 
     const ags = await listAgendamentosEmpresa(usuario.empresaId, opts);
-    if(!ags.length){ lista.innerHTML = '<p class="text-secondary">Nenhum agendamento encontrado</p>'; return; }
+    if(!ags.length){ const p = document.createElement('p'); p.className='text-secondary'; p.textContent='Nenhum agendamento encontrado'; lista.appendChild(p); return; }
 
     ags.forEach(a => {
       lista.appendChild(buildCard(a));
     });
-  }catch(err){ console.error('Erro carregar agendamentos', err); lista.innerHTML = '<p class="error-message">Erro ao carregar agendamentos</p>'; }
+  }catch(err){ console.error('Erro carregar agendamentos', err); lista.textContent = ''; const p = document.createElement('p'); p.className='error-message'; p.textContent='Erro ao carregar agendamentos'; lista.appendChild(p); }
 }
 
 btnFilter.addEventListener('click', async ()=>{ await carregarLista(); });

@@ -70,7 +70,7 @@ formBloq.addEventListener('submit', async (e)=>{
 
 btnGerar.addEventListener('click', async ()=>{
   clearMsg(slotsContainer);
-  slotsContainer.innerHTML = '';
+  slotsContainer.textContent = '';
   const date = datePreview.value;
   if(!date){ showMsg(slotsContainer, 'Selecione uma data', 'error'); return; }
 
@@ -82,7 +82,7 @@ btnGerar.addEventListener('click', async ()=>{
     const slots = await generateSlotsForDate(usuario.empresaId, date);
     btnGerar.disabled = false; btnGerar.textContent = 'Gerar Slots Disponíveis';
 
-    if(!slots.length){ slotsContainer.innerHTML = '<p class="text-secondary">Nenhum slot disponível nesta data</p>'; return; }
+    if(!slots.length){ const p = document.createElement('p'); p.className='text-secondary'; p.textContent='Nenhum slot disponível nesta data'; slotsContainer.appendChild(p); return; }
 
     const list = document.createElement('ul');
     list.className = 'slots-list';

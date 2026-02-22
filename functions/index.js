@@ -64,8 +64,24 @@ exports.createCliente = functions.https.onRequest(async (req, res) => {
   if (req.method !== 'POST') return res.status(405).send({ error: 'Method not allowed' });
 
   try {
-    const { empresaId, nome, email, telefone } = req.body || {};
+    const { empresaId, nome, email, telefone, recaptchaToken } = req.body || {};
     if (!empresaId || !nome) return res.status(400).send({ error: 'empresaId and nome are required' });
+
+    // Optional reCAPTCHA protection: set RECAPTCHA_SECRET in functions config/env to enable.
+    const recaptchaSecret = process.env.RECAPTCHA_SECRET || process.env.RECAPTCHA_SECRET_KEY || null;
+    if (recaptchaSecret) {
+      const token = recaptchaToken || req.headers['x-recaptcha-token'];
+      if (!token) return res.status(403).send({ error: 'Missing recaptcha token' });
+      try {
+        const verifyUrl = `https://www.google.com/recaptcha/api/siteverify?secret=${encodeURIComponent(recaptchaSecret)}&response=${encodeURIComponent(token)}`;
+        const resp = await fetch(verifyUrl, { method: 'POST' });
+        const data = await resp.json();
+        if (!data.success) return res.status(403).send({ error: 'recaptcha verification failed' });
+      } catch (e) {
+        console.error('recaptcha verify error', e);
+        return res.status(500).send({ error: 'recaptcha_verification_error' });
+      }
+    }
 
     const empresaRef = db.collection('empresas').doc(empresaId);
     const empresaSnap = await empresaRef.get();
