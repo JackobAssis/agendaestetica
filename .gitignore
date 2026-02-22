@@ -113,7 +113,43 @@ __pycache__/
 # personal-notes/
 
 # -------------------------------------------
-# OUTROS
+# PUPPETEER E2E TESTS
+# -------------------------------------------
+.puppeteer/
+chromium/
+.chromium-profile/
+
+# -------------------------------------------
+# SERVIDOR LOCAL (DEV)
+# -------------------------------------------
+http-server.log
+dev-server.pid
+*.port
+
+# -------------------------------------------
+# LOCK FILES (opcional - incluir se trabalhar em equipe)
+# -------------------------------------------
+# Descomente se usar npm/yarn em equipe
+# package-lock.json
+# yarn.lock
+
+# -------------------------------------------
+# CERTIFICADOS LOCAIS
+# -------------------------------------------
+*.pem.local
+*.key.local
+*.crt.local
+localhost.*
+
+# -------------------------------------------
+# SESSION E STORAGE LOCAIS
+# -------------------------------------------
+.session/
+.cache/session/
+*.session
+user-data/
+
+# -------------------------------------------
 # -------------------------------------------
 *.log
 debug.log
