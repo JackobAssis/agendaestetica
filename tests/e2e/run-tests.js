@@ -24,13 +24,13 @@ const PAGE = BASE + '/public/pages/agenda.html';
     if (!toggle) throw new Error('theme-toggle not found');
     const before = await page.evaluate(() => document.documentElement.getAttribute('data-theme'));
     await toggle.click();
-    await page.waitForTimeout(400);
+    await new Promise(resolve => setTimeout(resolve, 400));
     const after = await page.evaluate(() => document.documentElement.getAttribute('data-theme'));
     console.log('✔ theme toggled:', before, '→', after);
 
     // Responsive: mobile viewport shows bottom nav
     await page.setViewport({ width: 375, height: 800 });
-    await page.waitForTimeout(300);
+    await new Promise(resolve => setTimeout(resolve, 300));
     const bottomVisible = await page.evaluate(() => {
       const el = document.querySelector('.bottom-nav');
       return el && getComputedStyle(el).display !== 'none';
@@ -39,7 +39,7 @@ const PAGE = BASE + '/public/pages/agenda.html';
 
     // Desktop: sidebar visible
     await page.setViewport({ width: 1200, height: 900 });
-    await page.waitForTimeout(300);
+    await new Promise(resolve => setTimeout(resolve, 300));
     const sidebarVisible = await page.evaluate(() => {
       const el = document.querySelector('.app-sidebar');
       return el && getComputedStyle(el).display !== 'none';
