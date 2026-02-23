@@ -114,13 +114,17 @@ async function loadPage(path) {
         const parser = new DOMParser();
         const doc = parser.parseFromString(html, 'text/html');
         
-        // Get the body content
-        const bodyContent = doc.body.innerHTML;
-        
-        // Inject into app
+        // Get the app container from loaded page
+        const loadedApp = doc.getElementById('app');
         const app = document.getElementById('app');
-        if (app) {
-            app.innerHTML = bodyContent;
+        
+        if (loadedApp && app) {
+            // Transfer classes and attributes from loaded app to main app
+            app.className = loadedApp.className;
+            app.innerHTML = loadedApp.innerHTML;
+        } else {
+            // Fallback: use body content
+            app.innerHTML = doc.body.innerHTML;
         }
         
         // Also inject any additional stylesheets from the page's head
@@ -149,6 +153,13 @@ async function loadPage(path) {
         moduleScript.type = 'module';
         moduleScript.src = jsFile;
         document.body.appendChild(moduleScript);
+        
+        // Reinitialize Lucide Icons if available
+        if (window.lucide) {
+            setTimeout(() => {
+                window.lucide.createIcons();
+            }, 100);
+        }
         
         // Scroll to top
         window.scrollTo(0, 0);
