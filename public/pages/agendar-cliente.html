@@ -16,74 +16,136 @@
   <link rel="stylesheet" href="../styles/main.css">
 </head>
 <body>
-  <main class="agendar-container">
-    <div class="agendar-card">
-      
-      <!-- Header -->
-      <header class="agendar-header">
-        <h1 id="profissional-nome" class="agendar-title">Agendar Atendimento</h1>
-        <p id="profissional-info" class="text-secondary">Carregando informações do profissional...</p>
-      </header>
+  <div id="app" class="app-shell">
+    <!-- Topbar -->
+    <header class="app-header">
+      <div class="app-brand">
+        <div class="app-brand__icon" aria-hidden>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="24" height="24" rx="6" fill="white" opacity="0.06"/></svg>
+        </div>
+        <div class="app-brand__title">AgendaEstética</div>
+      </div>
+      <div class="app-actions">
+          <button class="icon-btn" id="btn-notifications" title="Notificações">
+            <i data-lucide="bell"></i>
+          </button>
+          <button class="theme-toggle" id="theme-toggle" title="Alternar tema">
+            <i data-lucide="sun"></i>
+          </button>
+      </div>
+    </header>
 
-      <!-- Passo 1: Serviço -->
-      <section class="passo-servico card">
-        <div class="card__header">
-          <h2 class="card__title">Selecione o serviço</h2>
-        </div>
-        <div class="card__body">
-          <div class="form-group">
-            <label for="servico-select" class="form-label">Serviço</label>
-            <select id="servico-select" class="form-input form-select" required>
-              <option value="">Selecione um serviço</option>
-            </select>
-          </div>
-        </div>
-      </section>
+    <!-- Sidebar (desktop) -->
+    <aside class="app-sidebar">
+      <nav class="app-nav" aria-label="Principal">
+        <a href="/" class="nav-item" data-page="dashboard">
+          <span class="nav-item__icon"><i data-lucide="home"></i></span>
+          <span>Dashboard</span>
+        </a>
+        <a href="../pages/agenda.html" class="nav-item" data-page="agenda">
+          <span class="nav-item__icon"><i data-lucide="calendar"></i></span>
+          <span>Agenda</span>
+        </a>
+        <a href="../pages/agendamentos.html" class="nav-item" data-page="agendamentos">
+          <span class="nav-item__icon"><i data-lucide="list"></i></span>
+          <span>Agendamentos</span>
+        </a>
+        <a href="../pages/clientes.html" class="nav-item" data-page="clientes">
+          <span class="nav-item__icon"><i data-lucide="users"></i></span>
+          <span>Clientes</span>
+        </a>
+      </nav>
+    </aside>
 
-      <!-- Passo 2: Dados do Cliente -->
-      <section class="passo-email card">
-        <div class="card__header">
-          <h2 class="card__title">Seus dados</h2>
-        </div>
-        <div class="card__body">
-          <div class="form-group">
-            <label for="cliente-nome" class="form-label form-label--required">Seu nome</label>
-            <input id="cliente-nome" type="text" class="form-input" required />
-          </div>
-          <div class="form-group">
-            <label for="cliente-email" class="form-label form-label--required">Seu email</label>
-            <input id="cliente-email" type="email" class="form-input" required />
-          </div>
-          <div class="form-group">
-            <label for="cliente-telefone" class="form-label">Telefone</label>
-            <input id="cliente-telefone" type="tel" class="form-input" placeholder="(11) 99999-9999" />
-          </div>
-        </div>
-      </section>
+    <!-- Main content -->
+    <main class="app-main">
+      <div class="app-grid">
 
-      <!-- Passo 3: Data -->
-      <section class="passo-data card">
-        <div class="card__header">
-          <h2 class="card__title">Escolha a data</h2>
-        </div>
-        <div class="card__body">
-          <div class="form-group">
-            <label for="date-select" class="form-label">Data</label>
-            <input id="date-select" type="date" class="form-input" />
+        <section class="content-section">
+          <div class="agendar-card">
+            <!-- Header -->
+            <header class="agendar-header">
+              <h1 id="profissional-nome" class="agendar-title">Agendar Atendimento</h1>
+              <p id="profissional-info" class="text-secondary">Carregando informações do profissional...</p>
+            </header>
+
+            <!-- Passo 1: Serviço -->
+            <section class="passo-servico card">
+              <div class="card__header">
+                <h2 class="card__title">Selecione o serviço</h2>
+              </div>
+              <div class="card__body">
+                <div class="form-group">
+                  <label for="servico-select" class="form-label">Serviço</label>
+                  <select id="servico-select" class="form-input form-select" required>
+                    <option value="">Selecione um serviço</option>
+                  </select>
+                </div>
+              </div>
+            </section>
+
+            <!-- Passo 2: Dados do Cliente -->
+            <section class="passo-email card">
+              <div class="card__header">
+                <h2 class="card__title">Seus dados</h2>
+              </div>
+              <div class="card__body">
+                <div class="form-group">
+                  <label for="cliente-nome" class="form-label form-label--required">Seu nome</label>
+                  <input id="cliente-nome" type="text" class="form-input" required />
+                </div>
+                <div class="form-group">
+                  <label for="cliente-email" class="form-label form-label--required">Seu email</label>
+                  <input id="cliente-email" type="email" class="form-input" required />
+                </div>
+                <div class="form-group">
+                  <label for="cliente-telefone" class="form-label">Telefone</label>
+                  <input id="cliente-telefone" type="tel" class="form-input" placeholder="(11) 99999-9999" />
+                </div>
+              </div>
+            </section>
+
+            <!-- Passo 3: Data -->
+            <section class="passo-data card">
+              <div class="card__header">
+                <h2 class="card__title">Escolha a data</h2>
+              </div>
+              <div class="card__body">
+                <div class="form-group">
+                  <label for="date-select" class="form-label">Data</label>
+                  <input id="date-select" type="date" class="form-input" />
+                </div>
+                <button id="btn-gerar-slots" class="btn btn--primary w-full">Verificar Slots Disponíveis</button>
+              </div>
+            </section>
+
+            <!-- Slots -->
+            <section id="slots-list" class="slots-list">
+              <!-- Slots serão renderizados aqui -->
+            </section>
+
+            <!-- Mensagem -->
+            <div id="agendar-mensagem" class="alert alert--primary d-none" role="alert"></div>
           </div>
-          <button id="btn-gerar-slots" class="btn btn--primary w-full">Verificar Slots Disponíveis</button>
-        </div>
-      </section>
+        </section>
 
-      <!-- Slots -->
-      <section id="slots-list" class="slots-list">
-        <!-- Slots serão renderizados aqui -->
-      </section>
+      </div> <!-- .app-grid -->
+    </main>
 
-      <!-- Mensagem -->
-      <div id="agendar-mensagem" class="alert alert--primary d-none" role="alert"></div>
+    <!-- Bottom navigation (mobile) -->
+    <div class="bottom-nav" role="navigation" aria-label="Navegação inferior">
+      <button class="nav-btn">Dashboard</button>
+      <button class="nav-btn">Agenda</button>
+      <button class="nav-btn active">Agendar</button>
     </div>
-  </main>
+
+  </div> <!-- #app .app-shell -->
+
+  <!-- Lucide Icons -->
+  <script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.js"></script>
+  <script>lucide.createIcons();</script>
+  <script src="../scripts/ui-shell.js"></script>
+  <script type="module" src="../pages/agendar-cliente.js"></script>
 
   <script type="module" src="../pages/agendar-cliente.js"></script>
 </body>

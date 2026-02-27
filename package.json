@@ -6,7 +6,12 @@
   "scripts": {
     "dev": "npx http-server . -p 8000 --spa index.html",
     "build": "echo 'Static site - no build needed'",
-    "e2e": "node tests/e2e/run-tests.js"
+    "test": "mocha tests/**/*.test.js",
+    "test:e2e": "node tests/e2e/run-tests.js",
+    "test:smoke": "node tests/e2e/smoke-tests.js",
+    "test:full-flow": "node tests/e2e/full-flow-test.js",
+    "test:all": "npm test && npm run test:smoke && npm run test:full-flow",
+    "test:manual": "echo 'See MANUAL-FLUXO-COMPLETO.md for manual testing guide'"
   },
   "dependencies": {
     "firebase": "^10.5.0",

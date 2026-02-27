@@ -49,7 +49,13 @@ function coletarDadosDoFormulario() {
     const empresaNome = document.getElementById('empresa-nome').value.trim();
     const telefone = document.getElementById('telefone').value.trim();
     const servicosRaw = document.getElementById('servicos').value.trim();
-    const servicos = servicosRaw ? servicosRaw.split(',').map(s => s.trim()).filter(Boolean) : [];
+    const servicos = servicosRaw
+        ? servicosRaw
+            .split(',')
+            .map(s => s.trim())
+            .filter(Boolean)
+            .map(nome => ({ nome, preco: 0, duracao: 0 }))
+        : [];
 
     const diasNodes = Array.from(document.querySelectorAll('input[name="dias"]:checked'));
     const dias = diasNodes.map(n => n.value);
@@ -58,7 +64,7 @@ function coletarDadosDoFormulario() {
     const horaFim = document.getElementById('hora-fim').value;
     const duracaoSlot = parseInt(document.getElementById('duracao-slot').value, 10);
 
-    return { empresaNome, telefone, servicos, dias, horaInicio, horaFim, duracaoSlot };
+    return { empresaNome, telefone, endereco, servicos, dias, horaInicio, horaFim, duracaoSlot };
 }
 
 async function validarDados(dados) {
@@ -79,6 +85,7 @@ async function salvarConfiguracao(dados) {
     const payload = {
         nome: dados.empresaNome,
         telefone: dados.telefone || null,
+        endereco: dados.endereco || null,
         servicos: dados.servicos,
         horarios: {
             dias: dados.dias,

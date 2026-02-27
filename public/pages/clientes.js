@@ -28,6 +28,11 @@ function buildClientCard(c){
 
 async function carregarLista(){
   listaEl.textContent = '';
+  // show temporary loading indicator
+  const loading = document.createElement('p');
+  loading.className = 'text-secondary';
+  loading.textContent = 'Carregando...';
+  listaEl.appendChild(loading);
   try{
     const usuario = obterUsuarioAtual();
     if(!usuario || !usuario.empresaId){ window.location.href = '/login'; return; }

@@ -1,5 +1,5 @@
 import { obterUsuarioAtual } from '../modules/auth.js';
-import { listAgendamentosEmpresa, confirmarAgendamento, cancelarAgendamento } from '../modules/agendamentos.js';
+import { listAgendamentosEmpresa, confirmarAgendamento, cancelarAgendamento, concluirAgendamento } from '../modules/agendamentos.js';
 
 const lista = document.getElementById('lista-agendamentos');
 const btnFilter = document.getElementById('btn-filter');
@@ -23,7 +23,18 @@ function buildCard(item){
 
   const status = document.createElement('div'); status.className = 'status';
   status.textContent = 'Status: ';
-  const statusStrong = document.createElement('strong'); statusStrong.textContent = item.status;
+  const statusStrong = document.createElement('strong');
+  statusStrong.textContent = item.status;
+  // add visual indicator
+  if (item.status === 'solicitado') {
+    statusStrong.style.color = '#ff9800';
+  } else if (item.status === 'confirmado') {
+    statusStrong.style.color = '#4caf50';
+  } else if (item.status === 'cancelado') {
+    statusStrong.style.color = '#f44336';
+  } else if (item.status === 'concluido') {
+    statusStrong.style.color = '#2196f3';
+  }
   status.appendChild(statusStrong);
 
   const actions = document.createElement('div'); actions.className = 'actions';
@@ -45,6 +56,26 @@ function buildCard(item){
       }
     });
     actions.appendChild(confirmBtn);
+  }
+
+  // allow conclusion when already confirmed
+  if (item.status === 'confirmado') {
+    const doneBtn = document.createElement('button'); doneBtn.className = 'btn-done'; doneBtn.textContent = 'Concluir';
+    doneBtn.addEventListener('click', async () => {
+      if (!confirm('Marcar como concluído?')) return;
+      try {
+        doneBtn.disabled = true; doneBtn.textContent = 'Processando...';
+        await concluirAgendamento(obterUsuarioAtual().empresaId, item.id);
+        showToast('Agendamento concluído', 'success');
+        statusStrong.textContent = 'concluido';
+        doneBtn.remove();
+      } catch (err) {
+        console.error('Erro concluir', err);
+        showToast(err.message || 'Erro ao concluir', 'error');
+        doneBtn.disabled = false; doneBtn.textContent = 'Concluir';
+      }
+    });
+    actions.appendChild(doneBtn);
   }
 
   if (item.status !== 'cancelado'){
@@ -79,6 +110,10 @@ function showToast(text, type='info'){
 
 async function carregarLista(){
   lista.textContent = '';
+  const loading = document.createElement('p');
+  loading.className = 'text-secondary';
+  loading.textContent = 'Carregando agendamentos...';
+  lista.appendChild(loading);
   try{
     const usuario = obterUsuarioAtual();
     if(!usuario || !usuario.empresaId){ window.location.href = '/login'; return; }

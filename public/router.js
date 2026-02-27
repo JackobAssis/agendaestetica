@@ -27,6 +27,7 @@ const PAGES = {
     NOTIFICACOES: { path: '/notificacoes', file: '/pages/notificacoes.html', public: false, requireAuth: true },
     RELATORIOS: { path: '/relatorios', file: '/pages/relatorios.html', public: false, requireAuth: true, role: 'profissional' },
     PAGINA_PUBLICA: { path: '/agenda/:profissionalId', file: '/pages/pagina-publica.html', public: true, requireAuth: false },
+    PAGINA_PUBLICA_SLUG: { path: '/p/:profissionalId', file: '/pages/pagina-publica.html', public: true, requireAuth: false },
     LINK_AGENDAMENTO: { path: '/agendar/:profissionalId', file: '/pages/agendar-cliente.html', public: true, requireAuth: false },
     CONFIRMACAO: { path: '/confirmacao', file: '/pages/confirmacao.html', public: true, requireAuth: false },
     AGENDAR_CLIENTE: { path: '/agendar-cliente', file: '/pages/agendar-cliente.html', public: true, requireAuth: false },

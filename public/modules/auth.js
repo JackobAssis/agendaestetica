@@ -34,6 +34,9 @@ import {
     updateDoc
 } from './firebase.js';
 
+// slug helpers
+import { generateUniqueSlug, slugify } from './slug.js';
+
 // ============================================================
 // Helper Functions
 // ============================================================
@@ -241,6 +244,11 @@ export async function cadastroProfissional(emailOuTelefone, senha, nome, profiss
         await updateProfile(user, { displayName: nome });
         console.log('✅ Perfil atualizado com nome');
         
+        // gera um slug para o negócio e marca como público para que
+        // a página externa possa ler as informações sem autenticação
+        const slugBase = nome || profissao || user.uid;
+        const slug = await generateUniqueSlug(slugBase);
+
         const empresaId = `prof_${user.uid}`;
         
         console.log('🔧 Salvando profissional no Firestore...');
@@ -270,9 +278,11 @@ export async function cadastroProfissional(emailOuTelefone, senha, nome, profiss
             criadoEm: new Date().toISOString(),
             ativo: true,
             plano: 'free',
+            slug: slug,
+            public: true,
         });
         
-        console.log('✅ Empresa criada no Firestore');
+        console.log('✅ Empresa criada no Firestore (slug:', slug, ')');
         
         return {
             uid: user.uid,

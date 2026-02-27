@@ -23,8 +23,13 @@ function coletarDadosDoFormulario(){
   const empresaNome = document.getElementById('empresa-nome').value.trim();
   const telefone = document.getElementById('telefone').value.trim();
   const servicosRaw = document.getElementById('servicos').value.trim();
-  const servicos = servicosRaw ? servicosRaw.split(',').map(s => s.trim()).filter(Boolean) : [];
-
+    const servicos = servicosRaw
+      ? servicosRaw
+          .split(',')
+          .map(s => s.trim())
+          .filter(Boolean)
+          .map(nome => ({ nome, preco: 0, duracao: 0 }))
+      : [];
   const diasNodes = Array.from(document.querySelectorAll('input[name="dias"]:checked'));
   const dias = diasNodes.map(n => n.value);
 

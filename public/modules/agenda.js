@@ -94,11 +94,12 @@ export async function checkConflict(empresaId, inicioISO, fimISO) {
     const agendamentosRef = collection(db, 'empresas', empresaId, 'agendamentos');
     const bloqueiosRef = collection(db, 'empresas', empresaId, 'bloqueios');
 
-    // Query para agendamentos
+    // Query para agendamentos não cancelados (solicitado ou confirmado)
     const agQuery = query(
         agendamentosRef,
         where('inicio', '<', fimISO),
-        where('fim', '>', inicioISO)
+        where('fim', '>', inicioISO),
+        where('status', 'in', ['solicitado', 'confirmado'])
     );
     const agSnapshot = await getDocs(agQuery);
     if (!agSnapshot.empty) return true;

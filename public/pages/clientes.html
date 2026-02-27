@@ -16,85 +16,146 @@
   <link rel="stylesheet" href="../styles/main.css">
 </head>
 <body>
-  <main class="clientes-container">
-    
-    <!-- Header -->
-    <header class="page-header">
-      <div class="page-header__content">
-        <h1 class="page-header__title">Clientes</h1>
-        <p class="page-header__subtitle text-secondary">Gerencie sua base de clientes</p>
+  <div id="app" class="app-shell">
+    <!-- Topbar -->
+    <header class="app-header">
+      <div class="app-brand">
+        <div class="app-brand__icon" aria-hidden>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="24" height="24" rx="6" fill="white" opacity="0.06"/></svg>
+        </div>
+        <div class="app-brand__title">AgendaEstética</div>
       </div>
-      <button id="btn-refresh" class="btn btn--secondary">Atualizar</button>
+      <div class="app-actions">
+          <button class="icon-btn" id="btn-notifications" title="Notificações">
+            <i data-lucide="bell"></i>
+          </button>
+          <button class="theme-toggle" id="theme-toggle" title="Alternar tema">
+            <i data-lucide="sun"></i>
+          </button>
+      </div>
     </header>
 
-    <!-- Adicionar Cliente -->
-    <section class="card">
-      <div class="card__header">
-        <h2 class="card__title">Adicionar Cliente</h2>
-      </div>
-      <div class="card__body">
-        <form id="form-add-client" class="form">
-          <div class="form-row">
-            <div class="form-group">
-              <label for="cliente-nome" class="form-label">Nome</label>
-              <input id="cliente-nome" type="text" class="form-input" placeholder="Nome completo" required />
+    <!-- Sidebar (desktop) -->
+    <aside class="app-sidebar">
+      <nav class="app-nav" aria-label="Principal">
+        <a href="/" class="nav-item" data-page="dashboard">
+          <span class="nav-item__icon"><i data-lucide="home"></i></span>
+          <span>Dashboard</span>
+        </a>
+        <a href="../pages/agenda.html" class="nav-item" data-page="agenda">
+          <span class="nav-item__icon"><i data-lucide="calendar"></i></span>
+          <span>Agenda</span>
+        </a>
+        <a href="../pages/agendamentos.html" class="nav-item" data-page="agendamentos">
+          <span class="nav-item__icon"><i data-lucide="list"></i></span>
+          <span>Agendamentos</span>
+        </a>
+        <a href="../pages/clientes.html" class="nav-item" data-page="clientes">
+          <span class="nav-item__icon"><i data-lucide="users"></i></span>
+          <span>Clientes</span>
+        </a>
+      </nav>
+    </aside>
+
+    <!-- Main content -->
+    <main class="app-main">
+      <div class="app-grid">
+
+        <!-- Header -->
+        <section class="content-section">
+          <header class="page-header">
+            <div class="page-header__content">
+              <h1 class="page-header__title">Clientes</h1>
+              <p class="page-header__subtitle text-secondary">Gerencie sua base de clientes</p>
+            </div>
+            <button id="btn-refresh" class="btn btn--secondary">Atualizar</button>
+          </header>
+        </section>
+
+        <!-- Adicionar Cliente -->
+        <section class="content-section">
+          <div class="card__header">
+            <h2 class="card__title">Adicionar Cliente</h2>
+          </div>
+          <div class="card__body">
+            <form id="form-add-client" class="form">
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="cliente-nome" class="form-label">Nome</label>
+                  <input id="cliente-nome" type="text" class="form-input" placeholder="Nome completo" required />
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="cliente-email" class="form-label">Email</label>
+                  <input id="cliente-email" type="email" class="form-input" placeholder="email@exemplo.com" />
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="cliente-tel" class="form-label">Telefone</label>
+                  <input id="cliente-tel" type="tel" class="form-input" placeholder="(11) 99999-9999" />
+                </div>
+              </div>
+              <div class="form-row">
+                <button type="submit" class="btn btn--primary">Adicionar Cliente</button>
+              </div>
+            </form>
+          </div>
+        </section>
+
+        <!-- Lista de Clientes -->
+        <section class="content-section">
+          <div class="card__header">
+            <h2 class="card__title">Lista de Clientes</h2>
+          </div>
+          <div class="card__body">
+            <div id="lista-clientes" class="clientes-list">
+              <!-- Lista de clientes será renderizada aqui -->
             </div>
           </div>
-          <div class="form-row">
-            <div class="form-group">
-              <label for="cliente-email" class="form-label">Email</label>
-              <input id="cliente-email" type="email" class="form-input" placeholder="email@exemplo.com" />
+        </section>
+
+        <!-- Detalhes do Cliente -->
+        <section class="content-section d-none" id="cliente-detalhes">
+          <div class="card__header">
+            <h2 class="card__title">Detalhes do Cliente</h2>
+          </div>
+          <div class="card__body">
+            <div id="detalhes-content" class="cliente-detalhes">
+              <!-- Detalhes serão inseridos aqui -->
             </div>
-          </div>
-          <div class="form-row">
-            <div class="form-group">
-              <label for="cliente-tel" class="form-label">Telefone</label>
-              <input id="cliente-tel" type="tel" class="form-input" placeholder="(11) 99999-9999" />
+            
+            <h3 class="mt-4 mb-3">Histórico de Agendamentos</h3>
+            <div id="cliente-historico" class="historico-lista">
+              <!-- Histórico será inserido aqui -->
             </div>
+            
+            <h3 class="mt-4 mb-3">Adicionar Observação</h3>
+            <div class="form-group">
+              <textarea id="obs-text" class="form-input form-textarea" rows="3" placeholder="Observação interna"></textarea>
+            </div>
+            <button id="btn-add-obs" class="btn btn--primary">Salvar observação</button>
           </div>
-          <div class="form-row">
-            <button type="submit" class="btn btn--primary">Adicionar Cliente</button>
-          </div>
-        </form>
-      </div>
-    </section>
+        </section>
 
-    <!-- Lista de Clientes -->
-    <section class="card">
-      <div class="card__header">
-        <h2 class="card__title">Lista de Clientes</h2>
-      </div>
-      <div class="card__body">
-        <div id="lista-clientes" class="clientes-list">
-          <!-- Lista de clientes será renderizada aqui -->
-        </div>
-      </div>
-    </section>
+      </div> <!-- .app-grid -->
+    </main>
 
-    <!-- Detalhes do Cliente -->
-    <section class="card d-none" id="cliente-detalhes">
-      <div class="card__header">
-        <h2 class="card__title">Detalhes do Cliente</h2>
-      </div>
-      <div class="card__body">
-        <div id="detalhes-content" class="cliente-detalhes">
-          <!-- Detalhes serão inseridos aqui -->
-        </div>
-        
-        <h3 class="mt-4 mb-3">Histórico de Agendamentos</h3>
-        <div id="cliente-historico" class="historico-lista">
-          <!-- Histórico será inserido aqui -->
-        </div>
-        
-        <h3 class="mt-4 mb-3">Adicionar Observação</h3>
-        <div class="form-group">
-          <textarea id="obs-text" class="form-input form-textarea" rows="3" placeholder="Observação interna"></textarea>
-        </div>
-        <button id="btn-add-obs" class="btn btn--primary">Salvar observação</button>
-      </div>
-    </section>
+    <!-- Bottom navigation (mobile) -->
+    <div class="bottom-nav" role="navigation" aria-label="Navegação inferior">
+      <button class="nav-btn">Dashboard</button>
+      <button class="nav-btn">Agenda</button>
+      <button class="nav-btn active">Clientes</button>
+    </div>
 
-  </main>
+  </div> <!-- #app .app-shell -->
+
+  <!-- Lucide Icons -->
+  <script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.js"></script>
+  <script>lucide.createIcons();</script>
+  <script src="../scripts/ui-shell.js"></script>
+  <script type="module" src="../pages/clientes.js"></script>
 
   <script type="module" src="../pages/clientes.js"></script>
 </body>

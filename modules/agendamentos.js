@@ -117,6 +117,20 @@ export async function cancelarAgendamento(empresaId, agendamentoId, motivo) {
 }
 
 /**
+ * Marcar agendamento como concluído
+ */
+export async function concluirAgendamento(empresaId, agendamentoId) {
+    if (!empresaId || !agendamentoId) throw new Error('empresaId e agendamentoId obrigatórios');
+    const db = getFirebaseDB();
+    const agDocRef = doc(db, 'empresas', empresaId, 'agendamentos', agendamentoId);
+    await updateDoc(agDocRef, {
+        status: 'concluido',
+        concluidoEm: new Date().toISOString()
+    });
+    return { id: agendamentoId, status: 'concluido' };
+}
+
+/**
  * Solicitar remarcação (cliente)
  */
 export async function solicitarRemarcacao(empresaId, agendamentoId, novoInicioISO, novoFimISO, motivo) {

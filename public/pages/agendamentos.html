@@ -19,114 +19,175 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-  <main class="agendamentos-container">
-    
-    <!-- Header -->
-    <header class="page-header">
-      <div class="page-header__content">
-        <h1 class="page-header__title">Agendamentos</h1>
-        <p class="page-header__subtitle text-secondary">Gerencie e acompanhe todos os seus agendamentos</p>
+  <div id="app" class="app-shell">
+    <!-- Topbar -->
+    <header class="app-header">
+      <div class="app-brand">
+        <div class="app-brand__icon" aria-hidden>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="24" height="24" rx="6" fill="white" opacity="0.06"/></svg>
+        </div>
+        <div class="app-brand__title">AgendaEstética</div>
+      </div>
+      <div class="app-actions">
+          <button class="icon-btn" id="btn-notifications" title="Notificações">
+            <i data-lucide="bell"></i>
+          </button>
+          <button class="theme-toggle" id="theme-toggle" title="Alternar tema">
+            <i data-lucide="sun"></i>
+          </button>
       </div>
     </header>
 
-    <!-- Stats Cards -->
-    <section class="stats-section">
-      <div class="stats-grid">
-        <div class="stat-card stat-card--success">
-          <div class="stat-card__icon">✅</div>
-          <div class="stat-card__info">
-            <p class="stat-card__value" id="count-confirmados">0</p>
-            <p class="stat-card__label">Confirmados</p>
-          </div>
-        </div>
-        
-        <div class="stat-card stat-card--warning">
-          <div class="stat-card__icon">⏳</div>
-          <div class="stat-card__info">
-            <p class="stat-card__value" id="count-pendentes">0</p>
-            <p class="stat-card__label">Pendentes</p>
-          </div>
-        </div>
-        
-        <div class="stat-card stat-card--danger">
-          <div class="stat-card__icon">❌</div>
-          <div class="stat-card__info">
-            <p class="stat-card__value" id="count-cancelados">0</p>
-            <p class="stat-card__label">Cancelados</p>
-          </div>
-        </div>
-        
-        <div class="stat-card stat-card--primary">
-          <div class="stat-card__icon">📊</div>
-          <div class="stat-card__info">
-            <p class="stat-card__value" id="count-total">0</p>
-            <p class="stat-card__label">Total</p>
-          </div>
-        </div>
-      </div>
-    </section>
+    <!-- Sidebar (desktop) -->
+    <aside class="app-sidebar">
+      <nav class="app-nav" aria-label="Principal">
+        <a href="/" class="nav-item" data-page="dashboard">
+          <span class="nav-item__icon"><i data-lucide="home"></i></span>
+          <span>Dashboard</span>
+        </a>
+        <a href="../pages/agenda.html" class="nav-item" data-page="agenda">
+          <span class="nav-item__icon"><i data-lucide="calendar"></i></span>
+          <span>Agenda</span>
+        </a>
+        <a href="../pages/agendamentos.html" class="nav-item" data-page="agendamentos">
+          <span class="nav-item__icon"><i data-lucide="list"></i></span>
+          <span>Agendamentos</span>
+        </a>
+        <a href="../pages/clientes.html" class="nav-item" data-page="clientes">
+          <span class="nav-item__icon"><i data-lucide="users"></i></span>
+          <span>Clientes</span>
+        </a>
+      </nav>
+    </aside>
 
-    <!-- Charts Section -->
-    <section class="charts-section">
-      <div class="chart-card">
-        <h2 class="chart-card__title">Agendamentos por Dia</h2>
-        <canvas id="chart-agendamentos-dia"></canvas>
-      </div>
-      <div class="chart-card">
-        <h2 class="chart-card__title">Status dos Agendamentos</h2>
-        <canvas id="chart-status"></canvas>
-      </div>
-    </section>
+    <!-- Main content -->
+    <main class="app-main">
+      <div class="app-grid">
 
-    <!-- Filters -->
-    <section class="filters-section card">
-      <div class="card__header">
-        <h2 class="card__title">Filtros</h2>
-      </div>
-      <div class="card__body">
-        <form id="form-filters" class="filters-form">
-          <div class="filters-grid">
-            <div class="form-group">
-              <label for="filter-date-start" class="form-label">De</label>
-              <input id="filter-date-start" type="date" class="form-input" />
+        <!-- Header -->
+        <section class="content-section">
+          <header class="page-header">
+            <div class="page-header__content">
+              <h1 class="page-header__title">Agendamentos</h1>
+              <p class="page-header__subtitle text-secondary">Gerencie e acompanhe todos os seus agendamentos</p>
             </div>
-            <div class="form-group">
-              <label for="filter-date-end" class="form-label">Até</label>
-              <input id="filter-date-end" type="date" class="form-input" />
+          </header>
+        </section>
+
+        <!-- Stats Cards -->
+        <section class="content-section stats-section">
+          <div class="stats-grid">
+            <div class="stat-card stat-card--success">
+              <div class="stat-card__icon">✅</div>
+              <div class="stat-card__info">
+                <p class="stat-card__value" id="count-confirmados">0</p>
+                <p class="stat-card__label">Confirmados</p>
+              </div>
             </div>
-            <div class="form-group">
-              <label for="filter-status" class="form-label">Status</label>
-              <select id="filter-status" class="form-input form-select">
-                <option value="">Todos</option>
-                <option value="solicitado">Solicitado</option>
-                <option value="confirmado">Confirmado</option>
-                <option value="cancelado">Cancelado</option>
-              </select>
+            
+            <div class="stat-card stat-card--warning">
+              <div class="stat-card__icon">⏳</div>
+              <div class="stat-card__info">
+                <p class="stat-card__value" id="count-pendentes">0</p>
+                <p class="stat-card__label">Pendentes</p>
+              </div>
             </div>
-            <div class="filters-actions">
-              <button type="submit" class="btn btn--primary">Filtrar</button>
-              <button type="button" id="btn-clear" class="btn btn--secondary">Limpar</button>
+            
+            <div class="stat-card stat-card--danger">
+              <div class="stat-card__icon">❌</div>
+              <div class="stat-card__info">
+                <p class="stat-card__value" id="count-cancelados">0</p>
+                <p class="stat-card__label">Cancelados</p>
+              </div>
+            </div>
+            
+            <div class="stat-card stat-card--primary">
+              <div class="stat-card__icon">📊</div>
+              <div class="stat-card__info">
+                <p class="stat-card__value" id="count-total">0</p>
+                <p class="stat-card__label">Total</p>
+              </div>
             </div>
           </div>
-        </form>
-      </div>
-    </section>
+        </section>
 
-    <!-- List -->
-    <section class="list-section">
-      <div class="list-header">
-        <h2 class="list-header__title">Lista de Agendamentos</h2>
-        <span id="count-display" class="badge badge--light">0 agendamentos</span>
-      </div>
-      <div id="lista-agendamentos" class="agendamentos-list">
-        <div class="loading-state">
-          <div class="loading-spinner"></div>
-          <p>Carregando...</p>
-        </div>
-      </div>
-    </section>
+        <!-- Charts Section -->
+        <section class="content-section charts-section">
+          <div class="chart-card">
+            <h2 class="chart-card__title">Agendamentos por Dia</h2>
+            <canvas id="chart-agendamentos-dia"></canvas>
+          </div>
+          <div class="chart-card">
+            <h2 class="chart-card__title">Status dos Agendamentos</h2>
+            <canvas id="chart-status"></canvas>
+          </div>
+        </section>
 
-  </main>
+        <!-- Filters -->
+        <section class="content-section filters-section card">
+          <div class="card__header">
+            <h2 class="card__title">Filtros</h2>
+          </div>
+          <div class="card__body">
+            <form id="form-filters" class="filters-form">
+              <div class="filters-grid">
+                <div class="form-group">
+                  <label for="filter-date-start" class="form-label">De</label>
+                  <input id="filter-date-start" type="date" class="form-input" />
+                </div>
+                <div class="form-group">
+                  <label for="filter-date-end" class="form-label">Até</label>
+                  <input id="filter-date-end" type="date" class="form-input" />
+                </div>
+                <div class="form-group">
+                  <label for="filter-status" class="form-label">Status</label>
+                  <select id="filter-status" class="form-input form-select">
+                    <option value="">Todos</option>
+                    <option value="solicitado">Solicitado</option>
+                    <option value="confirmado">Confirmado</option>
+                    <option value="cancelado">Cancelado</option>
+                  </select>
+                </div>
+                <div class="filters-actions">
+                  <button type="submit" class="btn btn--primary">Filtrar</button>
+                  <button type="button" id="btn-clear" class="btn btn--secondary">Limpar</button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </section>
+
+        <!-- List -->
+        <section class="content-section list-section">
+          <div class="list-header">
+            <h2 class="list-header__title">Lista de Agendamentos</h2>
+            <span id="count-display" class="badge badge--light">0 agendamentos</span>
+          </div>
+          <div id="lista-agendamentos" class="agendamentos-list">
+            <div class="loading-state">
+              <div class="loading-spinner"></div>
+              <p>Carregando...</p>
+            </div>
+          </div>
+        </section>
+
+      </div> <!-- .app-grid -->
+    </main>
+
+    <!-- Bottom navigation (mobile) -->
+    <div class="bottom-nav" role="navigation" aria-label="Navegação inferior">
+      <button class="nav-btn">Dashboard</button>
+      <button class="nav-btn">Agenda</button>
+      <button class="nav-btn active">Agendamentos</button>
+    </div>
+
+  </div> <!-- #app .app-shell -->
+
+  <!-- Lucide Icons -->
+  <script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.js"></script>
+  <script>lucide.createIcons();</script>
+  <script src="../scripts/ui-shell.js"></script>
+  <script type="module" src="../pages/agendamentos.js"></script>
 
   <script type="module" src="../pages/agendamentos.js"></script>
 </body>
