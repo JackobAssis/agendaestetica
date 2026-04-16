@@ -1,12 +1,96 @@
-# 🚀 AgendaEstética
+# � Documentação Diversa - AgendaEstética
 
-**Plataforma SaaS de agenda online para profissionais do ramo estético.**
+Esta pasta contém documentação histórica, guias específicos e arquivos de referência diversos.
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Node.js Version](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen)](https://nodejs.org/)
-[![Firebase](https://img.shields.io/badge/Firebase-9.22.0-orange)](https://firebase.google.com/)
+## 📁 Arquivos
+
+### Guias e Manuais
+- [**GUIA-RAPIDO-DESENVOLVIMENTO.md**](GUIA-RAPIDO-DESENVOLVIMENTO.md) - Guia rápido para desenvolvimento
+- [**MANUAL-FLUXO-COMPLETO.md**](MANUAL-FLUXO-COMPLETO.md) - Manual completo de fluxos
+- [**MANUAL-TESTING-GUIDE.md**](MANUAL-TESTING-GUIDE.md) - Guia de testes manuais
+
+### Especificações Técnicas
+- [**PLANO-MESTRE-TECNICO.md**](PLANO-MESTRE-TECNICO.md) - Especificação técnica completa
+- [**CHECKLIST-DESENVOLVIMENTO-COMPLETO.md**](CHECKLIST-DESENVOLVIMENTO-COMPLETO.md) - Checklist completo
+- [**arquitetura-tecnica.md**](arquitetura-tecnica.md) - Arquitetura técnica (histórico)
+
+### Referência e Setup
+- [**LEIA-PRIMEIRO.md**](LEIA-PRIMEIRO.md) - Guia inicial (histórico)
+- [**FIREBASE-SETUP.md**](FIREBASE-SETUP.md) - Setup do Firebase
+- [**PASSO-A-PASSO-DEPLOY.md**](PASSO-A-PASSO-DEPLOY.md) - Deploy passo-a-passo
+
+### Outros
+- [**ROADMAP-IMPLEMENTACAO.md**](ROADMAP-IMPLEMENTACAO.md) - Roadmap de implementação
+- [**DOCUMENTACAO-COMPLETA.md**](DOCUMENTACAO-COMPLETA.md) - Documentação completa
+- [**monetizacao.md**](monetizacao.md) - Estratégia de monetização
+
+## 📖 Como Usar
+
+### Para Novos Desenvolvedores
+1. **Comece aqui**: Leia `LEIA-PRIMEIRO.md`
+2. **Entenda o sistema**: `PLANO-MESTRE-TECNICO.md`
+3. **Siga o checklist**: `CHECKLIST-DESENVOLVIMENTO-COMPLETO.md`
+
+### Para Desenvolvimento Ativo
+- **Guias rápidos**: `GUIA-RAPIDO-DESENVOLVIMENTO.md`
+- **Fluxos completos**: `MANUAL-FLUXO-COMPLETO.md`
+- **Testes manuais**: `MANUAL-TESTING-GUIDE.md`
+
+### Para Referência
+- **Arquitetura**: `arquitetura-tecnica.md`
+- **Setup**: `FIREBASE-SETUP.md`
+- **Deploy**: `PASSO-A-PASSO-DEPLOY.md`
+
+## 📋 Status dos Documentos
+
+### ✅ Ativos
+- Documentação organizada em `../`
+- Guias atualizados e mantidos
+- Referências técnicas válidas
+
+### 📚 Históricos
+- Arquivos mantidos para referência
+- Podem conter informações desatualizadas
+- Usar documentação atual em `../` preferencialmente
+
+### 🔄 Em Revisão
+- Alguns guias podem precisar atualização
+- Verificar datas de modificação
+- Reportar inconsistências
+
+## 🎯 Migração para Documentação Atual
+
+### Documentação Nova (Recomendada)
+- [**../README.md**](../README.md) - Visão geral
+- [**../getting-started.md**](../getting-started.md) - Início rápido
+- [**../developer-guide.md**](../developer-guide.md) - Guia desenvolvedor
+- [**../architecture.md**](../architecture.md) - Arquitetura
+- [**../testing.md**](../testing.md) - Testes
+
+### Mapeamento de Arquivos Antigos
+| Arquivo Antigo | Novo Local |
+|----------------|------------|
+| `LEIA-PRIMEIRO.md` | `../getting-started.md` |
+| `PLANO-MESTRE-TECNICO.md` | Consolidado em vários arquivos |
+| `arquitetura-tecnica.md` | `../architecture.md` |
+| `GUIA-RAPIDO-DESENVOLVIMENTO.md` | `../developer-guide.md` |
+| `MANUAL-FLUXO-COMPLETO.md` | `../user-guide.md` + `../testing.md` |
+
+## 📞 Manutenção
+
+### Atualização
+- Arquivos históricos: Manter como referência
+- Guias ativos: Atualizar conforme mudanças
+- Novos documentos: Adicionar à estrutura apropriada
+
+### Organização
+- Mover arquivos obsoletos para `archive/`
+- Consolidar informações duplicadas
+- Manter links atualizados
 
 ---
+
+Para documentação organizada, consulte [`../README.md`](../README.md).
 
 ## 📌 Visão Geral
 
@@ -81,7 +165,6 @@ Para detalhes completos, consulte [`docs/getting-started.md`](docs/getting-start
 - [**🏗️ Arquitetura Técnica**](docs/architecture.md) - Design system e decisões
 - [**🚀 Deployment**](docs/deployment.md) - Deploy e produção
 - [**🧪 Testes**](docs/testing.md) - Estratégia de testes
-- [**📋 Checklist Completo**](docs/checklist-projeto-completo.md) - Status detalhado do projeto
 - [**🤝 Contribuição**](docs/contributing.md) - Como contribuir
 - [**📋 Changelog**](docs/changelog.md) - Histórico de versões
 

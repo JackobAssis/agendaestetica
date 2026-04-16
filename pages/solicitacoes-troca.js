@@ -3,8 +3,7 @@
  * Professional-side page to manage swap/change requests
  */
 
-import { listAgendamentosEmpresa } from '../modules/agendamentos.js';
-import { aceitarRemarcacao, rejeitarRemarcacao } from '../modules/agendamentos.js';
+import { listAgendamentosEmpresa, buscarRemarcacaoPendente, aceitarRemarcacao, rejeitarRemarcacao } from '../modules/agendamentos.js';
 import { obterUsuarioAtual } from '../modules/auth.js';
 
 // DOM Elements
@@ -101,12 +100,39 @@ function renderSolicitacoes() {
     `).join('');
 }
 
-// Simplificado: mostrar detalhes sem sub-coleção
-window.mostrarDetalhes = function(agendamentoId) {
+window.mostrarDetalhes = async function(agendamentoId) {
     const agendamento = solicitacoes.find(a => a.id === agendamentoId);
     if (!agendamento) return;
 
     solicitacaoSelecionada = agendamento;
+    const usuario = obterUsuarioAtual();
+    let remarcacao = null;
+
+    try {
+        remarcacao = await buscarRemarcacaoPendente(usuario.empresaId, agendamentoId);
+    } catch (e) {
+        console.warn('Erro ao buscar remarcação pendente:', e);
+    }
+
+    const detalhesRemarcacao = remarcacao ? `
+        <div class="detalhe-item full-width">
+            <label>Nova Data</label>
+            <span>${formatDateTime(remarcacao.novoInicio)}</span>
+        </div>
+        <div class="detalhe-item full-width">
+            <label>Novo Horário</label>
+            <span>${formatDateTime(remarcacao.novoFim)}</span>
+        </div>
+        <div class="detalhe-item full-width">
+            <label>Motivo</label>
+            <span>${remarcacao.motivo || 'Não informado'}</span>
+        </div>
+    ` : `
+        <div class="detalhe-item full-width">
+            <label>Status da Remarcação</label>
+            <span>Não foi possível carregar os detalhes da remarcação.</span>
+        </div>
+    `;
 
     const conteudo = `
         <div class="detalhes-grid">
@@ -133,10 +159,10 @@ window.mostrarDetalhes = function(agendamentoId) {
             </div>
             ` : ''}
         </div>
-        <p class="text-info">
-            <strong>Nota:</strong> Para ver os detalhes da troca (nova data/hora), 
-            é necessário implementar a busca na sub-coleção 'remarcacoes'.
-        </p>
+        <section class="remarcacao-detalhes card card--secondary">
+            <h3>Detalhes da solicitação</h3>
+            ${detalhesRemarcacao}
+        </section>
     `;
 
     document.getElementById('detalhes-conteudo').innerHTML = conteudo;
@@ -162,26 +188,15 @@ window.aceitarSolicitacao = async function(agendamentoId) {
     }
 
     try {
-        // Em produção, isso buscaria o ID da remarcacao da sub-coleção
-        // Por enquanto, precisamos implementar de forma diferente
-        showMsg('Para aceitar uma troca, é necessário implementar a integração completa com a sub-coleção de remarcacões.', 'error');
-        
-        // implementação completa exigiria:
-        // 1. Buscar remarcacoes do agendamento
-        // 2. Encontrar a pendente
-        // 3. Chamar aceitarRemarcacao(empresaId, agendamentoId, remarcacaoId)
-        
-        /* Exemplo de implementação futura:
         const remarcacao = await buscarRemarcacaoPendente(usuario.empresaId, agendamentoId);
-        if (remarcacao) {
-            await aceitarRemarcacao(usuario.empresaId, agendamentoId, remarcacao.id);
-            showMsg('Troca aceita com sucesso!', 'success');
-            fecharModal();
-            carregarSolicitacoes();
+        if (!remarcacao) {
+            throw new Error('Nenhuma remarcação pendente encontrada');
         }
-        */
-        
+
+        await aceitarRemarcacao(usuario.empresaId, agendamentoId, remarcacao.id);
+        showMsg('Troca aceita com sucesso!', 'success');
         fecharModal();
+        await carregarSolicitacoes();
     } catch (error) {
         console.error('Erro ao aceitar solicitação:', error);
         showMsg(error.message || 'Erro ao aceitar solicitação', 'error');
@@ -198,18 +213,15 @@ window.rejeitarSolicitacao = async function(agendamentoId) {
     const motivo = prompt('Motivo da rejeição (opcional):');
 
     try {
-        showMsg('Para rejeitar uma troca, é necessário implementar a integração completa com a sub-coleção de remarcacões.', 'error');
-        /* Exemplo de implementação futura:
         const remarcacao = await buscarRemarcacaoPendente(usuario.empresaId, agendamentoId);
-        if (remarcacao) {
-            await rejeitarRemarcacao(usuario.empresaId, agendamentoId, remarcacao.id, motivo);
-            showMsg('Solicitação rejeitada.', 'success');
-            fecharModal();
-            carregarSolicitacoes();
+        if (!remarcacao) {
+            throw new Error('Nenhuma remarcação pendente encontrada');
         }
-        */
-        
+
+        await rejeitarRemarcacao(usuario.empresaId, agendamentoId, remarcacao.id, motivo);
+        showMsg('Solicitação rejeitada.', 'success');
         fecharModal();
+        await carregarSolicitacoes();
     } catch (error) {
         console.error('Erro ao rejeitar solicitação:', error);
         showMsg(error.message || 'Erro ao rejeitar solicitação', 'error');

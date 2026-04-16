@@ -52,10 +52,10 @@ async function init() {
  */
 function setupEventListeners() {
     // Tabs
-    document.querySelectorAll('.tab-btn').forEach(btn => {
+    document.querySelectorAll('.tab').forEach(btn => {
         btn.addEventListener('click', () => {
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
+            document.querySelectorAll('.tab').forEach(b => b.classList.remove('tab--active'));
+            btn.classList.add('tab--active');
             filtroAtual = btn.dataset.tab;
             renderNotificacoes();
         });
@@ -111,7 +111,7 @@ async function setupFirebaseMessaging() {
         }
 
         // Dynamic import of Firebase Messaging
-        const { getMessaging } = await import('https://www.gstatic.com/firebasejs/10.5.0/firebase-messaging.js');
+        const { getMessaging, onMessage } = await import('https://www.gstatic.com/firebasejs/10.5.0/firebase-messaging.js');
         
         firebaseMessaging = getMessaging(window.firebaseApp);
 
@@ -190,7 +190,7 @@ async function togglePushNotifications() {
  */
 async function salvarTokenPush(empresaId) {
     try {
-        const { getToken } = await import('https://www.gstatic.com/firebasejs/10.5.0/firebase-messaging.js');
+        const { getMessaging, getToken } = await import('https://www.gstatic.com/firebasejs/10.5.0/firebase-messaging.js');
         const messaging = getMessaging(window.firebaseApp);
         
         const token = await getToken(messaging, {
@@ -218,7 +218,7 @@ async function salvarTokenPush(empresaId) {
  */
 async function removerTokenPush(empresaId) {
     try {
-        const { getToken } = await import('https://www.gstatic.com/firebasejs/10.5.0/firebase-messaging.js');
+        const { getMessaging, getToken } = await import('https://www.gstatic.com/firebasejs/10.5.0/firebase-messaging.js');
         const messaging = getMessaging(window.firebaseApp);
         
         const token = await getToken(messaging).catch(() => null);

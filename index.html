@@ -12,6 +12,18 @@
     <link rel="icon" type="image/svg+xml" href="/assets/images/favicon.svg">
     <link rel="apple-touch-icon" href="/assets/images/favicon.svg">
     
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest.json">
+    
+    <!-- PWA Meta Tags -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="AgendaEstética">
+    <meta name="mobile-web-app-capable" content="yes">
+    
+    <!-- reCAPTCHA v3 (opcional) -->
+    <script src="https://www.google.com/recaptcha/api.js?render=6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI" async defer></script>
+    
 <link rel="stylesheet" href="/styles/main.css">
     
 <!-- Firebase Configuration - INJETADO VIA BUILD -->
@@ -78,38 +90,64 @@
         
         // Função para exibir tela de erro crítico
         function showCriticalError() {
-            document.getElementById('loading-screen').innerHTML = `
-                <div class="error-screen">
-                    <h2>⚠️ Erro Crítico de Configuração</h2>
-                    <p>Firebase não está configurado corretamente.</p>
-                    <p class="error-details">O app não pode funcionar sem configuração válida.</p>
-                    <p><strong>Para resolver:</strong></p>
-                    <ul>
-                        <li>Configure VITE_FIREBASE_* no Vercel Dashboard</li>
-                        <li>Verifique FIREBASE-SETUP.md</li>
-                    </ul>
-                    <p class="error-details">Error: Firebase configuration missing</p>
-                </div>
-            `;
+            const screen = document.getElementById('loading-screen');
+            screen.innerHTML = '';
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'error-screen';
+            const h2 = document.createElement('h2');
+            h2.textContent = '⚠️ Erro Crítico de Configuração';
+            errorDiv.appendChild(h2);
+            const p1 = document.createElement('p');
+            p1.textContent = 'Firebase não está configurado corretamente.';
+            errorDiv.appendChild(p1);
+            const p2 = document.createElement('p');
+            p2.className = 'error-details';
+            p2.textContent = 'O app não pode funcionar sem configuração válida.';
+            errorDiv.appendChild(p2);
+            const p3 = document.createElement('p');
+            const strong = document.createElement('strong');
+            strong.textContent = 'Para resolver:';
+            p3.appendChild(strong);
+            errorDiv.appendChild(p3);
+            const ul = document.createElement('ul');
+            const li1 = document.createElement('li');
+            li1.textContent = 'Configure VITE_FIREBASE_* no Vercel Dashboard';
+            ul.appendChild(li1);
+            const li2 = document.createElement('li');
+            li2.textContent = 'Verifique FIREBASE-SETUP.md';
+            ul.appendChild(li2);
+            errorDiv.appendChild(ul);
+            const p4 = document.createElement('p');
+            p4.className = 'error-details';
+            p4.textContent = 'Error: Firebase configuration missing';
+            errorDiv.appendChild(p4);
+            screen.appendChild(errorDiv);
         }
         
         // Função para exibir tela de modo demo
         function showDemoMode() {
-            document.getElementById('loading-screen').innerHTML = `
-                <div class="demo-mode-screen">
-                    <h2>🧪 Modo Desenvolvimento</h2>
-                    <p>Firebase não configurado - modo demo.</p>
-                    <p>Configure .env.local para testar autenticação.</p>
-                    <ul>
-                        <li>VITE_FIREBASE_API_KEY</li>
-                        <li>VITE_FIREBASE_AUTH_DOMAIN</li>
-                        <li>VITE_FIREBASE_PROJECT_ID</li>
-                        <li>VITE_FIREBASE_STORAGE_BUCKET</li>
-                        <li>VITE_FIREBASE_MESSAGING_SENDER_ID</li>
-                        <li>VITE_FIREBASE_APP_ID</li>
-                    </ul>
-                </div>
-            `;
+            const screen = document.getElementById('loading-screen');
+            screen.innerHTML = '';
+            const demoDiv = document.createElement('div');
+            demoDiv.className = 'demo-mode-screen';
+            const h2 = document.createElement('h2');
+            h2.textContent = '🧪 Modo Desenvolvimento';
+            demoDiv.appendChild(h2);
+            const p1 = document.createElement('p');
+            p1.textContent = 'Firebase não configurado - modo demo.';
+            demoDiv.appendChild(p1);
+            const p2 = document.createElement('p');
+            p2.textContent = 'Configure .env.local para testar autenticação.';
+            demoDiv.appendChild(p2);
+            const ul = document.createElement('ul');
+            const items = ['VITE_FIREBASE_API_KEY', 'VITE_FIREBASE_AUTH_DOMAIN', 'VITE_FIREBASE_PROJECT_ID', 'VITE_FIREBASE_STORAGE_BUCKET', 'VITE_FIREBASE_MESSAGING_SENDER_ID', 'VITE_FIREBASE_APP_ID'];
+            items.forEach(item => {
+                const li = document.createElement('li');
+                li.textContent = item;
+                ul.appendChild(li);
+            });
+            demoDiv.appendChild(ul);
+            screen.appendChild(demoDiv);
         }
         
         // Função para inicializar Firebase PRIMEIRO
@@ -240,5 +278,29 @@
         .error-screen h2 { color: #c62828; margin-bottom: 16px; }
         .error-details { font-size: 12px; color: #666; margin-top: 8px; }
     </style>
+    
+    <!-- Service Worker Registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then((registration) => {
+                        console.log('✅ Service Worker registrado:', registration.scope);
+                        
+                        // Request notification permission
+                        if ('Notification' in window && Notification.permission === 'default') {
+                            Notification.requestPermission().then((permission) => {
+                                if (permission === 'granted') {
+                                    console.log('✅ Notificações permitidas');
+                                }
+                            });
+                        }
+                    })
+                    .catch((error) => {
+                        console.log('❌ Service Worker falhou:', error);
+                    });
+            });
+        }
+    </script>
 </body>
 </html>

@@ -1,4 +1,4 @@
-🧱 1. ESTRUTURA BASE (Arquitetura)
+rojeto🧱 1. ESTRUTURA BASE (Arquitetura)
 🔹 Multi-tenant definido?
 
  Cada profissional tem id único (UID)

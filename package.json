@@ -6,8 +6,11 @@
   "scripts": {
     "dev": "npx http-server . -p 8000 --spa index.html",
     "build": "echo 'Static site - no build needed'",
+    "docs": "open docs/README.md",
+    "checklist": "open docs/checklist-projeto-completo.md",
     "test": "mocha tests/**/*.test.js",
-    "test:e2e": "node tests/e2e/run-tests.js",
+    "test:e2e": "cypress run",
+    "test:e2e:open": "cypress open",
     "test:smoke": "node tests/e2e/smoke-tests.js",
     "test:full-flow": "node tests/e2e/full-flow-test.js",
     "test:all": "npm test && npm run test:smoke && npm run test:full-flow",
@@ -19,6 +22,7 @@
   },
   "devDependencies": {
     "chai": "^4.3.7",
+    "cypress": "^15.13.1",
     "firebase-tools": "^15.5.1",
     "http-server": "^14.1.1",
     "mocha": "^10.2.0",

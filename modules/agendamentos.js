@@ -214,6 +214,25 @@ export async function rejeitarRemarcacao(empresaId, agendamentoId, remarcacaoId,
 }
 
 /**
+ * Buscar remarcações pendentes de um agendamento
+ */
+export async function buscarRemarcacoesPendentes(empresaId, agendamentoId) {
+    if (!empresaId || !agendamentoId) throw new Error('empresaId e agendamentoId obrigatórios');
+
+    const db = getFirebaseDB();
+    const remRef = collection(db, 'empresas', empresaId, 'agendamentos', agendamentoId, 'remarcacoes');
+    const q = query(remRef, where('status', '==', 'pendente'), orderBy('criadoEm', 'asc'));
+    const snap = await getDocs(q);
+
+    return snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+}
+
+export async function buscarRemarcacaoPendente(empresaId, agendamentoId) {
+    const remarcacoes = await buscarRemarcacoesPendentes(empresaId, agendamentoId);
+    return remarcacoes.length > 0 ? remarcacoes[0] : null;
+}
+
+/**
  * Listar agendamentos da empresa
  */
 export async function listAgendamentosEmpresa(empresaId, opts = {}) {
@@ -286,9 +305,8 @@ export async function listAgendamentosCliente(clienteUid) {
             empresas = empresasSnap.docs.map(d => d.id);
         }
         
-        // Buscar agendamentos de cada empresa
-        const todosAgendamentos = [];
-        for (const empId of empresas) {
+        // Buscar agendamentos de cada empresa em paralelo
+        const promises = empresas.map(async (empId) => {
             const agendamentosRef = collection(db, 'empresas', empId, 'agendamentos');
             const q = query(
                 agendamentosRef,
@@ -296,15 +314,16 @@ export async function listAgendamentosCliente(clienteUid) {
             );
             
             const snap = await getDocs(q);
-            for (const doc of snap.docs) {
-                todosAgendamentos.push({
-                    id: doc.id,
-                    ...doc.data(),
-                    refPath: doc.ref.path,
-                    empresaId: empId
-                });
-            }
-        }
+            return snap.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data(),
+                refPath: doc.ref.path,
+                empresaId: empId
+            }));
+        });
+        
+        const resultados = await Promise.all(promises);
+        const todosAgendamentos = resultados.flat();
         
         // Ordenar por data
         return todosAgendamentos.sort((a, b) => 

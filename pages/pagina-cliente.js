@@ -23,9 +23,10 @@ import {
     solicitarRemarcacao, 
     cancelarAgendamento 
 } from '../modules/agendamentos.js';
+import { notifyInApp } from '../modules/notifications.js';
 
 import { 
-    generateSlotsForDate 
+    getAgendaSlotsComCache 
 } from '../modules/agenda.js';
 
 import { 
@@ -508,7 +509,7 @@ async function carregarHorariosDisponiveis() {
     }
     
     try {
-        const slots = await generateSlotsForDate(empresaId, dataSelecionada);
+        const slots = await getAgendaSlotsComCache(empresaId, dataSelecionada);
         
         if (slots.length === 0) {
             trocaHora.innerHTML = '<option value="">Nenhum horário disponível</option>';
@@ -557,6 +558,12 @@ async function enviarSolicitacaoTrocaHandler() {
             novoFim,
             motivo
         );
+        await notifyInApp({
+            targetEmpresaId: empresaId,
+            title: 'Novo pedido de troca',
+            body: `Cliente solicitou troca para ${new Date(novoInicio).toLocaleString()} (${agendamentoSelecionado.servico || 'serviço'}).`, 
+            meta: { agendamentoId: agendamentoSelecionado.id, tipo: 'troca_pendente' }
+        });
         
         showFeedback('Solicitação de troca enviada com sucesso!', 'success');
         fecharModalTrocaHandler();
@@ -595,6 +602,12 @@ async function confirmarCancelamentoHandler() {
     
     try {
         await cancelarAgendamento(empresaId, agendamentoSelecionado.id, 'Cancelado pelo cliente');
+        await notifyInApp({
+            targetEmpresaId: empresaId,
+            title: 'Agendamento cancelado',
+            body: `Cliente cancelou o agendamento de ${agendamentoSelecionado.servico || 'serviço'} agendado para ${new Date(agendamentoSelecionado.inicio).toLocaleString()}.`, 
+            meta: { agendamentoId: agendamentoSelecionado.id, tipo: 'cancelamento' }
+        });
         
         showFeedback('Agendamento cancelado com sucesso!', 'success');
         fecharModalCancelarHandler();

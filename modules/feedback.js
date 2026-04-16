@@ -64,11 +64,22 @@ export function showToast(message, type = 'info', duration = 4000) {
     
     const toast = document.createElement('div');
     toast.className = `toast toast-${type}`;
-    toast.innerHTML = `
-        <span class="toast-icon">${icons[type] || icons.info}</span>
-        <span class="toast-message">${message}</span>
-        <button class="toast-close" onclick="this.parentElement.remove()">×</button>
-    `;
+    
+    const iconSpan = document.createElement('span');
+    iconSpan.className = 'toast-icon';
+    iconSpan.textContent = icons[type] || icons.info;
+    toast.appendChild(iconSpan);
+    
+    const messageSpan = document.createElement('span');
+    messageSpan.className = 'toast-message';
+    messageSpan.textContent = message;
+    toast.appendChild(messageSpan);
+    
+    const closeButton = document.createElement('button');
+    closeButton.className = 'toast-close';
+    closeButton.textContent = '×';
+    closeButton.onclick = () => toast.remove();
+    toast.appendChild(closeButton);
     
     container.appendChild(toast);
     
@@ -89,12 +100,20 @@ export function showLoading(message = 'Carregando...') {
     const overlay = document.createElement('div');
     overlay.id = 'loading-overlay';
     overlay.className = 'loading-overlay';
-    overlay.innerHTML = `
-        <div class="loading-content">
-            <div class="loading-spinner"></div>
-            <p class="loading-message">${message}</p>
-        </div>
-    `;
+    
+    const content = document.createElement('div');
+    content.className = 'loading-content';
+    
+    const spinner = document.createElement('div');
+    spinner.className = 'loading-spinner';
+    content.appendChild(spinner);
+    
+    const p = document.createElement('p');
+    p.className = 'loading-message';
+    p.textContent = message;
+    content.appendChild(p);
+    
+    overlay.appendChild(content);
     document.body.appendChild(overlay);
     
     return overlay;
@@ -132,20 +151,39 @@ export async function showConfirm(title, message, confirmText = 'Confirmar', can
         
         const modal = document.createElement('div');
         modal.className = 'modal-overlay';
-        modal.innerHTML = `
-            <div class="modal-dialog">
-                <div class="modal-header">
-                    <h3>${title}</h3>
-                </div>
-                <div class="modal-body">
-                    <p>${message}</p>
-                </div>
-                <div class="modal-footer">
-                    <button class="btn btn-secondary" id="modal-cancel">${cancelText}</button>
-                    <button class="btn" id="modal-confirm">${confirmText}</button>
-                </div>
-            </div>
-        `;
+        
+        const dialog = document.createElement('div');
+        dialog.className = 'modal-dialog';
+        
+        const header = document.createElement('div');
+        header.className = 'modal-header';
+        const h3 = document.createElement('h3');
+        h3.textContent = title;
+        header.appendChild(h3);
+        dialog.appendChild(header);
+        
+        const body = document.createElement('div');
+        body.className = 'modal-body';
+        const p = document.createElement('p');
+        p.textContent = message;
+        body.appendChild(p);
+        dialog.appendChild(body);
+        
+        const footer = document.createElement('div');
+        footer.className = 'modal-footer';
+        const cancelBtn = document.createElement('button');
+        cancelBtn.className = 'btn btn-secondary';
+        cancelBtn.id = 'modal-cancel';
+        cancelBtn.textContent = cancelText;
+        footer.appendChild(cancelBtn);
+        const confirmBtn = document.createElement('button');
+        confirmBtn.className = 'btn';
+        confirmBtn.id = 'modal-confirm';
+        confirmBtn.textContent = confirmText;
+        footer.appendChild(confirmBtn);
+        dialog.appendChild(footer);
+        
+        modal.appendChild(dialog);
         
         container.appendChild(modal);
         

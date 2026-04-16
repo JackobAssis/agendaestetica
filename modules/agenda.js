@@ -116,7 +116,7 @@ export async function checkConflict(empresaId, inicioISO, fimISO) {
 }
 
 /**
- * Generate slots for a given date
+ * Generate slots for a given date (with localStorage cache)
  */
 export async function generateSlotsForDate(empresaId, dateISO) {
     const config = await getAgendaConfig(empresaId);
@@ -152,6 +152,41 @@ export async function generateSlotsForDate(empresaId, dateISO) {
         if (!conflict) slots.push({ inicioISO, fimISO });
 
         cursor = new Date(slotEnd);
+    }
+
+    return slots;
+}
+
+/**
+ * Generate slots for a given date with localStorage cache (TTL 1h)
+ */
+export async function getAgendaSlotsComCache(empresaId, dateISO) {
+    const cacheKey = `slots:${empresaId}:${dateISO}`;
+    const CACHE_TTL = 3600000; // 1 hora em ms
+
+    try {
+        const cached = localStorage.getItem(cacheKey);
+        if (cached) {
+            const { slots, timestamp } = JSON.parse(cached);
+            if (Date.now() - timestamp < CACHE_TTL) {
+                return slots; // Retorno instantâneo do cache
+            }
+        }
+    } catch (e) {
+        // Ignorar erros de localStorage
+    }
+
+    // Buscar dados frescos
+    const slots = await generateSlotsForDate(empresaId, dateISO);
+
+    // Salvar no cache
+    try {
+        localStorage.setItem(cacheKey, JSON.stringify({
+            slots,
+            timestamp: Date.now()
+        }));
+    } catch (e) {
+        // Ignorar erros de localStorage (quota excedida, etc.)
     }
 
     return slots;

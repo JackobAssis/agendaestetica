@@ -4,6 +4,41 @@ const admin = require('firebase-admin');
 admin.initializeApp();
 const db = admin.firestore();
 
+// Rate-limited login function
+exports.loginWithRateLimit = functions.https.onCall(async (data, context) => {
+  const ip = context.rawRequest.ip;
+  const key = `login:${ip}:${Date.now() / 60000 | 0}`; // Por minuto
+  
+  // Simular rate-limit (em produção, usar Redis ou Firestore)
+  // Para MVP, limitar a 10 tentativas por minuto por IP
+  const rateLimitRef = db.collection('rateLimits').doc(key);
+  const rateLimitSnap = await rateLimitRef.get();
+  const count = (rateLimitSnap.exists ? rateLimitSnap.data().count : 0) + 1;
+  
+  if (count > 10) {
+    throw new functions.https.HttpsError(
+      'resource-exhausted',
+      'Muitas tentativas de login. Tente em 1 minuto.'
+    );
+  }
+  
+  // Atualizar contador
+  await rateLimitRef.set({ count, timestamp: admin.firestore.FieldValue.serverTimestamp() });
+  
+  // Prosseguir com login normal
+  const { email, password } = data;
+  if (!email || !password) {
+    throw new functions.https.HttpsError('invalid-argument', 'Email e senha obrigatórios');
+  }
+  
+  try {
+    const userCredential = await admin.auth().signInWithEmailAndPassword(email, password);
+    return { uid: userCredential.user.uid };
+  } catch (error) {
+    throw new functions.https.HttpsError('unauthenticated', 'Credenciais inválidas');
+  }
+});
+
 // HTTP function to confirm an agendamento atomically.
 // Expects JSON body: { empresaId, agendamentoId }
 // Requires Authorization: Bearer <idToken> of the proprietario
@@ -29,7 +64,24 @@ exports.confirmAgendamento = functions.https.onRequest(async (req, res) => {
 
     const agRef = empresaRef.collection('agendamentos').doc(agendamentoId);
 
+    // Usar lock distribuído para prevenir race condition
+    const lockId = `${agendamentoId}:${Date.now()}`;
+    const lockRef = empresaRef.collection('locks').doc(lockId);
+    
     const result = await db.runTransaction(async (tx) => {
+      // Verificar se já existe lock para este agendamento
+      const existingLocks = await tx.get(empresaRef.collection('locks').where('agendamentoId', '==', agendamentoId));
+      if (!existingLocks.empty) {
+        throw new Error('Agendamento já está sendo processado');
+      }
+      
+      // Criar lock
+      tx.set(lockRef, { 
+        agendamentoId, 
+        createdAt: admin.firestore.FieldValue.serverTimestamp(),
+        expiresAt: admin.firestore.Timestamp.fromMillis(Date.now() + 30000) // 30s
+      });
+      
       const agSnap = await tx.get(agRef);
       if (!agSnap.exists) throw new Error('Agendamento not found');
       const ag = agSnap.data();
@@ -46,6 +98,9 @@ exports.confirmAgendamento = functions.https.onRequest(async (req, res) => {
       tx.update(agRef, { status: 'confirmado', confirmadoEm: admin.firestore.FieldValue.serverTimestamp() });
       return { id: agendamentoId, status: 'confirmado' };
     });
+
+    // Limpar lock após sucesso
+    await lockRef.delete();
 
     return res.status(200).send({ success: true, result });
   } catch (err) {

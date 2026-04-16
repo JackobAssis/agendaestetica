@@ -40,26 +40,38 @@
         function showCriticalError() {
             const screen = document.getElementById('loading-screen');
             if (screen) {
-                screen.innerHTML = `
-                    <div class="error-screen">
-                        <h2>Configuração Necessária</h2>
-                        <p>Firebase não está configurado.</p>
-                        <p>Configure VITE_FIREBASE_* no Vercel Dashboard.</p>
-                    </div>
-                `;
+                screen.innerHTML = '';
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'error-screen';
+                const h2 = document.createElement('h2');
+                h2.textContent = 'Configuração Necessária';
+                errorDiv.appendChild(h2);
+                const p1 = document.createElement('p');
+                p1.textContent = 'Firebase não está configurado.';
+                errorDiv.appendChild(p1);
+                const p2 = document.createElement('p');
+                p2.textContent = 'Configure VITE_FIREBASE_* no Vercel Dashboard.';
+                errorDiv.appendChild(p2);
+                screen.appendChild(errorDiv);
             }
         }
         
         function showDemoMode() {
             const screen = document.getElementById('loading-screen');
             if (screen) {
-                screen.innerHTML = `
-                    <div class="demo-mode-screen">
-                        <h2>Modo Demo</h2>
-                        <p>Firebase não configurado.</p>
-                        <p>Configure .env.local para testar localmente.</p>
-                    </div>
-                `;
+                screen.innerHTML = '';
+                const demoDiv = document.createElement('div');
+                demoDiv.className = 'demo-mode-screen';
+                const h2 = document.createElement('h2');
+                h2.textContent = 'Modo Demo';
+                demoDiv.appendChild(h2);
+                const p1 = document.createElement('p');
+                p1.textContent = 'Firebase não configurado.';
+                demoDiv.appendChild(p1);
+                const p2 = document.createElement('p');
+                p2.textContent = 'Configure .env.local para testar localmente.';
+                demoDiv.appendChild(p2);
+                screen.appendChild(demoDiv);
             }
         }
         

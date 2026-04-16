@@ -26,9 +26,12 @@ service cloud.firestore {
         allow create, update, delete: if request.auth != null && get(/databases/$(database)/documents/empresas/$(empresaId)).data.proprietarioUid == request.auth.uid;
       }
 
-      // Agendamentos: public may create "solicitado" entries; updates/deletes limited
+      // Agendamentos: public may create "solicitado" entries; reads restricted to owner and cliente
       match /agendamentos/{agId} {
-        allow read: if true;
+        allow read: if request.auth != null && (
+          get(/databases/$(database)/documents/empresas/$(empresaId)).data.proprietarioUid == request.auth.uid
+          || request.auth.uid == resource.data.clienteUid
+        );
 
         // Public create allowed but enforce initial status and required fields
         allow create: if (

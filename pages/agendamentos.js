@@ -6,6 +6,7 @@
 
 import { obterUsuarioAtual } from '../modules/auth.js';
 import { listAgendamentosEmpresa, confirmarAgendamento, cancelarAgendamento } from '../modules/agendamentos.js';
+import { notifyInApp } from '../modules/notifications.js';
 import { showToast } from '../modules/feedback.js';
 
 const lista = document.getElementById('lista-agendamentos');
@@ -96,6 +97,12 @@ function buildCard(item) {
                 b.disabled = true;
                 b.textContent = 'Confirmando...';
                 await confirmarAgendamento(obterUsuarioAtual().empresaId, item.id);
+                await notifyInApp({
+                    targetEmpresaId: obterUsuarioAtual().empresaId,
+                    title: 'Agendamento confirmado',
+                    body: `O agendamento de ${item.nomeCliente || 'um cliente'} para ${item.servico || 'serviço'} foi confirmado.`,
+                    meta: { agendamentoId: item.id, tipo: 'confirmacao' }
+                });
                 showToast('Agendamento confirmado!', 'success');
                 setTimeout(() => window.location.reload(), 1000);
             } catch (err) {
@@ -116,6 +123,12 @@ function buildCard(item) {
                 bc.disabled = true;
                 bc.textContent = 'Cancelando...';
                 await cancelarAgendamento(obterUsuarioAtual().empresaId, item.id, 'Cancelado pelo profissional');
+                await notifyInApp({
+                    targetEmpresaId: obterUsuarioAtual().empresaId,
+                    title: 'Agendamento cancelado',
+                    body: `O agendamento de ${item.nomeCliente || 'um cliente'} para ${item.servico || 'serviço'} foi cancelado pelo profissional.`, 
+                    meta: { agendamentoId: item.id, tipo: 'cancelamento' }
+                });
                 showToast('Agendamento cancelado', 'info');
                 setTimeout(() => window.location.reload(), 1000);
             } catch (err) {

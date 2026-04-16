@@ -3,7 +3,7 @@
  * CORRIGIDO para Firebase v9+ modular
  */
 
-import { generateSlotsForDate } from '../modules/agenda.js';
+import { getAgendaSlotsComCache } from '../modules/agenda.js';
 import { solicitarAgendamento } from '../modules/agendamentos.js';
 import { notifyInApp, sendWebhook } from '../modules/notifications.js';
 import { findOrCreateClienteByEmail } from '../modules/clientes.js';
@@ -76,7 +76,7 @@ async function gerarSlots(){
     if(!date){ showMsg('Selecione uma data', 'error'); return; }
     
     try{
-        const slots = await generateSlotsForDate(profissionalId, date);
+        const slots = await getAgendaSlotsComCache(profissionalId, date);
         if(!slots.length){ 
             slotsList.innerHTML = '<p class="text-secondary">Nenhum slot disponível</p>'; 
             return; 
@@ -111,10 +111,20 @@ async function solicitarSlot(slot){
         try{
             const createClienteUrl = window.APP_CONFIG && window.APP_CONFIG.createClienteFunctionUrl;
             if (createClienteUrl) {
+                // Obter token reCAPTCHA se disponível
+                let recaptchaToken = null;
+                if (window.grecaptcha) {
+                    try {
+                        recaptchaToken = await window.grecaptcha.execute('6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI', { action: 'createCliente' });
+                    } catch (e) {
+                        console.warn('reCAPTCHA failed', e);
+                    }
+                }
+                
                 const resp = await fetch(createClienteUrl, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ empresaId: profissionalId, nome, email, telefone: tel })
+                    body: JSON.stringify({ empresaId: profissionalId, nome, email, telefone: tel, recaptchaToken })
                 });
                 const body = await resp.json();
                 if (!resp.ok) throw new Error(body.error || 'Erro ao criar cliente via função');
