@@ -43,7 +43,11 @@ import {
  * Reference: 2.0.md > Tarefa 2 - Validar localmente antes do signup
  */
 function isEmail(input) {
-    return input && typeof input === 'string' && input.includes('@') && input.includes('.');
+    if (!input || typeof input !== 'string') return false;
+    
+    // Regex RFC 5322 compliant (simplificado)
+    const emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
+    return emailRegex.test(input.trim());
 }
 
 function isPhone(input) {
@@ -148,7 +152,7 @@ export async function cadastroProfissional(emailOuTelefone, senha, nome, profiss
     
     let user;
     let email = null;
-    let telefone = null;
+    const telefone = null;
     
     if (isEmail(emailOuTelefone)) {
         // ============================================================

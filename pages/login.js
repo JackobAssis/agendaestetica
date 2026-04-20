@@ -19,17 +19,70 @@ import {
 let modoAtual = 'login'; // 'login' ou 'cadastro'
 let roleAtual = 'profissional'; // 'profissional' ou 'cliente'
 
+// Rate limiting
+let loginAttempts = 0;
+const MAX_ATTEMPTS = 5;
+const LOCKOUT_TIME = 15 * 60 * 1000; // 15 minutos
+let lockoutUntil = 0;
+
 // ============================================================
-// Helpers
+// Rate Limiting
 // ============================================================
 
-function isEmail(input) {
-    return input && input.includes('@') && input.includes('.');
+function isRateLimited() {
+    const now = Date.now();
+    if (now < lockoutUntil) {
+        const remaining = Math.ceil((lockoutUntil - now) / 60000);
+        showMessage(`Muitas tentativas. Tente novamente em ${remaining} minutos.`, 'error');
+        return true;
+    }
+    return false;
 }
 
-function isPhone(input) {
-    const phoneRegex = /^(\+55)?[1-9]{2}[9]?\d{8,9}$/;
-    return phoneRegex.test(input.replace(/[\s\-\(\)]/g, ''));
+function recordFailedAttempt() {
+    loginAttempts++;
+    if (loginAttempts >= MAX_ATTEMPTS) {
+        lockoutUntil = Date.now() + LOCKOUT_TIME;
+        showMessage('Conta temporariamente bloqueada devido a muitas tentativas falhidas.', 'error');
+    }
+}
+
+function recordSuccessfulLogin() {
+    loginAttempts = 0;
+    lockoutUntil = 0;
+}
+
+// ============================================================
+// Acessibilidade
+// ============================================================
+
+function setupAccessibility() {
+    // Adicionar tabindex e aria-pressed aos botões toggle
+    const toggleButtons = document.querySelectorAll('.toggle-btn');
+    toggleButtons.forEach(btn => {
+        if (!btn.hasAttribute('tabindex')) {
+            btn.setAttribute('tabindex', '0');
+        }
+        if (!btn.hasAttribute('aria-pressed')) {
+            btn.setAttribute('aria-pressed', btn.classList.contains('active') ? 'true' : 'false');
+        }
+    });
+
+    // Focar no primeiro campo interagível
+    const firstInput = document.querySelector('input:not([type="hidden"])');
+    if (firstInput) {
+        setTimeout(() => firstInput.focus(), 100);
+    }
+
+    // Adicionar suporte a Enter/Space nos toggles
+    toggleButtons.forEach(btn => {
+        btn.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                btn.click();
+            }
+        });
+    });
 }
 
 // ============================================================
@@ -56,6 +109,7 @@ document.addEventListener('DOMContentLoaded', () => {
     setupToggleButtons();
     setupFormListeners();
     setupRoleButtons();
+    setupAccessibility();
     
     // Setup input listeners para detectar email vs telefone
     setupInputDetection();
@@ -216,6 +270,11 @@ function setupFormListeners() {
  * Handle Login - Suporta Email ou Telefone
  */
 async function handleLogin() {
+    // Verificar rate limiting
+    if (isRateLimited()) {
+        return;
+    }
+    
     try {
         const emailOuTelefone = document.getElementById('login-email').value.trim();
         
@@ -246,6 +305,7 @@ async function handleLogin() {
             // Login profissional (email ou telefone)
             await loginProfissional(emailOuTelefone, senha);
             mostrarSucesso('Login realizado! Redirecionando...');
+            recordSuccessfulLogin();
             
             // Pequeno delay para mostrar mensagem
             setTimeout(() => {
@@ -256,6 +316,7 @@ async function handleLogin() {
             // Login cliente (por email ou telefone)
             await loginCliente(emailOuTelefone);
             mostrarSucesso('Bem-vindo! Redirecionando...');
+            recordSuccessfulLogin();
             
             setTimeout(() => {
                 window.location.href = '/confirmacao';
@@ -264,6 +325,7 @@ async function handleLogin() {
         
     } catch (error) {
         mostrarErro(error.message);
+        recordFailedAttempt();
         
         const btn = formLogin.querySelector('.submit-btn');
         btn.disabled = false;

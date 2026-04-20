@@ -76,17 +76,13 @@ describe('Agenda Module', function() {
 
     it('should validate required configuration fields', async function() {
       try {
-        await db.collection('empresas').doc(empresaId).set({
-          empresaId: empresaId,
-          proprietarioUid: 'test_uid',
-          agendaConfig: {
-            // Missing dias, horaInicio, horaFim
-            duracaoSlot: 30,
-          },
+        await saveAgendaConfig(empresaId, {
+          // Missing required fields
+          duracaoSlot: 30,
         });
         throw new Error('Should have failed validation');
       } catch (error) {
-        expect(error.message).to.not.equal('Should have failed validation');
+        expect(error.message).to.equal('Configuração inválida');
       }
     });
   });

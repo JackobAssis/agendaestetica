@@ -39,7 +39,7 @@ import { applyTheme, getTheme, setTheme } from '../modules/theme.js';
 let dadosProfissional = null;
 let agendaHoje = [];
 let proximosAgendamentos = [];
-let stats = {
+const stats = {
     agendamentosHoje: 0,
     totalClientes: 0,
     agendamentosPendentes: 0,

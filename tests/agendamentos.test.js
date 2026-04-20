@@ -6,6 +6,7 @@
 import { describe, it, before, after } from 'mocha';
 import { expect } from 'chai';
 import admin from 'firebase-admin';
+import { solicitarAgendamento } from '../modules/agendamentos.js';
 
 const configureFirebase = () => {
   process.env.GCLOUD_PROJECT = process.env.GCLOUD_PROJECT || 'demo-project';
@@ -432,6 +433,21 @@ describe('Agendamentos Module (TC-021 to TC-032)', function() {
       expect(doc.data().notas).to.be.an('array');
       expect(doc.data().notas.length).to.equal(1);
       expect(doc.data().notas[0].texto).to.equal('Cliente chegou com 5 minutos de atraso');
+    });
+  });
+
+  describe('TC-032: Validação de Campos Obrigatórios', function() {
+    it('should validate required fields for agendamento creation', async function() {
+      try {
+        await solicitarAgendamento(empresaId, {
+          // Missing required fields inicioISO and fimISO
+          clienteUid: clienteUid,
+          nomeCliente: 'Teste',
+        });
+        throw new Error('Should have failed validation');
+      } catch (error) {
+        expect(error.message).to.equal('Intervalo inválido');
+      }
     });
   });
 });

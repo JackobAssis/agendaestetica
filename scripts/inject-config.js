@@ -55,7 +55,8 @@ function loadEnv() {
         'VITE_FIREBASE_PROJECT_ID',
         'VITE_FIREBASE_STORAGE_BUCKET',
         'VITE_FIREBASE_MESSAGING_SENDER_ID',
-        'VITE_FIREBASE_APP_ID'
+        'VITE_FIREBASE_APP_ID',
+        'VITE_RECAPTCHA_SITE_KEY'
     ];
     
     firebaseVars.forEach(key => {
@@ -92,14 +93,16 @@ function injectConfig(htmlPath, env) {
     const storageBucket = env.VITE_FIREBASE_STORAGE_BUCKET || 'placeholder.appspot.com';
     const messagingSenderId = env.VITE_FIREBASE_MESSAGING_SENDER_ID || '000000000000';
     const appId = env.VITE_FIREBASE_APP_ID || '1:000000000000:web:0000000000000000000000';
+    const recaptchaKey = env.VITE_RECAPTCHA_SITE_KEY || '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI';
     
     // Substituir placeholders no HTML
     html = html.replace(/INJETAR_API_KEY/g, apiKey);
     html = html.replace(/INJETAR_AUTH_DOMAIN/g, authDomain);
     html = html.replace(/INJETAR_PROJECT_ID/g, projectId);
     html = html.replace(/INJETAR_STORAGE_BUCKET/g, storageBucket);
-    html = html.replace(/INJECT_SENDER_ID/g, messagingSenderId);
-    html = html.replace(/INJECT_APP_ID/g, appId);
+    html = html.replace(/INJETAR_MESSAGING_SENDER_ID/g, messagingSenderId);
+    html = html.replace(/INJETAR_APP_ID/g, appId);
+    html = html.replace(/INJETAR_RECAPTCHA_SITE_KEY/g, recaptchaKey);
     
     // Escrever arquivo modificado
     fs.writeFileSync(htmlPath, html);

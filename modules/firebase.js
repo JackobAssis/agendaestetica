@@ -55,7 +55,8 @@ const {
     limit,
     startAfter,
     Timestamp,
-    serverTimestamp
+    serverTimestamp,
+    runTransaction
 } = firebaseFirestoreModule;
 
 const {

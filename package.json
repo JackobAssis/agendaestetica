@@ -14,15 +14,23 @@
     "test:smoke": "node tests/e2e/smoke-tests.js",
     "test:full-flow": "node tests/e2e/full-flow-test.js",
     "test:all": "npm test && npm run test:smoke && npm run test:full-flow",
-    "test:manual": "echo 'See MANUAL-FLUXO-COMPLETO.md for manual testing guide'"
+    "test:manual": "echo 'See MANUAL-FLUXO-COMPLETO.md for manual testing guide'",
+    "lint": "eslint modules/**/*.js pages/**/*.js *.js",
+    "lint:fix": "eslint modules/**/*.js pages/**/*.js *.js --fix"
   },
   "dependencies": {
+    "core-js": "^3.49.0",
+    "dompurify": "^3.4.0",
     "firebase": "^10.5.0",
-    "firebase-admin": "^13.6.0"
+    "firebase-admin": "^13.6.0",
+    "whatwg-fetch": "^3.6.20"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "chai": "^4.3.7",
     "cypress": "^15.13.1",
+    "eslint": "^10.2.1",
+    "eslint-plugin-import": "^2.32.0",
     "firebase-tools": "^15.5.1",
     "http-server": "^14.1.1",
     "mocha": "^10.2.0",

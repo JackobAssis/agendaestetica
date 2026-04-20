@@ -11,6 +11,7 @@ const toastContainerId = 'toast-container';
  * Criar container de toast se não existir
  */
 function createToastContainer() {
+    if (typeof document === 'undefined' || !document.body) return;
     if (document.getElementById(toastContainerId)) return;
     
     const container = document.createElement('div');
@@ -51,6 +52,11 @@ export function showInfo(message, duration = 4000) {
  * Mostrar toast generico
  */
 export function showToast(message, type = 'info', duration = 4000) {
+    if (typeof document === 'undefined' || !document.body) {
+        console.log(`Toast (${type}): ${message}`);
+        return;
+    }
+    
     createToastContainer();
     
     const container = document.getElementById(toastContainerId);
@@ -95,6 +101,8 @@ export function showToast(message, type = 'info', duration = 4000) {
  * Loading Overlay - Full screen
  */
 export function showLoading(message = 'Carregando...') {
+    if (typeof document === 'undefined' || !document.body) return null;
+    
     removeLoading();
     
     const overlay = document.createElement('div');
@@ -120,6 +128,7 @@ export function showLoading(message = 'Carregando...') {
 }
 
 export function removeLoading() {
+    if (typeof document === 'undefined') return;
     const overlay = document.getElementById('loading-overlay');
     if (overlay) overlay.remove();
 }
