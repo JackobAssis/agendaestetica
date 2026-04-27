@@ -14,11 +14,7 @@ import { applyTheme, getTheme, setTheme } from '../modules/theme.js';
 import { 
     getFirestore, 
     doc, 
-    getDoc,
-    collection,
-    query,
-    where,
-    getDocs
+    getDoc 
 } from 'https://www.gstatic.com/firebasejs/10.5.0/firebase-firestore.js';
 
 // ============================================================
@@ -85,12 +81,7 @@ async function inicializar() {
                         hint.style.fontSize = '0.85rem';
                         hint.style.color = 'var(--muted)';
                         hint.style.marginTop = '6px';
-                        // build hint with safe link
-                        hint.textContent = 'Tema avançado disponível apenas no plano ';
-                        const a = document.createElement('a');
-                        a.href = '/perfil';
-                        a.textContent = 'Premium';
-                        hint.appendChild(a);
+                        hint.innerHTML = 'Tema avançado disponível apenas no plano <a href="/perfil">Premium</a>.';
                         themeSelect.parentNode && themeSelect.parentNode.appendChild(hint);
                     }
                 }
@@ -130,7 +121,6 @@ async function inicializar() {
         
         // Carregar dados do Firebase
         carregarDados(usuario.empresaId);
-        carregarLinkPublico(usuario.empresaId);
         
     } catch (error) {
         console.error('Erro ao inicializar dashboard:', error);
@@ -143,50 +133,18 @@ async function inicializar() {
 async function carregarDados(empresaId) {
     try {
         const db = getFirebaseDB();
+        const docRef = doc(db, 'empresas', empresaId);
         
         // Contar agendamentos de hoje
-        const hoje = new Date();
-        const inicio = new Date(hoje.setHours(0,0,0,0)).toISOString();
-        const fim = new Date(hoje.setHours(23,59,59,999)).toISOString();
-        const agQuery = query(
-            collection(db, 'empresas', empresaId, 'agendamentos'),
-            where('inicio', '>=', inicio),
-            where('inicio', '<=', fim)
-        );
-        const agSnap = await getDocs(agQuery);
-        document.getElementById('count-hoje').textContent = agSnap.size.toString();
+        // TODO: Implementar query de agendamentos
+        document.getElementById('count-hoje').textContent = '0';
         
-        // Contar clientes cadastrados
-        const cliSnap = await getDocs(collection(db, 'empresas', empresaId, 'clientes'));
-        document.getElementById('count-clientes').textContent = cliSnap.size.toString();
+        // Contar clientes
+        // TODO: Implementar query de clientes
+        document.getElementById('count-clientes').textContent = '0';
         
     } catch (error) {
         console.error('Erro ao carregar dados:', error);
-    }
-}
-
-// carregar e renderizar link público
-async function carregarLinkPublico(empresaId) {
-    try {
-        const db = getFirebaseDB();
-        const snap = await getDoc(doc(db, 'empresas', empresaId));
-        if (!snap.exists()) return;
-        const data = snap.data();
-        const slug = data.slug || empresaId;
-        const linkEl = document.getElementById('public-link');
-        if (linkEl) linkEl.textContent = `https://agendaestetica.app/p/${slug}`;
-        const btnCopy = document.getElementById('btn-copy-link');
-        if (btnCopy && linkEl) {
-            btnCopy.addEventListener('click', () => {
-                navigator.clipboard.writeText(linkEl.textContent).then(() => {
-                    alert('Link copiado para a área de transferência');
-                }).catch(err => {
-                    console.error('Erro ao copiar link', err);
-                });
-            });
-        }
-    } catch (e) {
-        console.error('Erro ao carregar link público:', e);
     }
 }
 

@@ -3,159 +3,83 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="AgendaEstética - Meus Agendamentos">
-  <meta name="theme-color" content="#8b5cf6">
-  
   <title>AgendaEstética - Meus Agendamentos</title>
-  
-  <!-- Favicon -->
-  <link rel="icon" type="image/svg+xml" href="../assets/images/favicon.svg">
-  <link rel="apple-touch-icon" href="../assets/images/favicon.svg">
-  
-  <!-- CSS Principal (Design System v2) -->
-  <link rel="stylesheet" href="../styles/main.css">
+  <link rel="stylesheet" href="../styles/global.css">
+  <link name="stylesheet" href="../styles/meus-agendamentos.css">
 </head>
 <body>
-  <div id="app" class="app-shell">
-    <!-- Topbar -->
-    <header class="app-header">
-      <div class="app-brand">
-        <div class="app-brand__icon" aria-hidden>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="24" height="24" rx="6" fill="white" opacity="0.06"/></svg>
-        </div>
-        <div class="app-brand__title">AgendaEstética</div>
-      </div>
-      <div class="app-actions">
-          <button class="icon-btn" id="btn-notifications" title="Notificações">
-            <i data-lucide="bell"></i>
-          </button>
-          <button class="theme-toggle" id="theme-toggle" title="Alternar tema">
-            <i data-lucide="sun"></i>
-          </button>
-      </div>
+  <main class="meus-agendamentos-container">
+    <header class="page-header">
+      <a href="/" class="back-link">← Voltar</a>
+      <h1>Meus Agendamentos</h1>
     </header>
 
-    <!-- Sidebar (desktop) -->
-    <aside class="app-sidebar">
-      <nav class="app-nav" aria-label="Principal">
-        <a href="/" class="nav-item" data-page="dashboard">
-          <span class="nav-item__icon"><i data-lucide="home"></i></span>
-          <span>Dashboard</span>
-        </a>
-        <a href="../pages/agenda.html" class="nav-item" data-page="agenda">
-          <span class="nav-item__icon"><i data-lucide="calendar"></i></span>
-          <span>Agenda</span>
-        </a>
-        <a href="../pages/agendamentos.html" class="nav-item" data-page="agendamentos">
-          <span class="nav-item__icon"><i data-lucide="list"></i></span>
-          <span>Agendamentos</span>
-        </a>
-        <a href="../pages/clientes.html" class="nav-item" data-page="clientes">
-          <span class="nav-item__icon"><i data-lucide="users"></i></span>
-          <span>Clientes</span>
-        </a>
-      </nav>
-    </aside>
+    <nav class="tabs">
+      <button class="tab-btn active" data-tab="futuros">Próximos</button>
+      <button class="tab-btn" data-tab="historico">Histórico</button>
+    </nav>
 
-    <!-- Main content -->
-    <main class="app-main">
-      <div class="app-grid">
+    <section id="agendamentos-futuros" class="agendamentos-section">
+      <div class="agendamentos-list" id="lista-futuros">
+        <!-- Agendamentos futuros serão inseridos aqui -->
+        <div class="loading">Carregando...</div>
+      </div>
+    </section>
 
-        <section class="content-section">
-          <header class="page-header">
-            <a href="/" class="btn btn--secondary">← Voltar</a>
-            <h1 class="page-header__title">Meus Agendamentos</h1>
-          </header>
-        </section>
+    <section id="agendamentos-historico" class="agendamentos-section hidden">
+      <div class="agendamentos-list" id="lista-historico">
+        <!-- Histórico será inserido aqui -->
+      </div>
+    </section>
 
-        <!-- Tabs Navigation -->
-        <nav class="tabs" role="tablist">
-          <button class="tab tab--active" data-tab="futuros" role="tab" aria-selected="true">Próximos</button>
-          <button class="tab" data-tab="historico" role="tab" aria-selected="false">Histórico</button>
-        </nav>
-
-        <!-- Agendamentos Futuros -->
-        <section id="agendamentos-futuros" class="agendamentos-section" role="tabpanel">
-          <div class="agendamentos-list" id="lista-futuros">
-            <div class="loading-state">
-              <div class="loading-spinner"></div>
-              <p>Carregando...</p>
-            </div>
-          </div>
-        </section>
-
-        <!-- Histórico -->
-        <section id="agendamentos-historico" class="agendamentos-section d-none" role="tabpanel">
-          <div class="agendamentos-list" id="lista-historico"></div>
-        </section>
-
-        <!-- Modal de Detalhes -->
-        <div id="modal-detalhes" class="modal-overlay" role="dialog" aria-labelledby="modal-detalhes-title" aria-modal="true">
-          <div class="modal">
-            <div class="modal__header">
-              <h2 id="modal-detalhes-title" class="modal__title">Detalhes do Agendamento</h2>
-              <button class="modal__close" id="fechar-modal" aria-label="Fechar">&times;</button>
-            </div>
-            <div class="modal__body" id="detalhes-conteudo"></div>
-            <div class="modal__footer">
-              <button id="btn-cancelar" class="btn btn--secondary">Solicitar Cancelamento</button>
-              <button id="btn-solicitar-troca" class="btn btn--primary">Solicitar Troca</button>
-            </div>
-          </div>
+    <!-- Modal de Detalhes -->
+    <div id="modal-detalhes" class="modal hidden">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>Detalhes do Agendamento</h2>
+          <button class="modal-close" id="fechar-modal">&times;</button>
         </div>
-
-        <!-- Modal de Troca -->
-        <div id="modal-troca" class="modal-overlay" role="dialog" aria-labelledby="modal-troca-title" aria-modal="true">
-          <div class="modal">
-            <div class="modal__header">
-              <h2 id="modal-troca-title" class="modal__title">Solicitar Troca de Data</h2>
-              <button class="modal__close" id="fechar-modal-troca" aria-label="Fechar">&times;</button>
-            </div>
-            <div class="modal__body">
-              <p class="text-secondary">Agendamento atual: <strong id="troca-atual"></strong></p>
-              <div class="form-group">
-                <label for="troca-data" class="form-label">Nova Data</label>
-                <input type="date" id="troca-data" class="form-input" />
-              </div>
-              <div class="form-group">
-                <label for="troca-hora" class="form-label">Novo Horário</label>
-                <select id="troca-hora" class="form-input form-select">
-                  <option value="">Selecione uma data primeiro</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <label for="troca-motivo" class="form-label">Motivo (opcional)</label>
-                <textarea id="troca-motivo" class="form-input form-textarea" placeholder="Explique o motivo da troca..."></textarea>
-              </div>
-            </div>
-            <div class="modal__footer">
-              <button id="btn-enviar-troca" class="btn btn--primary">Enviar Solicitação</button>
-            </div>
-          </div>
+        <div class="modal-body" id="detalhes-conteudo">
+          <!-- Conteúdo dinâmico -->
         </div>
-
-        <!-- Mensagens -->
-        <div id="mensagem" class="toast-container" aria-live="polite"></div>
-
-      </div> <!-- .app-grid -->
-    </main>
-
-    <!-- Bottom navigation (mobile) -->
-    <div class="bottom-nav" role="navigation" aria-label="Navegação inferior">
-      <button class="nav-btn">Dashboard</button>
-      <button class="nav-btn">Agenda</button>
-      <button class="nav-btn active">Meus</button>
+        <div class="modal-footer">
+          <button id="btn-cancelar" class="btn-secondary">Solicitar Cancelamento</button>
+          <button id="btn-solicitar-troca" class="btn-primary">Solicitar Troca</button>
+        </div>
+      </div>
     </div>
 
-  </div> <!-- #app .app-shell -->
+    <!-- Modal de Troca -->
+    <div id="modal-troca" class="modal hidden">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>Solicitar Troca de Data</h2>
+          <button class="modal-close" id="fechar-modal-troca">&times;</button>
+        </div>
+        <div class="modal-body">
+          <p class="text-secondary">Agendamento atual: <strong id="troca-atual"></strong></p>
+          
+          <label for="troca-data">Nova Data</label>
+          <input type="date" id="troca-data" />
+          
+          <label for="troca-hora">Novo Horário</label>
+          <select id="troca-hora">
+            <option value="">Selecione uma data primeiro</option>
+          </select>
+          
+          <label for="troca-motivo">Motivo (opcional)</label>
+          <textarea id="troca-motivo" placeholder="Explique o motivo da troca..."></textarea>
+        </div>
+        <div class="modal-footer">
+          <button id="btn-enviar-troca" class="btn-primary">Enviar Solicitação</button>
+        </div>
+      </div>
+    </div>
 
-  <!-- Lucide Icons -->
-  <script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.js"></script>
-  <script>lucide.createIcons();</script>
-  <script src="../scripts/ui-shell.js"></script>
-  <script type="module" src="../pages/meus-agendamentos.js"></script>
-</body>
-</html>
+    <!-- Mensagens -->
+    <div id="mensagem" class="message hidden"></div>
+  </main>
+
   <script type="module" src="../pages/meus-agendamentos.js"></script>
 </body>
 </html>

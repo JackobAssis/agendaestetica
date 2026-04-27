@@ -45,8 +45,6 @@ const profissionalId = getProfissionalIdFromPath();
 const profNomeEl = document.getElementById('profissional-nome');
 const profInfoEl = document.getElementById('profissional-info');
 const servicoSelect = document.getElementById('servico-select');
-
-let services = []; // will hold array of objects or strings
 const dateSelect = document.getElementById('date-select');
 const btnGerar = document.getElementById('btn-gerar-slots');
 const slotsList = document.getElementById('slots-list');
@@ -81,8 +79,8 @@ async function carregarProfissional() {
         profInfoEl.textContent = `Profissão: ${data.profissao || '—'} • Plano: ${data.plano || 'free'}`;
 
         // Populate services
-        services = data.servicos || [];
-        servicoSelect.textContent = '';
+        const services = data.servicos || [];
+        servicoSelect.innerHTML = '';
         
         if (services.length === 0) {
             const opt = document.createElement('option');
@@ -92,12 +90,8 @@ async function carregarProfissional() {
         } else {
             services.forEach(s => {
                 const opt = document.createElement('option');
-                const nome = s.nome || s;
-                opt.value = nome;
-                let label = nome;
-                if (s.preco != null) label += ` - R$${s.preco}`;
-                if (s.duracao != null) label += ` - ${s.duracao}min`;
-                opt.textContent = label;
+                opt.value = s;
+                opt.textContent = s;
                 servicoSelect.appendChild(opt);
             });
         }
@@ -110,15 +104,11 @@ async function carregarProfissional() {
 
 async function gerarSlots() {
     clearMsg();
-    slotsList.textContent = '';
-    btnGerar.disabled = true;
-    btnGerar.textContent = 'Gerando...';
+    slotsList.innerHTML = '';
     
     const date = dateSelect.value;
     if (!date) {
         showMsg('Selecione uma data', 'error');
-        btnGerar.disabled = false;
-        btnGerar.textContent = 'Gerar slots';
         return;
     }
     
@@ -126,8 +116,7 @@ async function gerarSlots() {
         const slots = await generateSlotsForDate(profissionalId, date);
         
         if (!slots.length) {
-            const p = document.createElement('p'); p.className='text-secondary'; p.textContent='Nenhum slot disponível'; slotsList.appendChild(p); 
-            btnGerar.disabled = false; btnGerar.textContent = 'Gerar slots';
+            slotsList.innerHTML = '<p class="text-secondary">Nenhum slot disponível</p>';
             return;
         }
 
@@ -143,9 +132,6 @@ async function gerarSlots() {
     } catch (err) {
         console.error('Erro gerar slots', err);
         showMsg(err.message || 'Erro ao gerar slots', 'error');
-    } finally {
-        btnGerar.disabled = false;
-        btnGerar.textContent = 'Gerar slots';
     }
 }
 
@@ -155,16 +141,12 @@ async function solicitarSlot(slot) {
     const nome = nomeInput.value.trim();
     const email = emailInput.value.trim();
     const tel = telInput.value.trim();
-    const servicoNome = servicoSelect.value;
+    const servico = servicoSelect.value;
 
     if (!nome || !email) {
         showMsg('Nome e email são obrigatórios', 'error');
         return;
     }
-
-    const btn = document.querySelector('button[disabled]');
-    const originalText = btn ? btn.textContent : '';
-    if (btn) { btn.disabled = true; btn.textContent = 'Processando...'; }
 
     try {
         // Ensure cliente exists and get clienteId - prefer Cloud Function if configured
@@ -193,15 +175,12 @@ async function solicitarSlot(slot) {
             console.warn('createCliente flow failed', e);
         }
 
-        const selServico = services.find(s => (s.nome || s) === servicoNome) || { nome: servicoNome };
         const payload = { 
             inicioISO: slot.inicioISO, 
             fimISO: slot.fimISO, 
             nomeCliente: nome, 
             telefone: tel, 
-            servico: selServico.nome || selServico,
-            servicoPreco: selServico.preco,
-            servicoDuracao: selServico.duracao,
+            servico, 
             clienteUid: cliente ? cliente.id : null 
         };
         
@@ -214,8 +193,6 @@ async function solicitarSlot(slot) {
     } catch (err) {
         console.error('Erro solicitar agendamento', err);
         showMsg(err.message || 'Erro ao solicitar agendamento', 'error');
-    } finally {
-        if (btn) { btn.disabled = false; btn.textContent = originalText; }
     }
 }
 

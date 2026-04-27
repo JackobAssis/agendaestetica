@@ -8,99 +8,41 @@
   <link rel="stylesheet" href="../styles/solicitacoes.css">
 </head>
 <body>
-  <div id="app" class="app-shell">
-    <!-- Topbar -->
-    <header class="app-header">
-      <div class="app-brand">
-        <div class="app-brand__icon" aria-hidden>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="24" height="24" rx="6" fill="white" opacity="0.06"/></svg>
-        </div>
-        <div class="app-brand__title">AgendaEstética</div>
-      </div>
-      <div class="app-actions">
-          <button class="icon-btn" id="btn-notifications" title="Notificações">
-            <i data-lucide="bell"></i>
-          </button>
-          <button class="theme-toggle" id="theme-toggle" title="Alternar tema">
-            <i data-lucide="sun"></i>
-          </button>
-      </div>
+  <main class="solicitacoes-container">
+    <header class="page-header">
+      <a href="/dashboard" class="back-link">← Voltar ao Dashboard</a>
+      <h1>Solicitações de Troca</h1>
     </header>
 
-    <!-- Sidebar (desktop) -->
-    <aside class="app-sidebar">
-      <nav class="app-nav" aria-label="Principal">
-        <a href="/" class="nav-item" data-page="dashboard">
-          <span class="nav-item__icon"><i data-lucide="home"></i></span>
-          <span>Dashboard</span>
-        </a>
-        <a href="../pages/agenda.html" class="nav-item" data-page="agenda">
-          <span class="nav-item__icon"><i data-lucide="calendar"></i></span>
-          <span>Agenda</span>
-        </a>
-        <a href="../pages/agendamentos.html" class="nav-item" data-page="agendamentos">
-          <span class="nav-item__icon"><i data-lucide="list"></i></span>
-          <span>Agendamentos</span>
-        </a>
-        <a href="../pages/clientes.html" class="nav-item" data-page="clientes">
-          <span class="nav-item__icon"><i data-lucide="users"></i></span>
-          <span>Clientes</span>
-        </a>
-      </nav>
-    </aside>
+    <section class="filtros">
+      <button class="filter-btn active" data-filter="pendentes">Pendentes</button>
+      <button class="filter-btn" data-filter="todas">Todas</button>
+    </section>
 
-    <!-- Main content -->
-    <main class="app-main">
-      <div class="app-grid">
+    <section class="solicitacoes-list" id="lista-solicitacoes">
+      <div class="loading">Carregando solicitações...</div>
+    </section>
 
-        <section class="content-section">
-          <header class="page-header">
-            <div class="page-header__content">
-              <h1 class="page-header__title">Solicitações de Troca</h1>
-            </div>
-            <a href="/" class="btn btn--secondary">← Voltar</a>
-          </header>
-        </section>
-
-        <section class="content-section filtros">
-          <button class="filter-btn active" data-filter="pendentes">Pendentes</button>
-          <button class="filter-btn" data-filter="todas">Todas</button>
-        </section>
-
-        <section class="content-section solicitacoes-list" id="lista-solicitacoes">
-          <div class="loading">Carregando solicitações...</div>
-        </section>
-
-        <!-- Modal de Detalhes -->
-        <div id="modal-detalhes" class="modal hidden">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h2>Detalhes da Solicitação</h2>
-              <button class="modal-close" id="fechar-modal">&times;</button>
-            </div>
-            <div class="modal-body" id="detalhes-conteudo"></div>
-            <div class="modal-footer" id="modal-actions"></div>
-          </div>
+    <!-- Modal de Detalhes -->
+    <div id="modal-detalhes" class="modal hidden">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>Detalhes da Solicitação</h2>
+          <button class="modal-close" id="fechar-modal">&times;</button>
         </div>
-
-        <div id="mensagem" class="message hidden"></div>
-
-      </div> <!-- .app-grid -->
-    </main>
-
-    <!-- Bottom navigation (mobile) -->
-    <div class="bottom-nav" role="navigation" aria-label="Navegação inferior">
-      <button class="nav-btn">Dashboard</button>
-      <button class="nav-btn">Agenda</button>
-      <button class="nav-btn">Agendamentos</button>
-      <button class="nav-btn active">Solicitações</button>
+        <div class="modal-body" id="detalhes-conteudo">
+          <!-- Conteúdo dinâmico -->
+        </div>
+        <div class="modal-footer" id="modal-actions">
+          <!-- Botões de ação -->
+        </div>
+      </div>
     </div>
 
-  </div> <!-- #app .app-shell -->
+    <!-- Mensagens -->
+    <div id="mensagem" class="message hidden"></div>
+  </main>
 
-  <script type="module" src="../pages/solicitacoes-troca.js"></script>
-</body>
-</html>
   <script type="module" src="../pages/solicitacoes-troca.js"></script>
 </body>
 </html>

@@ -3,18 +3,65 @@
  * 
  * Provides centralized Firebase instances for all modules.
  * Uses window.firebaseApp if available (initialized in index.html).
+ * Supports both browser runtime (https imports) and Node test/runtime via npm packages.
  * 
  * Reference: 2.0.md > Tarefa 3 - Inicialização correta do Firebase
  * Garantir que Firebase seja inicializado uma única vez.
  */
 
-// ============================================================
-// Firebase v9+ Imports
-// ============================================================
+const isBrowser = typeof window !== 'undefined' && typeof window.document !== 'undefined';
 
-import { getAuth } from 'https://www.gstatic.com/firebasejs/10.5.0/firebase-auth.js';
-import { getFirestore } from 'https://www.gstatic.com/firebasejs/10.5.0/firebase-firestore.js';
-import { getStorage } from 'https://www.gstatic.com/firebasejs/10.5.0/firebase-storage.js';
+const firebaseAuthModule = isBrowser
+    ? await import('https://www.gstatic.com/firebasejs/10.5.0/firebase-auth.js')
+    : await import('firebase/auth');
+
+const firebaseFirestoreModule = isBrowser
+    ? await import('https://www.gstatic.com/firebasejs/10.5.0/firebase-firestore.js')
+    : await import('firebase/firestore');
+
+const firebaseStorageModule = isBrowser
+    ? await import('https://www.gstatic.com/firebasejs/10.5.0/firebase-storage.js')
+    : await import('firebase/storage');
+
+const {
+    getAuth,
+    createUserWithEmailAndPassword,
+    signInWithEmailAndPassword,
+    signOut,
+    sendPasswordResetEmail,
+    updateProfile,
+    onAuthStateChanged,
+    getIdToken,
+    confirmPasswordReset,
+    verifyPasswordResetCode,
+    checkActionCode,
+    applyActionCode
+} = firebaseAuthModule;
+
+const {
+    getFirestore,
+    collection,
+    collectionGroup,
+    doc,
+    setDoc,
+    getDoc,
+    getDocs,
+    query,
+    where,
+    updateDoc,
+    addDoc,
+    deleteDoc,
+    orderBy,
+    limit,
+    startAfter,
+    Timestamp,
+    serverTimestamp,
+    runTransaction
+} = firebaseFirestoreModule;
+
+const {
+    getStorage
+} = firebaseStorageModule;
 
 /**
  * Get Firebase App instance
@@ -68,10 +115,7 @@ export function getFirebaseStorage() {
     return getStorage(app);
 }
 
-// ============================================================
-// Re-export Firestore functions
-// ============================================================
-
+// Re-export Firebase functions
 export {
     collection,
     collectionGroup,
@@ -88,20 +132,17 @@ export {
     limit,
     startAfter,
     Timestamp,
-    serverTimestamp
-} from 'https://www.gstatic.com/firebasejs/10.5.0/firebase-firestore.js';
-
-// ============================================================
-// Re-export Auth functions
-// ============================================================
-
-export {
+    serverTimestamp,
     createUserWithEmailAndPassword,
     signInWithEmailAndPassword,
     signOut,
     sendPasswordResetEmail,
     updateProfile,
     onAuthStateChanged,
-    getIdToken
-} from 'https://www.gstatic.com/firebasejs/10.5.0/firebase-auth.js';
+    getIdToken,
+    confirmPasswordReset,
+    verifyPasswordResetCode,
+    checkActionCode,
+    applyActionCode
+};
 

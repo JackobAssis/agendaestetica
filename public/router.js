@@ -14,23 +14,23 @@
 import { obterUsuarioAtual } from './modules/auth.js';
 
 const PAGES = {
-    LOGIN: { path: '/login', file: '/pages/login.html', public: true, requireAuth: false },
-    DASHBOARD_PROF: { path: '/dashboard', file: '/pages/dashboard.html', public: false, requireAuth: true, role: 'profissional' },
-    ONBOARDING: { path: '/onboarding', file: '/pages/onboarding.html', public: false, requireAuth: true },
-    AGENDA: { path: '/agenda', file: '/pages/agenda.html', public: false, requireAuth: true },
-    AGENDAMENTOS: { path: '/agendamentos', file: '/pages/agendamentos.html', public: false, requireAuth: true },
-    CLIENTES: { path: '/clientes', file: '/pages/clientes.html', public: false, requireAuth: true },
-    PERFIL: { path: '/perfil', file: '/pages/perfil.html', public: false, requireAuth: true },
-    MEUS_AGENDAMENTOS: { path: '/meus-agendamentos', file: '/pages/meus-agendamentos.html', public: false, requireAuth: true, role: 'cliente' },
-    PAGINA_CLIENTE: { path: '/pagina-cliente', file: '/pages/pagina-cliente.html', public: false, requireAuth: true, role: 'cliente' },
-    SOLICITACOES_TROCA: { path: '/solicitacoes-troca', file: '/pages/solicitacoes-troca.html', public: false, requireAuth: true, role: 'profissional' },
-    NOTIFICACOES: { path: '/notificacoes', file: '/pages/notificacoes.html', public: false, requireAuth: true },
-    RELATORIOS: { path: '/relatorios', file: '/pages/relatorios.html', public: false, requireAuth: true, role: 'profissional' },
-    PAGINA_PUBLICA: { path: '/agenda/:profissionalId', file: '/pages/pagina-publica.html', public: true, requireAuth: false },
-    PAGINA_PUBLICA_SLUG: { path: '/p/:profissionalId', file: '/pages/pagina-publica.html', public: true, requireAuth: false },
-    LINK_AGENDAMENTO: { path: '/agendar/:profissionalId', file: '/pages/agendar-cliente.html', public: true, requireAuth: false },
+    LOGIN: { path: '/login', file: '/pages/login.html', js: () => import('./pages/login.js'), public: true, requireAuth: false },
+    RECUPERAR_SENHA: { path: '/recuperar-senha', file: '/pages/recuperar-senha.html', public: true, requireAuth: false },
+    DASHBOARD_PROF: { path: '/dashboard', file: '/pages/dashboard.html', js: () => import('./pages/dashboard.js'), public: false, requireAuth: true, role: 'profissional' },
+    ONBOARDING: { path: '/onboarding', file: '/pages/onboarding.html', js: () => import('./pages/onboarding.js'), public: false, requireAuth: true },
+    AGENDA: { path: '/agenda', file: '/pages/agenda.html', js: () => import('./pages/agenda.js'), public: false, requireAuth: true },
+    AGENDAMENTOS: { path: '/agendamentos', file: '/pages/agendamentos.html', js: () => import('./pages/agendamentos.js'), public: false, requireAuth: true },
+    CLIENTES: { path: '/clientes', file: '/pages/clientes.html', js: () => import('./pages/clientes.js'), public: false, requireAuth: true },
+    PERFIL: { path: '/perfil', file: '/pages/perfil.html', js: () => import('./pages/perfil.js'), public: false, requireAuth: true },
+    MEUS_AGENDAMENTOS: { path: '/meus-agendamentos', file: '/pages/meus-agendamentos.html', js: () => import('./pages/meus-agendamentos.js'), public: false, requireAuth: true, role: 'cliente' },
+    PAGINA_CLIENTE: { path: '/pagina-cliente', file: '/pages/pagina-cliente.html', js: () => import('./pages/pagina-cliente.js'), public: false, requireAuth: true, role: 'cliente' },
+    SOLICITACOES_TROCA: { path: '/solicitacoes-troca', file: '/pages/solicitacoes-troca.html', js: () => import('./pages/solicitacoes-troca.js'), public: false, requireAuth: true, role: 'profissional' },
+    NOTIFICACOES: { path: '/notificacoes', file: '/pages/notificacoes.html', js: () => import('./pages/notificacoes.js'), public: false, requireAuth: true },
+    RELATORIOS: { path: '/relatorios', file: '/pages/relatorios.html', js: () => import('./pages/relatorios.js'), public: false, requireAuth: true, role: 'profissional' },
+    PAGINA_PUBLICA: { path: '/agenda/:profissionalId', file: '/pages/pagina-publica.html', js: () => import('./pages/pagina-publica.js'), public: true, requireAuth: false },
+    LINK_AGENDAMENTO: { path: '/agendar/:profissionalId', file: '/pages/agendar-cliente.html', js: () => import('./pages/agendar-cliente.js'), public: true, requireAuth: false },
     CONFIRMACAO: { path: '/confirmacao', file: '/pages/confirmacao.html', public: true, requireAuth: false },
-    AGENDAR_CLIENTE: { path: '/agendar-cliente', file: '/pages/agendar-cliente.html', public: true, requireAuth: false },
+    AGENDAR_CLIENTE: { path: '/agendar-cliente', file: '/pages/agendar-cliente.html', js: () => import('./pages/agendar-cliente.js'), public: true, requireAuth: false },
     HOME: { path: '/', file: '/index.html', public: true, requireAuth: false },
 };
 
@@ -114,13 +114,17 @@ async function loadPage(path) {
         const parser = new DOMParser();
         const doc = parser.parseFromString(html, 'text/html');
         
-        // Get the body content
-        const bodyContent = doc.body.innerHTML;
-        
-        // Inject into app
+        // Get the app container from loaded page
+        const loadedApp = doc.getElementById('app');
         const app = document.getElementById('app');
-        if (app) {
-            app.innerHTML = bodyContent;
+        
+        if (loadedApp && app) {
+            // Transfer classes and attributes from loaded app to main app
+            app.className = loadedApp.className;
+            app.innerHTML = loadedApp.innerHTML;
+        } else {
+            // Fallback: use body content
+            app.innerHTML = doc.body.innerHTML;
         }
         
         // Also inject any additional stylesheets from the page's head
@@ -136,19 +140,36 @@ async function loadPage(path) {
             document.head.appendChild(newLink);
         });
         
-        // Load associated JS
-        const jsFile = page.file.replace('.html', '.js');
-        
-        // Remove previous script if exists
-        const existingScript = document.querySelector(`script[src="${jsFile}"]`);
-        if (existingScript) {
-            existingScript.remove();
+        // Load associated JS with lazy loading
+        if (page.js) {
+            try {
+                await page.js();
+                console.log(`✅ JS loaded for ${path}`);
+            } catch (error) {
+                console.error(`❌ Failed to load JS for ${path}:`, error);
+            }
+        } else {
+            // Fallback to static loading
+            const jsFile = page.file.replace('.html', '.js');
+            
+            // Remove previous script if exists
+            const existingScript = document.querySelector(`script[src="${jsFile}"]`);
+            if (existingScript) {
+                existingScript.remove();
+            }
+            
+            const moduleScript = document.createElement('script');
+            moduleScript.type = 'module';
+            moduleScript.src = jsFile;
+            document.body.appendChild(moduleScript);
         }
         
-        const moduleScript = document.createElement('script');
-        moduleScript.type = 'module';
-        moduleScript.src = jsFile;
-        document.body.appendChild(moduleScript);
+        // Reinitialize Lucide Icons if available
+        if (window.lucide) {
+            setTimeout(() => {
+                window.lucide.createIcons();
+            }, 100);
+        }
         
         // Scroll to top
         window.scrollTo(0, 0);

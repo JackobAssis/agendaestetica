@@ -34,9 +34,6 @@ import {
     updateDoc
 } from './firebase.js';
 
-// slug helpers
-import { generateUniqueSlug, slugify } from './slug.js';
-
 // ============================================================
 // Helper Functions
 // ============================================================
@@ -46,7 +43,11 @@ import { generateUniqueSlug, slugify } from './slug.js';
  * Reference: 2.0.md > Tarefa 2 - Validar localmente antes do signup
  */
 function isEmail(input) {
-    return input && typeof input === 'string' && input.includes('@') && input.includes('.');
+    if (!input || typeof input !== 'string') return false;
+    
+    // Regex RFC 5322 compliant (simplificado)
+    const emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
+    return emailRegex.test(input.trim());
 }
 
 function isPhone(input) {
@@ -151,7 +152,7 @@ export async function cadastroProfissional(emailOuTelefone, senha, nome, profiss
     
     let user;
     let email = null;
-    let telefone = null;
+    const telefone = null;
     
     if (isEmail(emailOuTelefone)) {
         // ============================================================
@@ -244,11 +245,6 @@ export async function cadastroProfissional(emailOuTelefone, senha, nome, profiss
         await updateProfile(user, { displayName: nome });
         console.log('✅ Perfil atualizado com nome');
         
-        // gera um slug para o negócio e marca como público para que
-        // a página externa possa ler as informações sem autenticação
-        const slugBase = nome || profissao || user.uid;
-        const slug = await generateUniqueSlug(slugBase);
-
         const empresaId = `prof_${user.uid}`;
         
         console.log('🔧 Salvando profissional no Firestore...');
@@ -278,11 +274,9 @@ export async function cadastroProfissional(emailOuTelefone, senha, nome, profiss
             criadoEm: new Date().toISOString(),
             ativo: true,
             plano: 'free',
-            slug: slug,
-            public: true,
         });
         
-        console.log('✅ Empresa criada no Firestore (slug:', slug, ')');
+        console.log('✅ Empresa criada no Firestore');
         
         return {
             uid: user.uid,

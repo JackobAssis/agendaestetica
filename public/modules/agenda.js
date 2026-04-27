@@ -9,6 +9,8 @@
  * CORRIGIDO para Firebase v9+ modular
  */
 
+import { retryWithBackoff } from './utils.js';
+
 import { 
     getFirebaseDB, 
     collection, 
@@ -94,30 +96,31 @@ export async function checkConflict(empresaId, inicioISO, fimISO) {
     const agendamentosRef = collection(db, 'empresas', empresaId, 'agendamentos');
     const bloqueiosRef = collection(db, 'empresas', empresaId, 'bloqueios');
 
-    // Query para agendamentos não cancelados (solicitado ou confirmado)
+    // Query para agendamentos
     const agQuery = query(
         agendamentosRef,
         where('inicio', '<', fimISO),
-        where('fim', '>', inicioISO),
-        where('status', 'in', ['solicitado', 'confirmado'])
+        where('fim', '>', inicioISO)
     );
-    const agSnapshot = await getDocs(agQuery);
-    if (!agSnapshot.empty) return true;
-
+    
     // Query para bloqueios
     const blQuery = query(
         bloqueiosRef,
         where('inicio', '<', fimISO),
         where('fim', '>', inicioISO)
     );
-    const blSnapshot = await getDocs(blQuery);
-    if (!blSnapshot.empty) return true;
 
-    return false;
+    // Executar queries com retry
+    const [agSnapshot, blSnapshot] = await Promise.all([
+        retryWithBackoff(() => getDocs(agQuery)),
+        retryWithBackoff(() => getDocs(blQuery))
+    ]);
+
+    return !agSnapshot.empty || !blSnapshot.empty;
 }
 
 /**
- * Generate slots for a given date
+ * Generate slots for a given date (with localStorage cache)
  */
 export async function generateSlotsForDate(empresaId, dateISO) {
     const config = await getAgendaConfig(empresaId);
@@ -148,7 +151,7 @@ export async function generateSlotsForDate(empresaId, dateISO) {
         const inicioISO = slotStart.toISOString();
         const fimISO = slotEnd.toISOString();
 
-        // eslint-disable-next-line no-await-in-loop
+         
         const conflict = await checkConflict(empresaId, inicioISO, fimISO);
         if (!conflict) slots.push({ inicioISO, fimISO });
 
@@ -159,24 +162,69 @@ export async function generateSlotsForDate(empresaId, dateISO) {
 }
 
 /**
+ * Generate slots for a given date with localStorage cache (TTL 1h)
+ */
+export async function getAgendaSlotsComCache(empresaId, dateISO) {
+    const cacheKey = `slots:${empresaId}:${dateISO}`;
+    const CACHE_TTL = 3600000; // 1 hora em ms
+
+    try {
+        const cached = localStorage.getItem(cacheKey);
+        if (cached) {
+            const { slots, timestamp } = JSON.parse(cached);
+            if (Date.now() - timestamp < CACHE_TTL) {
+                return slots; // Retorno instantâneo do cache
+            }
+        }
+    } catch (e) {
+        // Ignorar erros de localStorage
+    }
+
+    // Buscar dados frescos
+    const slots = await generateSlotsForDate(empresaId, dateISO);
+
+    // Salvar no cache
+    try {
+        localStorage.setItem(cacheKey, JSON.stringify({
+            slots,
+            timestamp: Date.now()
+        }));
+    } catch (e) {
+        // Ignorar erros de localStorage (quota excedida, etc.)
+    }
+
+    return slots;
+}
+
+/**
  * Create appointment reservation
  */
 export async function createAppointment(empresaId, agendamento) {
-    const db = getFirebaseDB();  // ✅ v9+
-    const agRef = collection(db, 'empresas', empresaId, 'agendamentos');
+    try {
+        if (!empresaId) throw new Error('empresaId é obrigatório');
+        if (!agendamento || !agendamento.inicio || !agendamento.fim) {
+            throw new Error('Agendamento inválido: inicio e fim são obrigatórios');
+        }
 
-    const conflict = await checkConflict(empresaId, agendamento.inicio, agendamento.fim);
-    if (conflict) throw new Error('Conflito de horário detectado');
+        const db = getFirebaseDB();  // ✅ v9+
+        const agRef = collection(db, 'empresas', empresaId, 'agendamentos');
 
-    const res = await addDoc(agRef, {
-        inicio: agendamento.inicio,
-        fim: agendamento.fim,
-        clienteUid: agendamento.clienteUid || null,
-        servico: agendamento.servico || null,
-        status: 'confirmado',
-        criadoEm: new Date().toISOString(),
-    });
+        const conflict = await checkConflict(empresaId, agendamento.inicio, agendamento.fim);
+        if (conflict) throw new Error('Conflito de horário detectado');
 
-    return { id: res.id, ...agendamento };
+        const res = await addDoc(agRef, {
+            inicio: agendamento.inicio,
+            fim: agendamento.fim,
+            clienteUid: agendamento.clienteUid || null,
+            servico: agendamento.servico || null,
+            status: 'confirmado',
+            criadoEm: new Date().toISOString(),
+        });
+
+        return { id: res.id, ...agendamento };
+    } catch (error) {
+        console.error('Erro ao criar agendamento:', error);
+        throw new Error(`Falha ao criar agendamento: ${error.message}`);
+    }
 }
 

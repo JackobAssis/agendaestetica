@@ -112,28 +112,17 @@ async function carregarNotificacoes() {
         // Por enquanto, we'll show placeholder
     }
 
-    // show loading
-    listaNotificacoes.textContent = '';
-    const loadingEl = document.createElement('div');
-    loadingEl.className = 'loading';
-    loadingEl.textContent = 'Carregando notificações...';
-    listaNotificacoes.appendChild(loadingEl);
+    listaNotificacoes.innerHTML = '<div class="loading">Carregando notificações...</div>';
 
     try {
         if (!empresaId) {
             // Para clientes ou sem empresa, mostrar estado vazio
-            listaNotificacoes.textContent = '';
-            const empty = document.createElement('div');
-            empty.className = 'empty-state';
-            const p = document.createElement('p');
-            p.textContent = 'As notificações aparecerão aqui quando houver atualizações sobre seus agendamentos.';
-            const a = document.createElement('a');
-            a.href = '/';
-            a.className = 'btn-primary';
-            a.textContent = 'Ver Profissionais';
-            empty.appendChild(p);
-            empty.appendChild(a);
-            listaNotificacoes.appendChild(empty);
+            listaNotificacoes.innerHTML = `
+                <div class="empty-state">
+                    <p>As notificações aparecerão aqui quando houver atualizações sobre seus agendamentos.</p>
+                    <a href="/" class="btn-primary">Ver Profissionais</a>
+                </div>
+            `;
             return;
         }
 
@@ -151,11 +140,7 @@ async function carregarNotificacoes() {
         renderNotificacoes();
     } catch (error) {
         console.error('Erro ao carregar notificações:', error);
-        listaNotificacoes.textContent = '';
-        const err = document.createElement('div');
-        err.className = 'error-state';
-        err.textContent = 'Erro ao carregar notificações.';
-        listaNotificacoes.appendChild(err);
+        listaNotificacoes.innerHTML = '<div class="error-state">Erro ao carregar notificações.</div>';
     }
 }
 
@@ -165,62 +150,39 @@ function renderNotificacoes() {
         : notificacoes;
 
     if (filtradas.length === 0) {
-        listaNotificacoes.textContent = '';
-        const emptyState = document.createElement('div');
-        emptyState.className = 'empty-state';
-        const pmsg = document.createElement('p');
-        pmsg.textContent = filtroAtual === 'nao-lidas' ? 'Você não tem notificações não lidas.' : 'Você não tem notificações ainda.';
-        emptyState.appendChild(pmsg);
-        listaNotificacoes.appendChild(emptyState);
+        listaNotificacoes.innerHTML = `
+            <div class="empty-state">
+                <p>${filtroAtual === 'nao-lidas' 
+                    ? 'Você não tem notificações não lidas.' 
+                    : 'Você não tem notificações ainda.'}</p>
+            </div>
+        `;
         return;
     }
-    // render notifications safely
-    listaNotificacoes.textContent = '';
-    filtradas.forEach(notif => {
-        const card = document.createElement('div');
-        card.className = `notificacao-card ${notif.read ? '' : 'unread'}`;
-        card.dataset.id = notif.id;
 
-        const icon = document.createElement('div');
-        icon.className = 'notificacao-icon';
-        icon.textContent = getIconForType(notif.tipo);
+    listaNotificacoes.innerHTML = filtradas.map(notif => `
+        <div class="notificacao-card ${notif.read ? '' : 'unread'}" data-id="${notif.id}">
+            <div class="notificacao-icon">${getIconForType(notif.tipo)}</div>
+            <div class="notificacao-content">
+                <div class="notificacao-header">
+                    <strong>${notif.title || 'Notificação'}</strong>
+                    <span class="notificacao-tempo">${formatDateTime(notif.createdAt)}</span>
+                </div>
+                <p class="notificacao-body">${notif.body || ''}</p>
+            </div>
+            <div class="notificacao-actions">
+                ${!notif.read ? '<span class="badge badge-warning">Nova</span>' : ''}
+            </div>
+        </div>
+    `).join('');
 
-        const content = document.createElement('div');
-        content.className = 'notificacao-content';
-
-        const header = document.createElement('div');
-        header.className = 'notificacao-header';
-        const strong = document.createElement('strong');
-        strong.textContent = notif.title || 'Notificação';
-        const time = document.createElement('span');
-        time.className = 'notificacao-tempo';
-        time.textContent = formatDateTime(notif.createdAt);
-        header.appendChild(strong);
-        header.appendChild(time);
-
-        const body = document.createElement('p');
-        body.className = 'notificacao-body';
-        body.textContent = notif.body || '';
-
-        content.appendChild(header);
-        content.appendChild(body);
-
-        const actions = document.createElement('div');
-        actions.className = 'notificacao-actions';
-        if (!notif.read) {
-            const badge = document.createElement('span');
-            badge.className = 'badge badge-warning';
-            badge.textContent = 'Nova';
-            actions.appendChild(badge);
-        }
-
-        card.appendChild(icon);
-        card.appendChild(content);
-        card.appendChild(actions);
-
-        card.addEventListener('click', () => mostrarDetalhes(notif));
-
-        listaNotificacoes.appendChild(card);
+    // Add click handlers
+    document.querySelectorAll('.notificacao-card').forEach(card => {
+        card.addEventListener('click', () => {
+            const id = card.dataset.id;
+            const notif = notificacoes.find(n => n.id === id);
+            if (notif) mostrarDetalhes(notif);
+        });
     });
 }
 
@@ -228,18 +190,12 @@ function mostrarDetalhes(notif) {
     notifSelecionada = notif;
 
     document.getElementById('modal-titulo').textContent = notif.title || 'Notificação';
-    const modalCorpo = document.getElementById('modal-corpo');
-    modalCorpo.textContent = '';
-    const detalhes = document.createElement('div');
-    detalhes.className = 'notif-detalhes';
-    const pBody = document.createElement('p');
-    pBody.textContent = notif.body || '';
-    const pTempo = document.createElement('p');
-    pTempo.className = 'notif-tempo';
-    pTempo.textContent = `Recebida em ${new Date(notif.createdAt).toLocaleString('pt-BR')}`;
-    detalhes.appendChild(pBody);
-    detalhes.appendChild(pTempo);
-    modalCorpo.appendChild(detalhes);
+    document.getElementById('modal-corpo').innerHTML = `
+        <div class="notif-detalhes">
+            <p>${notif.body || ''}</p>
+            <p class="notif-tempo">Recebida em ${new Date(notif.createdAt).toLocaleString('pt-BR')}</p>
+        </div>
+    `;
 
     // Botão ver agendamento se houver referência
     const btnVer = document.getElementById('btn-ver-agendamento');

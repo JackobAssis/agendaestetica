@@ -204,7 +204,7 @@ async function handleLogin() {
         // Disable button
         const btn = formLogin.querySelector('.submit-btn');
         btn.disabled = true;
-        btn.textContent = 'Entrando...';
+        btn.innerHTML = '<span class="loading-spinner"></span>Entrando...';
         
         if (roleAtual === 'profissional') {
             const senha = document.getElementById('login-senha').value;
@@ -212,7 +212,7 @@ async function handleLogin() {
             if (!senha) {
                 mostrarErro('Senha é obrigatória para profissionais');
                 btn.disabled = false;
-                btn.textContent = 'Entrar';
+                btn.innerHTML = '<span id="login-btn-texto">Entrar</span>';
                 return;
             }
             
@@ -240,7 +240,7 @@ async function handleLogin() {
         
         const btn = formLogin.querySelector('.submit-btn');
         btn.disabled = false;
-        btn.textContent = 'Entrar';
+        btn.innerHTML = '<span id="login-btn-texto">Entrar</span>';
     }
 }
 
@@ -260,7 +260,7 @@ async function handleCadastro() {
         // Disable button
         const btn = formCadastro.querySelector('.submit-btn');
         btn.disabled = true;
-        btn.textContent = 'Criando conta...';
+        btn.innerHTML = '<span class="loading-spinner"></span>Criando conta...';
         
         if (roleAtual === 'profissional') {
             const profissao = document.getElementById('cadastro-profissao').value;
@@ -271,21 +271,21 @@ async function handleCadastro() {
             if (!profissao) {
                 mostrarErro('Profissão é obrigatória');
                 btn.disabled = false;
-                btn.textContent = 'Criar Conta';
+                btn.innerHTML = '<span id="cadastro-btn-texto">Criar Conta</span>';
                 return;
             }
             
             if (!senha || !senhaConfirma) {
                 mostrarErro('Senha e confirmação são obrigatórias');
                 btn.disabled = false;
-                btn.textContent = 'Criar Conta';
+                btn.innerHTML = '<span id="cadastro-btn-texto">Criar Conta</span>';
                 return;
             }
             
             if (senha !== senhaConfirma) {
                 mostrarErro('As senhas não coincidem');
                 btn.disabled = false;
-                btn.textContent = 'Criar Conta';
+                btn.innerHTML = '<span id="cadastro-btn-texto">Criar Conta</span>';
                 return;
             }
             
@@ -312,7 +312,7 @@ async function handleCadastro() {
         
         const btn = formCadastro.querySelector('.submit-btn');
         btn.disabled = false;
-        btn.textContent = 'Criar Conta';
+        btn.innerHTML = '<span id="cadastro-btn-texto">Criar Conta</span>';
     }
 }
 

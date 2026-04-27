@@ -1,144 +1,24 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="AgendaEstética - Perfil">
-  <meta name="theme-color" content="#8b5cf6">
-  <title>AgendaEstética - Perfil</title>
+<div class="page-container">
+  <div class="header">
+    <h1>Perfil</h1>
+  </div>
 
-  <link rel="icon" type="image/svg+xml" href="../assets/images/favicon.svg">
-  <link rel="apple-touch-icon" href="../assets/images/favicon.svg">
+  <section class="card">
+    <h2>Informações</h2>
+    <p id="perfil-nome"></p>
+    <p id="perfil-email"></p>
+  </section>
 
-  <!-- CSS Principal (Design System v2) -->
-  <link rel="stylesheet" href="../styles/main.css">
+  <section class="card">
+    <h2>Plano</h2>
+    <p>Plano atual: <strong id="plano-atual-text">Free</strong></p>
+    <label for="plano-select">Alterar Plano</label>
+    <select id="plano-select">
+      <option value="free">Free</option>
+      <option value="premium">Premium</option>
+    </select>
+    <div style="margin-top:12px;"><button id="btn-change-plan" class="btn">Salvar Plano</button></div>
+  </section>
+
   <link rel="stylesheet" href="../styles/perfil.css">
-</head>
-<body>
-  <div id="app" class="app-shell">
-    <!-- Topbar -->
-    <header class="app-header">
-      <div class="app-brand">
-        <div class="app-brand__icon" aria-hidden>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="24" height="24" rx="6" fill="white" opacity="0.06"/></svg>
-        </div>
-        <div class="app-brand__title">AgendaEstética</div>
-      </div>
-      <div class="app-actions">
-          <button class="icon-btn" id="btn-notifications" title="Notificações">
-            <i data-lucide="bell"></i>
-          </button>
-          <button class="theme-toggle" id="theme-toggle" title="Alternar tema">
-            <i data-lucide="sun"></i>
-          </button>
-      </div>
-    </header>
-
-    <!-- Sidebar (desktop) -->
-    <aside class="app-sidebar">
-      <nav class="app-nav" aria-label="Principal">
-        <a href="/" class="nav-item" data-page="dashboard">
-          <span class="nav-item__icon"><i data-lucide="home"></i></span>
-          <span>Dashboard</span>
-        </a>
-        <a href="../pages/agenda.html" class="nav-item" data-page="agenda">
-          <span class="nav-item__icon"><i data-lucide="calendar"></i></span>
-          <span>Agenda</span>
-        </a>
-        <a href="../pages/agendamentos.html" class="nav-item" data-page="agendamentos">
-          <span class="nav-item__icon"><i data-lucide="list"></i></span>
-          <span>Agendamentos</span>
-        </a>
-        <a href="../pages/clientes.html" class="nav-item" data-page="clientes">
-          <span class="nav-item__icon"><i data-lucide="users"></i></span>
-          <span>Clientes</span>
-        </a>
-      </nav>
-    </aside>
-
-    <!-- Main content -->
-    <main class="app-main">
-      <div class="app-grid">
-
-        <section class="content-section">
-          <header class="page-header">
-            <div class="page-header__content">
-              <h1 class="page-header__title">Perfil</h1>
-            </div>
-          </header>
-        </section>
-
-        <section class="content-section">
-          <div class="card__header"><h2>Informações</h2></div>
-          <div class="card__body">
-            <p id="perfil-nome"></p>
-            <p id="perfil-email"></p>
-            <p id="perfil-endereco"></p>
-          </div>
-        </section>
-
-        <section class="content-section">
-          <div class="card__header"><h2>Link Público</h2></div>
-          <div class="card__body">
-            <label for="perfil-slug">Slug:</label>
-            <input id="perfil-slug" type="text" placeholder="meu-negocio" />
-            <div class="mt-2">
-              <button id="btn-save-slug" class="btn btn--primary">Salvar Slug</button>
-            </div>
-            <p id="slug-link" class="mt-2"></p>
-            <small class="text-muted">O slug será usado em https://agendaestetica.app/p/&lt;slug&gt;</small>
-          </div>
-        </section>
-
-        <section class="content-section">
-          <div class="card__header"><h2>Serviços</h2></div>
-          <div class="card__body">
-            <ul id="services-list" class="mb-4"></ul>
-            <div class="form-group">
-              <label for="new-service-name">Nome</label>
-              <input id="new-service-name" class="form-input" type="text" placeholder="Ex: Corte de Cabelo" />
-            </div>
-            <div class="form-group">
-              <label for="new-service-price">Preço (R$)</label>
-              <input id="new-service-price" class="form-input" type="number" step="0.01" placeholder="0.00" />
-            </div>
-            <div class="form-group">
-              <label for="new-service-duration">Duração (minutos)</label>
-              <input id="new-service-duration" class="form-input" type="number" placeholder="30" />
-            </div>
-            <button id="btn-add-service" class="btn btn--primary mt-2">Adicionar Serviço</button>
-          </div>
-        </section>
-
-        <section class="content-section">
-          <div class="card__header"><h2>Plano</h2></div>
-          <div class="card__body">
-            <p>Plano atual: <strong id="plano-atual-text">Free</strong></p>
-            <label for="plano-select">Alterar Plano</label>
-            <select id="plano-select">
-              <option value="free">Free</option>
-              <option value="premium">Premium</option>
-            </select>
-            <div class="mt-4"><button id="btn-change-plan" class="btn btn--primary">Salvar Plano</button></div>
-          </div>
-        </section>
-
-      </div> <!-- .app-grid -->
-    </main>
-
-    <!-- Bottom navigation (mobile) -->
-    <div class="bottom-nav" role="navigation" aria-label="Navegação inferior">
-      <button class="nav-btn">Dashboard</button>
-      <button class="nav-btn">Agenda</button>
-      <button class="nav-btn active">Perfil</button>
-    </div>
-
-  </div> <!-- #app .app-shell -->
-
-  <!-- Lucide Icons -->
-  <script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.js"></script>
-  <script>lucide.createIcons();</script>
-  <script src="../scripts/ui-shell.js"></script>
-  <script type="module" src="../pages/perfil.js"></script>
-</body>
-</html>
+</div>

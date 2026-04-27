@@ -54,46 +54,23 @@ function formatDateTime(isoString) {
     });
 }
 
-function createAgendamentoElement(agendamento) {
+function renderAgendamento(agendamento) {
     const statusClass = getStatusBadgeClass(agendamento.status);
     const dataFormatted = formatDateTime(agendamento.inicio);
-
-    const card = document.createElement('div');
-    card.className = 'agendamento-card';
-    card.dataset.id = agendamento.id;
-
-    const header = document.createElement('div');
-    header.className = 'agendamento-header';
-    const badge = document.createElement('span');
-    badge.className = `badge ${statusClass}`;
-    badge.textContent = agendamento.status;
-    const dateSpan = document.createElement('span');
-    dateSpan.className = 'agendamento-data';
-    dateSpan.textContent = dataFormatted;
-    header.appendChild(badge);
-    header.appendChild(dateSpan);
-
-    const info = document.createElement('div');
-    info.className = 'agendamento-info';
-    const strong = document.createElement('strong');
-    strong.textContent = agendamento.servico || 'Serviço';
-    const p = document.createElement('p');
-    p.className = 'text-secondary';
-    p.textContent = agendamento.nomeCliente || 'Cliente';
-    info.appendChild(strong);
-    info.appendChild(p);
-
-    const btn = document.createElement('button');
-    btn.className = 'btn-details';
-    btn.type = 'button';
-    btn.textContent = 'Ver Detalhes';
-    btn.addEventListener('click', () => window.mostrarDetalhes(agendamento.id));
-
-    card.appendChild(header);
-    card.appendChild(info);
-    card.appendChild(btn);
-
-    return card;
+    
+    return `
+        <div class="agendamento-card" data-id="${agendamento.id}">
+            <div class="agendamento-header">
+                <span class="badge ${statusClass}">${agendamento.status}</span>
+                <span class="agendamento-data">${dataFormatted}</span>
+            </div>
+            <div class="agendamento-info">
+                <strong>${agendamento.servico || 'Serviço'}</strong>
+                <p class="text-secondary">${agendamento.nomeCliente || 'Cliente'}</p>
+            </div>
+            <button class="btn-details" onclick="window.mostrarDetalhes('${agendamento.id}')">Ver Detalhes</button>
+        </div>
+    `;
 }
 
 async function carregarAgendamentos() {
@@ -103,10 +80,8 @@ async function carregarAgendamentos() {
         return;
     }
 
-    // show loading
-    listaFuturos.textContent = '';
-    const load = document.createElement('div'); load.className = 'loading'; load.textContent = 'Carregando...'; listaFuturos.appendChild(load);
-    listaHistorico.textContent = '';
+    listaFuturos.innerHTML = '<div class="loading">Carregando...</div>';
+    listaHistorico.innerHTML = '';
 
     try {
         agendamentos = await listAgendamentosCliente(usuario.uid);
@@ -116,40 +91,22 @@ async function carregarAgendamentos() {
         const historico = agendamentos.filter(a => new Date(a.inicio) < agora || a.status === 'cancelado');
 
         // Render futuros
-        listaFuturos.textContent = '';
         if (futuros.length === 0) {
-            const empty = document.createElement('div');
-            empty.className = 'empty-state';
-            const p = document.createElement('p');
-            p.textContent = 'Você não tem agendamentos próximos.';
-            const a = document.createElement('a');
-            a.href = '/';
-            a.className = 'btn-primary';
-            a.textContent = 'Ver Profissionais';
-            empty.appendChild(p);
-            empty.appendChild(a);
-            listaFuturos.appendChild(empty);
+            listaFuturos.innerHTML = '<div class="empty-state"><p>Você não tem agendamentos próximos.</p><a href="/" class="btn-primary">Ver Profissionais</a></div>';
         } else {
-            futuros.forEach(f => listaFuturos.appendChild(createAgendamentoElement(f)));
+            listaFuturos.innerHTML = futuros.map(renderAgendamento).join('');
         }
 
         // Render histórico
-        listaHistorico.textContent = '';
         if (historico.length === 0) {
-            const empty = document.createElement('div');
-            empty.className = 'empty-state';
-            const p = document.createElement('p');
-            p.textContent = 'Nenhum histórico de agendamentos.';
-            empty.appendChild(p);
-            listaHistorico.appendChild(empty);
+            listaHistorico.innerHTML = '<div class="empty-state"><p>Nenhum histórico de agendamentos.</p></div>';
         } else {
-            historico.forEach(h => listaHistorico.appendChild(createAgendamentoElement(h)));
+            listaHistorico.innerHTML = historico.map(renderAgendamento).join('');
         }
 
     } catch (error) {
         console.error('Erro ao carregar agendamentos:', error);
-        listaFuturos.textContent = '';
-        const err = document.createElement('div'); err.className = 'error-state'; err.textContent = 'Erro ao carregar agendamentos. Tente novamente.'; listaFuturos.appendChild(err);
+        listaFuturos.innerHTML = '<div class="error-state">Erro ao carregar agendamentos. Tente novamente.</div>';
     }
 }
 
@@ -160,46 +117,40 @@ window.mostrarDetalhes = function(agendamentoId) {
     agendamentoSelecionado = agendamento;
     
     const statusClass = getStatusBadgeClass(agendamento.status);
-    const container = document.createElement('div');
-    container.className = 'detalhes-grid';
+    const conteudo = `
+        <div class="detalhes-grid">
+            <div class="detalhe-item">
+                <label>Status</label>
+                <span class="badge ${statusClass}">${agendamento.status}</span>
+            </div>
+            <div class="detalhe-item">
+                <label>Data e Hora</label>
+                <span>${formatDateTime(agendamento.inicio)}</span>
+            </div>
+            <div class="detalhe-item">
+                <label>Serviço</label>
+                <span>${agendamento.servico || 'Não especificado'}</span>
+            </div>
+            <div class="detalhe-item">
+                <label>Cliente</label>
+                <span>${agendamento.nomeCliente}</span>
+            </div>
+            ${agendamento.telefone ? `
+            <div class="detalhe-item">
+                <label>Telefone</label>
+                <span>${agendamento.telefone}</span>
+            </div>
+            ` : ''}
+            ${agendamento.notas ? `
+            <div class="detalhe-item full-width">
+                <label>Observações</label>
+                <span>${agendamento.notas}</span>
+            </div>
+            ` : ''}
+        </div>
+    `;
 
-    const makeItem = (labelText, contentEl) => {
-        const item = document.createElement('div');
-        item.className = 'detalhe-item';
-        const label = document.createElement('label'); label.textContent = labelText;
-        item.appendChild(label);
-        item.appendChild(contentEl);
-        return item;
-    };
-
-    const statusSpan = document.createElement('span'); statusSpan.className = `badge ${statusClass}`; statusSpan.textContent = agendamento.status;
-    container.appendChild(makeItem('Status', statusSpan));
-
-    const dataSpan = document.createElement('span'); dataSpan.textContent = formatDateTime(agendamento.inicio);
-    container.appendChild(makeItem('Data e Hora', dataSpan));
-
-    const servSpan = document.createElement('span'); servSpan.textContent = agendamento.servico || 'Não especificado';
-    container.appendChild(makeItem('Serviço', servSpan));
-
-    const clienteSpan = document.createElement('span'); clienteSpan.textContent = agendamento.nomeCliente || '';
-    container.appendChild(makeItem('Cliente', clienteSpan));
-
-    if (agendamento.telefone) {
-        const telSpan = document.createElement('span'); telSpan.textContent = agendamento.telefone;
-        container.appendChild(makeItem('Telefone', telSpan));
-    }
-
-    if (agendamento.notas) {
-        const notasItem = document.createElement('div'); notasItem.className = 'detalhe-item full-width';
-        const label = document.createElement('label'); label.textContent = 'Observações';
-        const spanNotas = document.createElement('span'); spanNotas.textContent = agendamento.notas;
-        notasItem.appendChild(label); notasItem.appendChild(spanNotas);
-        container.appendChild(notasItem);
-    }
-
-    const detalheConteudo = document.getElementById('detalhes-conteudo');
-    detalheConteudo.textContent = '';
-    detalheConteudo.appendChild(container);
+    document.getElementById('detalhes-conteudo').innerHTML = conteudo;
     modalDetalhes.classList.remove('hidden');
 
     // Mostrar/esconder botões baseado no status
@@ -231,9 +182,7 @@ function abrirModalTroca() {
     tomorrow.setDate(tomorrow.getDate() + 1);
     document.getElementById('troca-data').min = tomorrow.toISOString().split('T')[0];
     document.getElementById('troca-data').value = '';
-    const trocaHoraEl = document.getElementById('troca-hora');
-    trocaHoraEl.textContent = '';
-    const optDefault = document.createElement('option'); optDefault.value = ''; optDefault.textContent = 'Selecione uma data primeiro'; trocaHoraEl.appendChild(optDefault);
+    document.getElementById('troca-hora').innerHTML = '<option value="">Selecione uma data primeiro</option>';
     document.getElementById('troca-motivo').value = '';
 
     modalDetalhes.classList.add('hidden');
@@ -249,8 +198,7 @@ async function carregarSlotsTroca() {
     const horaSelect = document.getElementById('troca-hora');
     
     if (!data) {
-        horaSelect.textContent = '';
-        const opt = document.createElement('option'); opt.value = ''; opt.textContent = 'Selecione uma data primeiro'; horaSelect.appendChild(opt);
+        horaSelect.innerHTML = '<option value="">Selecione uma data primeiro</option>';
         return;
     }
 
@@ -264,20 +212,19 @@ async function carregarSlotsTroca() {
         const slots = await generateSlotsForDate(usuario.empresaId, data);
         
         if (slots.length === 0) {
-            horaSelect.textContent = '';
-            const optNone = document.createElement('option'); optNone.value = ''; optNone.textContent = 'Nenhum horário disponível'; horaSelect.appendChild(optNone);
+            horaSelect.innerHTML = '<option value="">Nenhum horário disponível</option>';
             return;
         }
 
-        horaSelect.textContent = '';
-        slots.forEach(slot => {
-            const opt = document.createElement('option'); opt.value = slot.inicioISO; opt.textContent = new Date(slot.inicioISO).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }); horaSelect.appendChild(opt);
-        });
+        horaSelect.innerHTML = slots.map(slot => {
+            const dt = new Date(slot.inicioISO);
+            const hora = dt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            return `<option value="${slot.inicioISO}">${hora}</option>`;
+        }).join('');
         
-        } catch (error) {
+    } catch (error) {
         console.error('Erro ao carregar slots:', error);
-        horaSelect.textContent = '';
-        const optErr = document.createElement('option'); optErr.value = ''; optErr.textContent = 'Erro ao carregar horários'; horaSelect.appendChild(optErr);
+        horaSelect.innerHTML = '<option value="">Erro ao carregar horários</option>';
     }
 }
 

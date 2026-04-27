@@ -48,13 +48,15 @@ export async function temFeature(feature) {
     try {
         const plano = await obterPlano();
         
-        const features = {
+    const features = {
             free: [
                 'login',
                 'agenda_basica',
                 'agendamentos_basico',
                 'clientes_basico',
                 'tema_padrao',
+                'pagina_publica',
+                'basic_reports',
             ],
             premium: [
                 'login',
@@ -63,10 +65,17 @@ export async function temFeature(feature) {
                 'clientes_basico',
                 'tema_padrao',
                 'tema_avancado',
+                'customTheme',
+                'backgroundImage',
+                'courses',
+                'rewards',
+                'advancedReports',
                 'notificacoes_email',
                 'relatorios',
                 'integracao_agenda',
                 'bloqueios_customizados',
+                'pagina_publica',
+                'basic_reports',
             ],
         };
         

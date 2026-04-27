@@ -51,12 +51,7 @@ async function carregarSolicitacoes() {
         return;
     }
 
-    // show loading
-    listaSolicitacoes.textContent = '';
-    const loadingEl = document.createElement('div');
-    loadingEl.className = 'loading';
-    loadingEl.textContent = 'Carregando solicitações...';
-    listaSolicitacoes.appendChild(loadingEl);
+    listaSolicitacoes.innerHTML = '<div class="loading">Carregando solicitações...</div>';
 
     try {
         // Carregar todos os agendamentos
@@ -68,11 +63,7 @@ async function carregarSolicitacoes() {
         renderSolicitacoes();
     } catch (error) {
         console.error('Erro ao carregar solicitações:', error);
-        listaSolicitacoes.textContent = '';
-        const err = document.createElement('div');
-        err.className = 'error-state';
-        err.textContent = 'Erro ao carregar solicitações. Tente novamente.';
-        listaSolicitacoes.appendChild(err);
+        listaSolicitacoes.innerHTML = '<div class="error-state">Erro ao carregar solicitações. Tente novamente.</div>';
     }
 }
 
@@ -82,48 +73,32 @@ function renderSolicitacoes() {
         : solicitacoes;
 
     if (filtradas.length === 0) {
-        listaSolicitacoes.textContent = '';
-        const empty = document.createElement('div');
-        empty.className = 'empty-state';
-        const p = document.createElement('p');
-        p.textContent = filtroAtual === 'pendentes' ? 'Não há solicitações de troca pendentes.' : 'Nenhuma solicitação encontrada.';
-        empty.appendChild(p);
-        listaSolicitacoes.appendChild(empty);
+        listaSolicitacoes.innerHTML = `
+            <div class="empty-state">
+                <p>${filtroAtual === 'pendentes' 
+                    ? 'Não há solicitações de troca pendentes.' 
+                    : 'Nenhuma solicitação encontrada.'}</p>
+            </div>
+        `;
         return;
     }
 
-    // Render list safely
-    listaSolicitacoes.textContent = '';
-    filtradas.forEach(agendamento => {
-        const card = document.createElement('div');
-        card.className = 'solicitacao-card';
-        card.dataset.id = agendamento.id;
-
-        const header = document.createElement('div');
-        header.className = 'solicitacao-header';
-        const badge = document.createElement('span'); badge.className = 'badge badge-warning'; badge.textContent = 'Troca Pendente';
-        const dateSpan = document.createElement('span'); dateSpan.className = 'solicitacao-data'; dateSpan.textContent = formatDateTime(agendamento.inicio);
-        header.appendChild(badge); header.appendChild(dateSpan);
-
-        const info = document.createElement('div');
-        info.className = 'solicitacao-info';
-        const strong = document.createElement('strong'); strong.textContent = agendamento.nomeCliente || 'Cliente';
-        const pServ = document.createElement('p'); pServ.className = 'text-secondary'; pServ.textContent = agendamento.servico || 'Serviço';
-        const pAg = document.createElement('p'); pAg.className = 'text-secondary'; pAg.textContent = `Agendamento: ${formatDateTime(agendamento.inicio)}`;
-        info.appendChild(strong); info.appendChild(pServ); info.appendChild(pAg);
-
-        const btn = document.createElement('button');
-        btn.className = 'btn-details';
-        btn.type = 'button';
-        btn.textContent = 'Ver Detalhes';
-        btn.addEventListener('click', () => window.mostrarDetalhes(agendamento.id));
-
-        card.appendChild(header);
-        card.appendChild(info);
-        card.appendChild(btn);
-
-        listaSolicitacoes.appendChild(card);
-    });
+    // Para cada agendamento com troca, precisamos buscar as sub-coleções
+    // Isso é uma simplificação - em produção usaria Cloud Function
+    listaSolicitacoes.innerHTML = filtradas.map(agendamento => `
+        <div class="solicitacao-card" data-id="${agendamento.id}">
+            <div class="solicitacao-header">
+                <span class="badge badge-warning">Troca Pendente</span>
+                <span class="solicitacao-data">${formatDateTime(agendamento.inicio)}</span>
+            </div>
+            <div class="solicitacao-info">
+                <strong>${agendamento.nomeCliente || 'Cliente'}</strong>
+                <p class="text-secondary">${agendamento.servico || 'Serviço'}</p>
+                <p class="text-secondary">Agendamento: ${formatDateTime(agendamento.inicio)}</p>
+            </div>
+            <button class="btn-details" onclick="window.mostrarDetalhes('${agendamento.id}')">Ver Detalhes</button>
+        </div>
+    `).join('');
 }
 
 // Simplificado: mostrar detalhes sem sub-coleção
@@ -164,45 +139,12 @@ window.mostrarDetalhes = function(agendamentoId) {
         </p>
     `;
 
-    const detalhesEl = document.getElementById('detalhes-conteudo');
-    detalhesEl.textContent = '';
-    const grid = document.createElement('div'); grid.className = 'detalhes-grid';
-
-    const makeItem = (labelText, valueText) => {
-        const item = document.createElement('div'); item.className = 'detalhe-item';
-        const label = document.createElement('label'); label.textContent = labelText;
-        const span = document.createElement('span'); span.textContent = valueText;
-        item.appendChild(label); item.appendChild(span);
-        return item;
-    };
-
-    grid.appendChild(makeItem('Cliente', agendamento.nomeCliente || 'Não especificado'));
-    grid.appendChild(makeItem('Telefone', agendamento.telefone || 'Não informado'));
-    grid.appendChild(makeItem('Data/Hora Atual', formatDateTime(agendamento.inicio)));
-    grid.appendChild(makeItem('Serviço', agendamento.servico || 'Não especificado'));
-    if (agendamento.notas) {
-        const notas = document.createElement('div'); notas.className = 'detalhe-item full-width';
-        const label = document.createElement('label'); label.textContent = 'Observações do Cliente';
-        const span = document.createElement('span'); span.textContent = agendamento.notas;
-        notas.appendChild(label); notas.appendChild(span); grid.appendChild(notas);
-    }
-
-    detalhesEl.appendChild(grid);
-
-    const note = document.createElement('p'); note.className = 'text-info';
-    const strong = document.createElement('strong'); strong.textContent = 'Nota:';
-    note.appendChild(strong);
-    note.appendChild(document.createTextNode(' Para ver os detalhes da troca (nova data/hora), é necessário implementar a busca na sub-coleção \'remarcacoes\'.'));
-    detalhesEl.appendChild(note);
-
-    const modalActions = document.getElementById('modal-actions');
-    modalActions.textContent = '';
-    const btnRejeitar = document.createElement('button'); btnRejeitar.className = 'btn-secondary'; btnRejeitar.type = 'button'; btnRejeitar.textContent = 'Rejeitar';
-    btnRejeitar.addEventListener('click', () => window.rejeitarSolicitacao(agendamento.id));
-    const btnAceitar = document.createElement('button'); btnAceitar.className = 'btn-primary'; btnAceitar.type = 'button'; btnAceitar.textContent = 'Aceitar';
-    btnAceitar.addEventListener('click', () => window.aceitarSolicitacao(agendamento.id));
-    modalActions.appendChild(btnRejeitar);
-    modalActions.appendChild(btnAceitar);
+    document.getElementById('detalhes-conteudo').innerHTML = conteudo;
+    
+    document.getElementById('modal-actions').innerHTML = `
+        <button class="btn-secondary" onclick="window.rejeitarSolicitacao('${agendamento.id}')">Rejeitar</button>
+        <button class="btn-primary" onclick="window.aceitarSolicitacao('${agendamento.id}')">Aceitar</button>
+    `;
 
     modalDetalhes.classList.remove('hidden');
 };

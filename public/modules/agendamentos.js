@@ -117,6 +117,20 @@ export async function cancelarAgendamento(empresaId, agendamentoId, motivo) {
 }
 
 /**
+ * Marcar agendamento como concluído
+ */
+export async function concluirAgendamento(empresaId, agendamentoId) {
+    if (!empresaId || !agendamentoId) throw new Error('empresaId e agendamentoId obrigatórios');
+    const db = getFirebaseDB();
+    const agDocRef = doc(db, 'empresas', empresaId, 'agendamentos', agendamentoId);
+    await updateDoc(agDocRef, {
+        status: 'concluido',
+        concluidoEm: new Date().toISOString()
+    });
+    return { id: agendamentoId, status: 'concluido' };
+}
+
+/**
  * Solicitar remarcação (cliente)
  */
 export async function solicitarRemarcacao(empresaId, agendamentoId, novoInicioISO, novoFimISO, motivo) {
@@ -200,6 +214,25 @@ export async function rejeitarRemarcacao(empresaId, agendamentoId, remarcacaoId,
 }
 
 /**
+ * Buscar remarcações pendentes de um agendamento
+ */
+export async function buscarRemarcacoesPendentes(empresaId, agendamentoId) {
+    if (!empresaId || !agendamentoId) throw new Error('empresaId e agendamentoId obrigatórios');
+
+    const db = getFirebaseDB();
+    const remRef = collection(db, 'empresas', empresaId, 'agendamentos', agendamentoId, 'remarcacoes');
+    const q = query(remRef, where('status', '==', 'pendente'), orderBy('criadoEm', 'asc'));
+    const snap = await getDocs(q);
+
+    return snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+}
+
+export async function buscarRemarcacaoPendente(empresaId, agendamentoId) {
+    const remarcacoes = await buscarRemarcacoesPendentes(empresaId, agendamentoId);
+    return remarcacoes.length > 0 ? remarcacoes[0] : null;
+}
+
+/**
  * Listar agendamentos da empresa
  */
 export async function listAgendamentosEmpresa(empresaId, opts = {}) {
@@ -227,8 +260,9 @@ export async function listAgendamentosCliente(clienteUid) {
     // Approach 1: Try collectionGroup query (requires composite index)
     // This is the most efficient but requires Firestore composite index
     try {
-        // Using collectionGroup requires importing from firebase
-        const { collectionGroup } = await import('../modules/firebase.js');
+        // Usar collectionGroup para buscar em todas as subcoleções 'agendamentos'
+        // Nota: Isso requer um índice composite no Firestore
+        const { getDocs, query, where, orderBy, collectionGroup } = await import('../modules/firebase.js');
         
         const q = query(
             collectionGroup(db, 'agendamentos'),
@@ -252,6 +286,8 @@ export async function listAgendamentosCliente(clienteUid) {
     // Approach 2: Fallback - buscar empresas primeiro, depois agendamentos
     // Este approach funciona sem índice composite
     try {
+        const { getDocs, query, where, collection, doc, getDoc } = await import('../modules/firebase.js');
+        
         // Buscar dados do cliente para obter empresas vinculadas
         const clienteDoc = await getDoc(doc(db, 'usuarios', clienteUid));
         let empresas = [];
@@ -269,9 +305,8 @@ export async function listAgendamentosCliente(clienteUid) {
             empresas = empresasSnap.docs.map(d => d.id);
         }
         
-        // Buscar agendamentos de cada empresa
-        const todosAgendamentos = [];
-        for (const empId of empresas) {
+        // Buscar agendamentos de cada empresa em paralelo
+        const promises = empresas.map(async (empId) => {
             const agendamentosRef = collection(db, 'empresas', empId, 'agendamentos');
             const q = query(
                 agendamentosRef,
@@ -279,15 +314,16 @@ export async function listAgendamentosCliente(clienteUid) {
             );
             
             const snap = await getDocs(q);
-            for (const doc of snap.docs) {
-                todosAgendamentos.push({
-                    id: doc.id,
-                    ...doc.data(),
-                    refPath: doc.ref.path,
-                    empresaId: empId
-                });
-            }
-        }
+            return snap.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data(),
+                refPath: doc.ref.path,
+                empresaId: empId
+            }));
+        });
+        
+        const resultados = await Promise.all(promises);
+        const todosAgendamentos = resultados.flat();
         
         // Ordenar por data
         return todosAgendamentos.sort((a, b) => 
