@@ -5,19 +5,24 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>AgendaEstética - Agenda</title>
   <link rel="stylesheet" href="../styles/global.css">
+  <link rel="stylesheet" href="../styles/theme.css">
   <link rel="stylesheet" href="../styles/agenda.css">
 </head>
 <body>
   <main class="agenda-container">
     <div class="agenda-card">
-      <header>
-        <h1>Configurar Agenda</h1>
-        <p class="text-secondary">Defina dias, horário de trabalho e duração dos slots.</p>
+      <header class="page-header">
+        <div>
+          <p class="eyebrow">Agenda</p>
+          <h1>Configurar Agenda</h1>
+          <p class="text-secondary">Defina dias, horário de trabalho e duração dos seus slots com clareza.</p>
+        </div>
       </header>
 
       <form id="form-agenda" class="agenda-form">
         <fieldset>
-          <legend>Dias e Horários</legend>
+          <legend>Disponibilidade</legend>
+
           <div class="dias-checkboxes">
             <label><input type="checkbox" name="dias" value="mon" /> Seg</label>
             <label><input type="checkbox" name="dias" value="tue" /> Ter</label>
@@ -28,47 +33,73 @@
             <label><input type="checkbox" name="dias" value="sun" /> Dom</label>
           </div>
 
-          <label for="hora-inicio">Hora Início</label>
-          <input id="hora-inicio" name="horaInicio" type="time" value="09:00" required />
-
-          <label for="hora-fim">Hora Fim</label>
-          <input id="hora-fim" name="horaFim" type="time" value="18:00" required />
-
-          <label for="duracao-slot">Duração do Slot (min)</label>
-          <input id="duracao-slot" name="duracaoSlot" type="number" min="5" max="240" value="30" required />
+          <div class="field-row">
+            <div class="field-group">
+              <label for="hora-inicio">Hora Início</label>
+              <input id="hora-inicio" name="horaInicio" type="time" value="09:00" required />
+            </div>
+            <div class="field-group">
+              <label for="hora-fim">Hora Fim</label>
+              <input id="hora-fim" name="horaFim" type="time" value="18:00" required />
+            </div>
+            <div class="field-group">
+              <label for="duracao-slot">Duração do Slot</label>
+              <input id="duracao-slot" name="duracaoSlot" type="number" min="5" max="240" value="30" required />
+            </div>
+          </div>
         </fieldset>
 
         <div class="form-actions">
           <button type="submit" class="submit-btn">Salvar Configuração</button>
         </div>
 
-        <div id="agenda-mensagem" class="hidden" role="status"></div>
+        <div id="agenda-mensagem" class="message-box hidden" role="status"></div>
       </form>
 
       <section class="bloqueios-section">
-        <h2>Bloqueios</h2>
+        <div class="section-header">
+          <div>
+            <p class="eyebrow">Bloqueios</p>
+            <h2>Horários fechados</h2>
+          </div>
+        </div>
+
         <form id="form-bloqueio" class="bloqueio-form">
-          <label for="block-inicio">Início (data/hora)</label>
-          <input id="block-inicio" type="datetime-local" required />
-          <label for="block-fim">Fim (data/hora)</label>
-          <input id="block-fim" type="datetime-local" required />
+          <div class="field-row">
+            <div class="field-group">
+              <label for="block-inicio">Início</label>
+              <input id="block-inicio" type="datetime-local" required />
+            </div>
+            <div class="field-group">
+              <label for="block-fim">Fim</label>
+              <input id="block-fim" type="datetime-local" required />
+            </div>
+          </div>
+
           <label for="block-motivo">Motivo</label>
           <input id="block-motivo" type="text" placeholder="Ex: Férias, horário fechado" />
+
           <div class="form-actions">
             <button type="submit" class="submit-btn">Criar Bloqueio</button>
           </div>
-          <div id="bloqueio-msg" class="hidden"></div>
+          <div id="bloqueio-msg" class="message-box hidden"></div>
         </form>
 
         <div class="slots-preview">
-          <h3>Gerar Slots</h3>
+          <div class="section-header">
+            <div>
+              <p class="eyebrow">Visualizar</p>
+              <h2>Slots disponíveis</h2>
+            </div>
+          </div>
           <label for="date-preview">Data</label>
-          <input id="date-preview" type="date" />
-          <button id="btn-gerar" class="submit-btn">Gerar Slots Disponíveis</button>
-          <div id="slots-container"></div>
+          <div class="preview-row">
+            <input id="date-preview" type="date" />
+            <button id="btn-gerar" class="submit-btn">Gerar Slots</button>
+          </div>
+          <div id="slots-container" class="slots-container"></div>
         </div>
       </section>
-
     </div>
   </main>
 

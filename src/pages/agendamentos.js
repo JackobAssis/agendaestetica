@@ -5,99 +5,136 @@ const lista = document.getElementById('lista-agendamentos');
 const btnFilter = document.getElementById('btn-filter');
 const dateStart = document.getElementById('filter-date-start');
 const dateEnd = document.getElementById('filter-date-end');
+const countBadge = document.querySelector('.count-badge');
 
-function formatDate(iso){
+function formatDate(iso) {
   const d = new Date(iso);
-  return `${d.toLocaleDateString()} ${d.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}`;
+  return `${d.toLocaleDateString('pt-BR')} ${d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
 }
 
-function buildCard(item){
-  const div = document.createElement('div');
+function buildCard(item) {
+  const status = (item.status || 'pendente').toLowerCase();
+  const statusLabel = status.charAt(0).toUpperCase() + status.slice(1);
+  const div = document.createElement('article');
   div.className = 'agendamento-item';
   div.innerHTML = `
     <div class="meta">
       <strong>${item.nomeCliente || item.clienteUid || 'Cliente'}</strong>
-      <span class="text-secondary">${item.servico || ''}</span>
+      <span class="text-secondary">${item.servico || 'Serviço não informado'}</span>
+      <span class="text-secondary">${item.local || item.sala || 'Atendimento presencial'}</span>
     </div>
-    <div class="time">${formatDate(item.inicio)} - ${formatDate(item.fim)}</div>
-    <div class="status">Status: <strong>${item.status}</strong></div>
+    <div class="time">${formatDate(item.inicio)} · ${formatDate(item.fim)}</div>
+    <div>
+      <span class="status-badge status-${status}">${statusLabel}</span>
+    </div>
     <div class="actions">
-      ${item.status === 'solicitado' ? '<button class="btn-confirm">Confirmar</button>' : ''}
-      ${item.status !== 'cancelado' ? '<button class="btn-cancel">Cancelar</button>' : ''}
+      ${status === 'solicitado' ? '<button class="btn-confirm">Confirmar</button>' : ''}
+      ${status !== 'cancelado' ? '<button class="btn-cancel">Cancelar</button>' : ''}
     </div>
   `;
 
-  // Attach handlers
-  if (item.status === 'solicitado'){
-    const b = div.querySelector('.btn-confirm');
-    b.addEventListener('click', async ()=>{
-      try{
-        b.disabled = true; b.textContent = 'Confirmando...';
-        const res = await confirmarAgendamento(obterUsuarioAtual().empresaId, item.id);
+  const confirmBtn = div.querySelector('.btn-confirm');
+  if (confirmBtn) {
+    confirmBtn.addEventListener('click', async () => {
+      confirmBtn.disabled = true;
+      confirmBtn.textContent = 'Confirmando...';
+      try {
+        await confirmarAgendamento(obterUsuarioAtual().empresaId, item.id);
         showToast('Agendamento confirmado', 'success');
-        // update UI
-        const statusEl = div.querySelector('.status');
-        if (statusEl) statusEl.innerHTML = 'Status: <strong>confirmado</strong>';
-        b.remove();
-        // optionally reload after short delay to refresh list
-        setTimeout(()=> window.location.reload(), 900);
-      }catch(err){
+        confirmBtn.remove();
+        const badge = div.querySelector('.status-badge');
+        if (badge) {
+          badge.textContent = 'Confirmado';
+          badge.className = 'status-badge status-confirmado';
+        }
+      } catch (err) {
         console.error('Erro confirmar', err);
         showToast(err.message || 'Erro ao confirmar', 'error');
-        b.disabled=false; b.textContent='Confirmar';
+        confirmBtn.disabled = false;
+        confirmBtn.textContent = 'Confirmar';
       }
     });
   }
 
-  const bc = div.querySelector('.btn-cancel');
-  if (bc){
-    bc.addEventListener('click', async ()=>{
-      if(!confirm('Confirmar cancelamento?')) return;
-      try{
-        bc.disabled = true; bc.textContent = 'Cancelando...';
+  const cancelBtn = div.querySelector('.btn-cancel');
+  if (cancelBtn) {
+    cancelBtn.addEventListener('click', async () => {
+      if (!confirm('Confirmar cancelamento?')) return;
+      cancelBtn.disabled = true;
+      cancelBtn.textContent = 'Cancelando...';
+      try {
         await cancelarAgendamento(obterUsuarioAtual().empresaId, item.id, 'Cancelado pelo profissional');
         window.location.reload();
-      }catch(err){ alert(err.message || 'Erro ao cancelar'); bc.disabled=false; bc.textContent='Cancelar'; }
+      } catch (err) {
+        alert(err.message || 'Erro ao cancelar');
+        cancelBtn.disabled = false;
+        cancelBtn.textContent = 'Cancelar';
+      }
     });
   }
 
   return div;
 }
 
-function showToast(text, type='info'){
+function showToast(text, type = 'info') {
   let t = document.getElementById('global-toast');
-  if(!t){
-    t = document.createElement('div'); t.id = 'global-toast';
-    t.style.position = 'fixed'; t.style.right='16px'; t.style.bottom='16px'; t.style.padding='12px 16px'; t.style.borderRadius='8px'; t.style.boxShadow='0 2px 8px rgba(0,0,0,0.12)'; t.style.zIndex=9999; document.body.appendChild(t);
+  if (!t) {
+    t = document.createElement('div');
+    t.id = 'global-toast';
+    t.style.position = 'fixed';
+    t.style.right = '16px';
+    t.style.bottom = '16px';
+    t.style.padding = '12px 16px';
+    t.style.borderRadius = '12px';
+    t.style.boxShadow = '0 2px 8px rgba(0,0,0,0.12)';
+    t.style.zIndex = 9999;
+    document.body.appendChild(t);
   }
   t.textContent = text;
   t.style.background = type === 'success' ? '#e6ffed' : type === 'error' ? '#ffe6e6' : '#eef2ff';
   t.style.color = '#111';
   t.style.display = 'block';
-  setTimeout(()=>{ t.style.display='none'; }, 3000);
+  setTimeout(() => {
+    t.style.display = 'none';
+  }, 3000);
 }
 
-async function carregarLista(){
+async function carregarLista() {
   lista.innerHTML = '';
-  try{
+  try {
     const usuario = obterUsuarioAtual();
-    if(!usuario || !usuario.empresaId){ window.location.href = '/login'; return; }
+    if (!usuario || !usuario.empresaId) {
+      window.location.href = '/login';
+      return;
+    }
 
     const opts = {};
-    if(dateStart.value && dateEnd.value){
+    if (dateStart.value && dateEnd.value) {
       opts.start = new Date(dateStart.value).toISOString();
       opts.end = new Date(dateEnd.value).toISOString();
     }
 
     const ags = await listAgendamentosEmpresa(usuario.empresaId, opts);
-    if(!ags.length){ lista.innerHTML = '<p class="text-secondary">Nenhum agendamento encontrado</p>'; return; }
+    countBadge.textContent = `${ags.length} item${ags.length === 1 ? '' : 's'}`;
 
-    ags.forEach(a => {
+    if (!ags.length) {
+      lista.innerHTML = '<div class="empty-state">Nenhum agendamento encontrado para esse período.</div>';
+      return;
+    }
+
+    ags.forEach((a) => {
       lista.appendChild(buildCard(a));
     });
-  }catch(err){ console.error('Erro carregar agendamentos', err); lista.innerHTML = '<p class="error-message">Erro ao carregar agendamentos</p>'; }
+  } catch (err) {
+    console.error('Erro carregar agendamentos', err);
+    lista.innerHTML = '<div class="empty-state">Erro ao carregar os agendamentos.</div>';
+  }
 }
 
-btnFilter.addEventListener('click', async ()=>{ await carregarLista(); });
+btnFilter.addEventListener('click', async () => {
+  await carregarLista();
+});
 
-document.addEventListener('DOMContentLoaded', ()=>{ carregarLista(); });
+document.addEventListener('DOMContentLoaded', () => {
+  carregarLista();
+});

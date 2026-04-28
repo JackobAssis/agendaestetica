@@ -10,11 +10,26 @@ const datePreview = document.getElementById('date-preview');
 const slotsContainer = document.getElementById('slots-container');
 
 function showMsg(element, text, type='success'){
-  element.className = type==='success' ? 'success-message' : 'error-message';
+  element.className = 'message-box';
+  element.classList.remove('hidden', 'success-message', 'error-message');
+  if(type === 'success'){
+    element.classList.add('success-message');
+  } else if(type === 'error'){
+    element.classList.add('error-message');
+  }
   element.textContent = text;
-  element.classList.remove('hidden');
 }
-function clearMsg(element){ element.classList.add('hidden'); }
+function clearMsg(element){
+  element.classList.add('hidden');
+  element.textContent = '';
+  element.classList.remove('success-message', 'error-message');
+}
+function showSlotsMessage(text, type='info'){
+  slotsContainer.innerHTML = `<div class="message-box${type === 'error' ? ' error-message' : type === 'success' ? ' success-message' : ''}">${text}</div>`;
+}
+function clearSlots(){
+  slotsContainer.innerHTML = '';
+}
 
 form.addEventListener('submit', async (e)=>{
   e.preventDefault();
@@ -69,10 +84,9 @@ formBloq.addEventListener('submit', async (e)=>{
 });
 
 btnGerar.addEventListener('click', async ()=>{
-  clearMsg(slotsContainer);
-  slotsContainer.innerHTML = '';
+  clearSlots();
   const date = datePreview.value;
-  if(!date){ showMsg(slotsContainer, 'Selecione uma data', 'error'); return; }
+  if(!date){ showSlotsMessage('Selecione uma data', 'error'); return; }
 
   try{
     const usuario = obterUsuarioAtual();
@@ -82,20 +96,21 @@ btnGerar.addEventListener('click', async ()=>{
     const slots = await generateSlotsForDate(usuario.empresaId, date);
     btnGerar.disabled = false; btnGerar.textContent = 'Gerar Slots Disponíveis';
 
-    if(!slots.length){ slotsContainer.innerHTML = '<p class="text-secondary">Nenhum slot disponível nesta data</p>'; return; }
+    if(!slots.length){ showSlotsMessage('Nenhum slot disponível nesta data'); return; }
 
     const list = document.createElement('ul');
     list.className = 'slots-list';
     slots.forEach(s => {
       const li = document.createElement('li');
       const dtStart = new Date(s.inicioISO);
-      li.textContent = `${dtStart.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - ${new Date(s.fimISO).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+      const dtEnd = new Date(s.fimISO);
+      li.textContent = `${dtStart.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - ${dtEnd.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
       list.appendChild(li);
     });
     slotsContainer.appendChild(list);
   }catch(err){
     console.error('Erro gerar slots', err);
-    showMsg(slotsContainer, err.message || 'Erro ao gerar slots', 'error');
+    showSlotsMessage(err.message || 'Erro ao gerar slots', 'error');
     btnGerar.disabled = false; btnGerar.textContent = 'Gerar Slots Disponíveis';
   }
 });

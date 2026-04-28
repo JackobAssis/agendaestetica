@@ -3,28 +3,54 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AgendaEstética - Agendamentos</title>
+  <title>AgendaEstética - Agenda</title>
   <link rel="stylesheet" href="../styles/global.css">
+  <link rel="stylesheet" href="../styles/theme.css">
   <link rel="stylesheet" href="../styles/agendamentos.css">
 </head>
 <body>
-  <main class="agendamentos-container">
+  <main class="agendamentos-layout">
     <div class="agendamentos-card">
-      <header>
-        <h1>Agendamentos</h1>
-        <p class="text-secondary">Lista de solicitações e agendamentos confirmados.</p>
+      <header class="page-header">
+        <div>
+          <p class="eyebrow">Agenda</p>
+          <h1>Agenda</h1>
+          <p class="text-secondary">Filtros simples para você encontrar agendamentos rapidamente.</p>
+        </div>
+        <div class="today-badge">Hoje, <span id="today-date">27 de abril</span></div>
       </header>
 
-      <section class="filters">
-        <label for="filter-date-start">De</label>
-        <input id="filter-date-start" type="date" />
-        <label for="filter-date-end">Até</label>
-        <input id="filter-date-end" type="date" />
-        <button id="btn-filter" class="submit-btn">Filtrar</button>
+      <section class="filters-section">
+        <div class="filters-row">
+          <div class="filter-group">
+            <label for="status-filter">Status</label>
+            <select id="status-filter">
+              <option value="todas">Todas</option>
+              <option value="confirmado">Confirmados</option>
+              <option value="pendente">Pendentes</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label for="filter-date-start">De</label>
+            <input id="filter-date-start" type="date" />
+          </div>
+          <div class="filter-group">
+            <label for="filter-date-end">Até</label>
+            <input id="filter-date-end" type="date" />
+          </div>
+          <button id="btn-filter" class="btn-primary">Filtrar</button>
+        </div>
       </section>
 
-      <section id="lista-agendamentos" class="lista-agendamentos">
-        <!-- items serão injetados aqui -->
+      <section class="lista-section">
+        <div class="list-header">
+          <h3>Próximos atendimentos</h3>
+          <span class="count-badge">0 itens</span>
+        </div>
+
+        <div class="appointment-list" id="lista-agendamentos">
+          <div class="empty-state">Nenhum agendamento encontrado para esse período.</div>
+        </div>
       </section>
     </div>
   </main>

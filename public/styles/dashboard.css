@@ -1,581 +1,346 @@
-/**
- * Dashboard Styles - Neo Clinic Theme
- * Reference: visualdaplataforma.md
- * Mobile-first design
- */
+/* Dashboard UI - Dark Neon Simplificado */
 
-/* DASHBOARD CONTAINER */
-.dashboard-container {
+.dashboard-screen {
     min-height: 100vh;
-    background-color: var(--bg-app);
-}
-
-/* HEADER */
-.dashboard-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.header-title {
-    flex: 1;
-    text-align: center;
-}
-
-.logo {
-    font-size: var(--font-size-lg);
-    font-weight: 700;
-    color: var(--color-primary);
-    margin: 0;
-}
-
-.menu-toggle {
-    background: none;
-    border: none;
-    font-size: 1.5rem;
-    cursor: pointer;
-    padding: var(--spacing-sm);
-}
-
-.btn-icon {
-    background: none;
-    border: none;
-    font-size: 1.25rem;
-    cursor: pointer;
-    padding: var(--spacing-sm);
-}
-
-/* WELCOME CARD */
-.welcome-card {
-    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
-    border-radius: var(--radius-lg);
     padding: var(--spacing-lg);
-    margin-bottom: var(--spacing-lg);
-    color: white;
+    background: var(--bg-app);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-lg);
+}
+
+.page-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    flex-wrap: wrap;
     gap: var(--spacing-md);
+    max-width: 1200px;
+    width: 100%;
+    margin: 0 auto;
 }
 
-.welcome-content h2 {
-    margin: 0 0 var(--spacing-xs) 0;
-    font-size: var(--font-size-xl);
+.eyebrow {
+    display: inline-block;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    font-size: 0.75rem;
+    color: var(--color-primary);
+    margin: 0 0 0.5rem 0;
 }
 
-.welcome-subtitle {
+.page-header h1 {
     margin: 0;
-    opacity: 0.9;
-    font-size: var(--font-size-sm);
+    font-size: clamp(2rem, 3vw, 2.75rem);
+    color: var(--text-main);
 }
 
-/* STATS GRID */
-.stats-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: var(--spacing-md);
-    margin-bottom: var(--spacing-lg);
-}
-
-.stat-card {
-    background: var(--bg-card);
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-md);
-    padding: var(--spacing-md);
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-md);
-    box-shadow: var(--shadow-xs);
-}
-
-.stat-icon {
-    font-size: 1.5rem;
-    width: 40px;
-    height: 40px;
-    display: flex;
+.btn-secondary,
+.btn-primary {
+    display: inline-flex;
     align-items: center;
     justify-content: center;
-    background: var(--bg-secondary);
-    border-radius: var(--radius-sm);
-}
-
-.stat-value {
-    font-size: var(--font-size-lg);
+    border: none;
+    border-radius: 999px;
+    padding: 0.95rem 1.4rem;
     font-weight: 700;
+    cursor: pointer;
+    transition: transform var(--transition-fast), background var(--transition-fast), box-shadow var(--transition-fast);
+    text-decoration: none;
+}
+
+.btn-secondary {
+    background: rgba(255, 255, 255, 0.08);
     color: var(--text-main);
-    margin: 0;
+    border: 1px solid var(--border-color);
 }
 
-.stat-label {
-    font-size: var(--font-size-xs);
-    color: var(--text-muted);
-    margin: 0;
+.btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.12);
 }
 
-/* CARD COMPONENTS */
-.card {
-    margin-bottom: var(--spacing-lg);
+.btn-primary {
+    background: linear-gradient(135deg, var(--color-primary), var(--color-primary-hover));
+    color: #0B0F0C;
+    box-shadow: 0 16px 40px rgba(0, 255, 136, 0.16);
 }
 
-.card-header {
+.btn-primary:hover {
+    transform: translateY(-1px);
+}
+
+.btn-sm {
+    padding: 0.75rem 1.2rem;
+    font-size: 0.9rem;
+}
+
+.next-appointment-card,
+.appointment-panel,
+.dashboard-summary {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.next-appointment-card,
+.appointment-panel {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-sm);
+    padding: var(--spacing-lg);
+    position: relative;
+    overflow: hidden;
+}
+
+.next-appointment-card::before,
+.appointment-panel::before {
+    content: '';
+    position: absolute;
+    top: -20%;
+    right: -10%;
+    width: 260px;
+    height: 260px;
+    background: radial-gradient(circle, rgba(0, 255, 136, 0.12), transparent 55%);
+    pointer-events: none;
+    transform: translateX(20%);
+}
+
+.card-top {
     display: flex;
     justify-content: space-between;
-    align-items: center;
-}
-
-.card-header h3 {
-    margin: 0;
-    font-size: var(--font-size-base);
-    font-weight: 600;
-    color: var(--text-main);
-}
-
-.card-link {
-    font-size: var(--font-size-sm);
-    color: var(--color-primary);
-}
-
-.card-body {
-    padding: var(--spacing-md);
-}
-
-/* AGENDA HOJE */
-.agenda-hoje-container,
-#proximos-container {
-    max-height: 300px;
-    overflow-y: auto;
-}
-
-.agendamento-card {
-    display: flex;
-    align-items: center;
+    align-items: flex-start;
     gap: var(--spacing-md);
-    padding: var(--spacing-sm) var(--spacing-md);
-    background: var(--bg-secondary);
-    border-radius: var(--radius-sm);
-    margin-bottom: var(--spacing-xs);
-}
-
-.ag-time {
-    font-weight: 600;
-    color: var(--color-primary);
-    font-size: var(--font-size-sm);
-    min-width: 50px;
-}
-
-.ag-info strong {
-    font-size: var(--font-size-sm);
-    color: var(--text-body);
-}
-
-.ag-servico {
-    font-size: var(--font-size-xs);
-    color: var(--text-muted);
-}
-
-/* PROXIMOS ATENDIMENTOS */
-.proximo-card {
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-md);
-    padding: var(--spacing-sm) var(--spacing-md);
-    background: var(--bg-secondary);
-    border-radius: var(--radius-sm);
-    margin-bottom: var(--spacing-xs);
-}
-
-.pc-date {
-    font-size: var(--font-size-xs);
-    font-weight: 600;
-    color: var(--color-primary);
-    min-width: 80px;
-}
-
-.pc-info strong {
-    font-size: var(--font-size-sm);
-    color: var(--text-body);
-}
-
-.pc-info span {
-    font-size: var(--font-size-xs);
-    color: var(--text-muted);
-}
-
-/* ALERTAS */
-.alerta-card {
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-sm);
-    padding: var(--spacing-sm) var(--spacing-md);
-    border-radius: var(--radius-sm);
-    margin-bottom: var(--spacing-xs);
-    font-size: var(--font-size-sm);
-}
-
-.alerta-card.warning {
-    background: var(--color-warning-bg);
-    color: var(--color-warning);
-}
-
-.alerta-card.info {
-    background: var(--color-info-bg);
-    color: var(--color-info);
-}
-
-.alerta-card.success {
-    background: var(--color-success-bg);
-    color: var(--color-success);
-}
-
-/* LINK PUBLICO */
-.link-publico-card p {
-    margin: 0 0 var(--spacing-sm) 0;
-    font-size: var(--font-size-sm);
-    color: var(--text-muted);
-}
-
-.link-input-group {
-    display: flex;
-    gap: var(--spacing-sm);
-    margin-bottom: var(--spacing-sm);
-}
-
-.link-input-group input {
-    flex: 1;
-    padding: var(--spacing-sm);
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-sm);
-    font-size: var(--font-size-xs);
-    background: var(--bg-secondary);
-}
-
-.btn-copy {
-    padding: var(--spacing-sm);
-    background: var(--color-primary);
-    color: white;
-    border: none;
-    border-radius: var(--radius-sm);
-    cursor: pointer;
-    font-size: var(--font-size-xs);
-}
-
-.link-actions {
-    display: flex;
-    gap: var(--spacing-sm);
-}
-
-.btn-preview {
-    padding: var(--spacing-xs) var(--spacing-sm);
-    background: var(--bg-secondary);
-    color: var(--text-body);
-    border-radius: var(--radius-sm);
-    text-decoration: none;
-    font-size: var(--font-size-xs);
-}
-
-.btn-edit-slug {
-    padding: var(--spacing-xs) var(--spacing-sm);
-    background: transparent;
-    color: var(--color-primary);
-    border: 1px solid var(--color-primary);
-    border-radius: var(--radius-sm);
-    text-decoration: none;
-    font-size: var(--font-size-xs);
-}
-
-/* QUICK ACTIONS */
-.quick-actions-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: var(--spacing-sm);
     margin-bottom: var(--spacing-md);
 }
 
-.quick-action {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: var(--spacing-xs);
-    padding: var(--spacing-md);
-    background: var(--bg-secondary);
-    border-radius: var(--radius-sm);
-    text-decoration: none;
-    transition: all var(--transition-fast);
-}
-
-.quick-action:hover {
-    background: var(--color-primary);
-    color: white;
-}
-
-.quick-action:hover .qa-label {
-    color: white;
-}
-
-.qa-icon {
-    font-size: 1.25rem;
-}
-
-.qa-label {
-    font-size: var(--font-size-xs);
-    color: var(--text-body);
-    font-weight: 500;
-}
-
-.theme-selector {
-    padding-top: var(--spacing-md);
-    border-top: 1px solid var(--border-color);
-}
-
-.theme-selector label {
-    display: block;
-    font-size: var(--font-size-sm);
-    margin-bottom: var(--spacing-xs);
-}
-
-/* MODULOS CONDICIONAIS */
-.modulos-condicionais-grid {
-    display: grid;
-    gap: var(--spacing-md);
-}
-
-.modulo-card .card-body {
-    padding: var(--spacing-md);
-}
-
-.modulo-header {
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-sm);
-    margin-bottom: var(--spacing-sm);
-}
-
-.modulo-header h4 {
+.card-top h2 {
     margin: 0;
-    flex: 1;
+    font-size: 1.75rem;
+    color: var(--text-main);
 }
 
-.modulo-card p {
-    color: var(--text-muted);
-    font-size: var(--font-size-sm);
-    margin: 0 0 var(--spacing-sm) 0;
+.muted-text {
+    margin: 0;
+    color: var(--text-secondary);
+    font-size: 0.95rem;
 }
 
-.badge-premium {
-    background: linear-gradient(135deg, #F6E05E 0%, #ECC94B 100%);
-    color: #744210;
-    font-size: var(--font-size-xs);
-}
-
-.badge-locked {
-    background: var(--bg-secondary);
-    color: var(--text-muted);
-    font-size: var(--font-size-xs);
-}
-
-.modulo-card.locked {
-    opacity: 0.7;
-}
-
-.modulo-card.premium {
-    border: 2px solid #F6E05E;
-}
-
-.btn-modulo {
-    display: inline-block;
-    padding: var(--spacing-xs) var(--spacing-md);
-    background: var(--color-primary);
-    color: white;
-    border: none;
-    border-radius: var(--radius-sm);
-    text-decoration: none;
-    font-size: var(--font-size-sm);
-}
-
-.btn-upgrade {
-    display: inline-block;
-    padding: var(--spacing-xs) var(--spacing-md);
-    background: transparent;
-    color: var(--color-secondary);
-    border: 1px solid var(--color-secondary);
-    border-radius: var(--radius-sm);
-    text-decoration: none;
-    font-size: var(--font-size-sm);
-}
-
-.plano-atual {
-    background: var(--bg-secondary);
-    padding: var(--spacing-sm);
-    border-radius: var(--radius-sm);
-    margin-bottom: var(--spacing-sm);
-}
-
-.recursos-bloqueados ul {
-    list-style: none;
-    padding: 0;
-    margin: var(--spacing-xs) 0 0 0;
-}
-
-.recursos-bloqueados li {
-    font-size: var(--font-size-xs);
-    color: var(--text-muted);
-    padding: 2px 0;
-}
-
-/* CONFIGURACOES */
-.config-opcoes {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: var(--spacing-sm);
-}
-
-.config-item {
-    display: flex;
+.appointment-status {
+    padding: 0.45rem 1rem;
+    border-radius: 999px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    display: inline-flex;
     align-items: center;
-    gap: var(--spacing-sm);
-    padding: var(--spacing-sm);
-    background: var(--bg-secondary);
-    border-radius: var(--radius-sm);
-    text-decoration: none;
+}
+
+.status-confirmado {
+    background: rgba(0, 255, 136, 0.18);
+    color: var(--color-success);
+}
+
+.appointment-info-row {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--spacing-lg);
+    margin-top: var(--spacing-lg);
+}
+
+.appointment-info-block {
+    display: grid;
+    gap: 0.35rem;
+}
+
+.info-label {
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    letter-spacing: 0.04em;
+}
+
+.appointment-info-block p {
+    margin: 0;
+    font-size: 1rem;
     color: var(--text-body);
-    font-size: var(--font-size-sm);
 }
 
-.config-item:hover {
-    background: var(--color-primary);
-    color: white;
-}
-
-/* PLANO INFO CARD */
-.plano-info-card {
+.panel-header {
     display: flex;
+    justify-content: space-between;
     align-items: center;
     gap: var(--spacing-md);
+    margin-bottom: var(--spacing-lg);
+}
+
+.panel-header h2 {
+    margin: 0;
+    font-size: 1.5rem;
+    color: var(--text-main);
+}
+
+.appointment-list {
+    display: grid;
+    gap: var(--spacing-md);
+}
+
+.appointment-item,
+.agendamento-card {
+    display: grid;
+    grid-template-columns: 100px 1fr auto;
+    gap: var(--spacing-md);
+    align-items: center;
     padding: var(--spacing-md);
-    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: var(--radius-lg);
-    color: white;
-    margin-top: var(--spacing-lg);
+    transition: transform var(--transition-fast), border-color var(--transition-fast), box-shadow var(--transition-fast);
 }
 
-.plano-badge .badge {
-    background: rgba(255, 255, 255, 0.2);
-    color: white;
+.appointment-item:hover,
+.agendamento-card:hover {
+    transform: translateY(-1px);
+    border-color: rgba(0, 255, 136, 0.18);
+    box-shadow: var(--shadow-xs);
 }
 
-.plano-details h4 {
-    margin: 0 0 var(--spacing-xs) 0;
-    font-size: var(--font-size-base);
-}
-
-.plano-details p {
-    margin: 0;
-    font-size: var(--font-size-xs);
-    opacity: 0.9;
-}
-
-.plano-info-card .btn {
-    background: white;
+.appointment-time {
+    font-size: 1rem;
+    font-weight: 700;
     color: var(--color-primary);
-    font-size: var(--font-size-xs);
+    letter-spacing: 0.03em;
 }
 
-.usuario-info-text {
-    text-align: center;
-    font-size: var(--font-size-xs);
-    color: var(--text-muted);
-    margin-top: var(--spacing-lg);
+.appointment-info {
+    display: grid;
+    gap: 0.25rem;
 }
 
-/* BOTTOM NAVIGATION */
-.app-bottom-nav {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 65px;
-    background-color: var(--bg-card);
-    border-top: 1px solid var(--border-color);
-    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
-    z-index: 100;
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-    padding: 0 var(--spacing-sm);
+.appointment-info strong {
+    display: block;
+    font-size: 0.95rem;
+    color: var(--text-main);
 }
 
-.nav-item {
-    display: flex;
-    flex-direction: column;
+.appointment-info span {
+    display: block;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+.appointment-status-small {
+    display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 4px;
-    padding: var(--spacing-xs) var(--spacing-sm);
+    min-width: 95px;
+    padding: 0.45rem 0.75rem;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.status-pendente {
+    background: rgba(255, 200, 0, 0.12);
+    color: var(--color-warning);
+}
+
+.status-cancelado {
+    background: rgba(255, 92, 138, 0.16);
+    color: var(--color-danger);
+}
+
+.empty-state {
+    padding: var(--spacing-lg);
+    border-radius: var(--radius-lg);
+    background: rgba(255, 255, 255, 0.04);
+    color: var(--text-secondary);
+    text-align: center;
+}
+
+.dashboard-summary {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--spacing-md);
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.summary-card {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-md);
+}
+
+.summary-label {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    margin: 0 0 0.4rem 0;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+
+.summary-value {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-main);
+}
+
+.floating-action {
+    position: fixed;
+    right: var(--spacing-lg);
+    bottom: var(--spacing-lg);
+    background: linear-gradient(135deg, var(--color-primary), var(--color-primary-hover));
+    color: #0B0F0C;
+    border-radius: 999px;
+    padding: 1rem 1.5rem;
+    font-weight: 700;
+    box-shadow: 0 24px 60px rgba(0, 255, 136, 0.18);
     text-decoration: none;
-    color: var(--text-muted);
-    border-radius: var(--radius-sm);
-    transition: all var(--transition-fast);
-    min-width: 60px;
+    z-index: 1000;
 }
 
-.nav-item:hover {
-    color: var(--color-primary);
+.floating-action:hover {
+    transform: translateY(-2px);
 }
 
-.nav-item.active {
-    color: var(--color-primary);
-    background: var(--color-primary-bg);
-}
-
-.nav-icon {
-    font-size: 1.25rem;
-}
-
-.nav-label {
-    font-size: var(--font-size-xs);
-    font-weight: 500;
-}
-
-/* RESPONSIVE */
-@media (min-width: 768px) {
-    .stats-grid {
-        grid-template-columns: repeat(4, 1fr);
+@media (max-width: 900px) {
+    .appointment-item,
+    .agendamento-card {
+        grid-template-columns: 1fr;
     }
-    
-    .welcome-card {
-        padding: var(--spacing-xl);
+
+    .appointment-info-row {
+        grid-template-columns: 1fr;
     }
-    
-    .modulos-condicionais-grid {
-        grid-template-columns: repeat(3, 1fr);
-    }
-    
-    .config-opcoes {
-        grid-template-columns: repeat(4, 1fr);
+
+    .dashboard-summary {
+        grid-template-columns: 1fr;
     }
 }
 
-@media (max-width: 480px) {
-    .stats-grid {
-        grid-template-columns: repeat(2, 1fr);
+@media (max-width: 640px) {
+    .dashboard-screen {
+        padding: var(--spacing-md);
     }
-    
-    .welcome-card {
+
+    .page-header {
         flex-direction: column;
-        text-align: center;
+        align-items: flex-start;
     }
-    
-    .quick-actions-grid {
-        grid-template-columns: repeat(2, 1fr);
+
+    .btn-primary,
+    .btn-secondary {
+        width: 100%;
     }
-    
-    .nav-item {
-        min-width: 50px;
-    }
-    
-    .nav-label {
-        font-size: 0.65rem;
+
+    .floating-action {
+        right: var(--spacing-md);
+        bottom: var(--spacing-md);
+        width: calc(100% - 2 * var(--spacing-md));
+        justify-content: center;
     }
 }
-
