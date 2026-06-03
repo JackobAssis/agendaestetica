@@ -17,8 +17,8 @@ const ASSETS = [
   '/modules/security.js',
   '/modules/theme.js',
   '/modules/monetization.js',
-  '/modules/ui.js',
   '/modules/utils.js',
+  '/manifest.json',
 ];
 
 self.addEventListener('install', (event) => {
@@ -30,13 +30,15 @@ self.addEventListener('install', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
+  if (!event.request.url.startsWith(self.location.origin)) {
+    return;
+  }
+
   event.respondWith(
     caches.match(event.request).then((cached) => {
       return cached || fetch(event.request).then((response) => {
         return caches.open(CACHE_NAME).then((cache) => {
-          if (event.request.url.startsWith(self.location.origin)) {
-            cache.put(event.request, response.clone());
-          }
+          cache.put(event.request, response.clone());
           return response;
         });
       });
