@@ -305,26 +305,42 @@
         });
     </script>
 
-    <!-- Service Worker Registration -->
+    <!-- Service Worker Registration with Retry -->
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js')
-                    .then((registration) => {
-                        console.log('✅ Service Worker registrado:', registration.scope);
-                        
-                        // Request notification permission
-                        if ('Notification' in window && Notification.permission === 'default') {
-                            Notification.requestPermission().then((permission) => {
-                                if (permission === 'granted') {
-                                    console.log('✅ Notificações permitidas');
-                                }
+                var retries = 0;
+                var maxRetries = 3;
+                
+                function registerSW() {
+                    navigator.serviceWorker.register('/sw.js')
+                        .then(function (registration) {
+                            console.log('✅ Service Worker registrado:', registration.scope);
+                            
+                            registration.addEventListener('updatefound', function () {
+                                console.log('🔄 Nova versão do Service Worker detectada');
                             });
-                        }
-                    })
-                    .catch((error) => {
-                        console.log('❌ Service Worker falhou:', error);
-                    });
+                            
+                            if ('Notification' in window && Notification.permission === 'default') {
+                                Notification.requestPermission().then(function (permission) {
+                                    if (permission === 'granted') {
+                                        console.log('✅ Notificações permitidas');
+                                    }
+                                });
+                            }
+                        })
+                        .catch(function (error) {
+                            retries++;
+                            if (retries < maxRetries) {
+                                console.warn('⚠️ SW falhou, tentativa ' + retries + '/' + maxRetries);
+                                setTimeout(registerSW, 2000 * retries);
+                            } else {
+                                console.warn('ℹ️ App funcionará sem Service Worker:', error.message);
+                            }
+                        });
+                }
+                
+                registerSW();
             });
         }
     </script>

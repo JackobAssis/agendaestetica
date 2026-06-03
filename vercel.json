@@ -57,22 +57,14 @@
     ],
     "rewrites": [
         {
-            "source": "/sw.js",
-            "destination": "/sw.js"
-        },
-        {
-            "source": "/manifest.json",
-            "destination": "/manifest.json"
-        },
-        {
-            "source": "/:path*",
+            "source": "/((?!sw\\.js$|manifest\\.json$|favicon\\.ico$).*)",
             "destination": "/index.html"
         }
     ],
     "redirects": [
         {
             "source": "/favicon.ico",
-            "destination": "/assets/images/favicon.ico",
+            "destination": "/assets/images/favicon.svg",
             "permanent": true
         }
     ],
