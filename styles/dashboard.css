@@ -9,70 +9,6 @@
     gap: var(--spacing-lg);
 }
 
-.page-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: var(--spacing-md);
-    max-width: 1200px;
-    width: 100%;
-    margin: 0 auto;
-}
-
-.eyebrow {
-    display: inline-block;
-    text-transform: uppercase;
-    letter-spacing: 0.18em;
-    font-size: 0.75rem;
-    color: var(--color-primary);
-    margin: 0 0 0.5rem 0;
-}
-
-.page-header h1 {
-    margin: 0;
-    font-size: clamp(2rem, 3vw, 2.75rem);
-    color: var(--text-main);
-}
-
-.btn-secondary,
-.btn-primary {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    border: none;
-    border-radius: 999px;
-    padding: 0.95rem 1.4rem;
-    font-weight: 700;
-    cursor: pointer;
-    transition: transform var(--transition-fast), background var(--transition-fast), box-shadow var(--transition-fast);
-    text-decoration: none;
-}
-
-.btn-secondary {
-    background: rgba(255, 255, 255, 0.08);
-    color: var(--text-main);
-    border: 1px solid var(--border-color);
-}
-
-.btn-secondary:hover {
-    background: rgba(255, 255, 255, 0.12);
-}
-
-.btn-primary {
-    background: linear-gradient(135deg, var(--color-primary), var(--color-primary-hover));
-    color: #0B0F0C;
-    box-shadow: 0 16px 40px rgba(0, 255, 136, 0.16);
-}
-
-.btn-primary:hover {
-    transform: translateY(-1px);
-}
-
-.btn-sm {
-    padding: 0.75rem 1.2rem;
-    font-size: 0.9rem;
-}
-
 .next-appointment-card,
 .appointment-panel,
 .dashboard-summary {
@@ -307,6 +243,36 @@
     transform: translateY(-2px);
 }
 
+/* ---- Missing dashboard classes ---- */
+.app-nav__label {
+    font-size: 0.65rem;
+    line-height: 1;
+    color: var(--color-text-tertiary, #888);
+}
+
+.app-nav__item--active .app-nav__label {
+    color: var(--color-primary, #8b5cf6);
+}
+
+.header-title {
+    flex: 1;
+    display: flex;
+    align-items: center;
+}
+
+.state-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-8) var(--space-4);
+    color: var(--color-text-tertiary, #888);
+    font-size: var(--text-sm, 0.875rem);
+}
+
+.notification-badge {
+    position: relative;
+}
+
 @media (max-width: 900px) {
     .appointment-item,
     .agendamento-card {
@@ -325,16 +291,6 @@
 @media (max-width: 640px) {
     .dashboard-screen {
         padding: var(--spacing-md);
-    }
-
-    .page-header {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-
-    .btn-primary,
-    .btn-secondary {
-        width: 100%;
     }
 
     .floating-action {
