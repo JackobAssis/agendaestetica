@@ -295,6 +295,16 @@
         .error-details { font-size: 12px; color: #666; margin-top: 8px; }
     </style>
     
+    <!-- Global Error Handling -->
+    <script>
+        window.addEventListener('error', (event) => {
+            console.error('[Global Error]', event.error || event.message);
+        });
+        window.addEventListener('unhandledrejection', (event) => {
+            console.error('[Unhandled Promise]', event.reason);
+        });
+    </script>
+
     <!-- Service Worker Registration -->
     <script>
         if ('serviceWorker' in navigator) {

@@ -13,8 +13,8 @@ import DOMPurify from 'dompurify';
 export function sanitizeHTML(html) {
     if (!html || typeof html !== 'string') return '';
     return DOMPurify.sanitize(html, {
-        ALLOWED_TAGS: ['p', 'br', 'strong', 'em', 'u', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'ul', 'ol', 'li', 'a'],
-        ALLOWED_ATTR: ['href', 'target', 'rel']
+        ALLOWED_TAGS: ['p', 'br', 'strong', 'em', 'u', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'ul', 'ol', 'li', 'a', 'div', 'span', 'label', 'section', 'header', 'footer', 'main', 'aside', 'nav', 'button', 'input', 'select', 'option', 'form', 'table', 'thead', 'tbody', 'tr', 'th', 'td', 'img', 'small', 'sub', 'sup', 'hr', 'blockquote', 'pre', 'code', 'figure', 'figcaption', 'time'],
+        ALLOWED_ATTR: ['href', 'target', 'rel', 'class', 'id', 'src', 'alt', 'width', 'height', 'style', 'data-id', 'value', 'type', 'name', 'placeholder', 'disabled', 'checked', 'selected', 'aria-label', 'role', 'tabindex']
     });
 }
 
@@ -54,4 +54,15 @@ export function validateInput(input, options = {}) {
     }
 
     return sanitized;
+}
+
+/**
+ * Set innerHTML safely with DOMPurify sanitization
+ * Drop-in replacement for element.innerHTML = content
+ * @param {HTMLElement} element - Target element
+ * @param {string} html - HTML content to set
+ */
+export function setHTML(element, html) {
+    if (!element) return;
+    element.innerHTML = sanitizeHTML(html);
 }

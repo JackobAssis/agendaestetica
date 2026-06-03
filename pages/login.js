@@ -11,6 +11,7 @@ import {
     cadastroProfissional, 
     cadastroCliente 
 } from '../modules/auth.js';
+import { setHTML } from '../modules/security.js';
 
 // ============================================================
 // Estado da Página
@@ -286,7 +287,7 @@ async function handleLogin() {
         // Disable button
         const btn = formLogin.querySelector('.submit-btn');
         btn.disabled = true;
-        btn.innerHTML = '<span class="loading-spinner"></span>Entrando...';
+        setHTML(btn, '<span class="loading-spinner"></span>Entrando...');
         
         if (roleAtual === 'profissional') {
             let senha = null;
@@ -297,7 +298,7 @@ async function handleLogin() {
                 if (!senha) {
                     mostrarErro('Senha é obrigatória para login por email');
                     btn.disabled = false;
-                    btn.innerHTML = '<span id="login-btn-texto">Entrar</span>';
+                    setHTML(btn, '<span id="login-btn-texto">Entrar</span>');
                     return;
                 }
             }
@@ -329,7 +330,7 @@ async function handleLogin() {
         
         const btn = formLogin.querySelector('.submit-btn');
         btn.disabled = false;
-        btn.innerHTML = '<span id="login-btn-texto">Entrar</span>';
+        setHTML(btn, '<span id="login-btn-texto">Entrar</span>');
     }
 }
 
@@ -349,7 +350,7 @@ async function handleCadastro() {
         // Disable button
         const btn = formCadastro.querySelector('.submit-btn');
         btn.disabled = true;
-        btn.innerHTML = '<span class="loading-spinner"></span>Criando conta...';
+        setHTML(btn, '<span class="loading-spinner"></span>Criando conta...');
         
         if (roleAtual === 'profissional') {
             const profissao = document.getElementById('cadastro-profissao').value;
@@ -365,21 +366,21 @@ async function handleCadastro() {
                 if (!profissao) {
                     mostrarErro('Profissão é obrigatória');
                     btn.disabled = false;
-                    btn.innerHTML = '<span id="cadastro-btn-texto">Criar Conta</span>';
+                    setHTML(btn, '<span id="cadastro-btn-texto">Criar Conta</span>');
                     return;
                 }
                 
                 if (!senha || !senhaConfirma) {
                     mostrarErro('Senha e confirmação são obrigatórias para cadastro por email');
                     btn.disabled = false;
-                    btn.innerHTML = '<span id="cadastro-btn-texto">Criar Conta</span>';
+                    setHTML(btn, '<span id="cadastro-btn-texto">Criar Conta</span>');
                     return;
                 }
                 
                 if (senha !== senhaConfirma) {
                     mostrarErro('As senhas não coincidem');
                     btn.disabled = false;
-                    btn.innerHTML = '<span id="cadastro-btn-texto">Criar Conta</span>';
+                    setHTML(btn, '<span id="cadastro-btn-texto">Criar Conta</span>');
                     return;
                 }
             }
@@ -407,7 +408,7 @@ async function handleCadastro() {
         
         const btn = formCadastro.querySelector('.submit-btn');
         btn.disabled = false;
-        btn.innerHTML = '<span id="cadastro-btn-texto">Criar Conta</span>';
+        setHTML(btn, '<span id="cadastro-btn-texto">Criar Conta</span>');
     }
 }
 
@@ -428,14 +429,14 @@ function mostraModoRecuperarSenha() {
  */
 function mostrarErro(mensagem) {
     mensagemDiv.className = 'alert alert--danger';
-    mensagemDiv.innerHTML = `
+    setHTML(mensagemDiv, `
         <svg class="alert__icon" width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
             <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
         </svg>
         <div class="alert__content">
             <p class="alert__message">${mensagem}</p>
         </div>
-    `;
+    `);
     mensagemDiv.classList.remove('d-none');
 }
 
@@ -444,14 +445,14 @@ function mostrarErro(mensagem) {
  */
 function mostrarSucesso(mensagem) {
     mensagemDiv.className = 'alert alert--success';
-    mensagemDiv.innerHTML = `
+    setHTML(mensagemDiv, `
         <svg class="alert__icon" width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
             <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
         </svg>
         <div class="alert__content">
             <p class="alert__message">${mensagem}</p>
         </div>
-    `;
+    `);
     mensagemDiv.classList.remove('d-none');
 }
 

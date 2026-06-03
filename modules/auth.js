@@ -20,6 +20,7 @@ import {
     getFirebaseDB,
     createUserWithEmailAndPassword, 
     signInWithEmailAndPassword, 
+    signInAnonymously,
     signOut, 
     sendPasswordResetEmail,
     updateProfile,

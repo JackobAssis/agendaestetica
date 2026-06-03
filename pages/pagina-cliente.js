@@ -30,6 +30,7 @@ import {
 } from '../modules/agenda.js';
 
 import { 
+import { setHTML } from '../modules/security.js';
     getFirebaseDB, 
     doc, 
     getDoc 
@@ -235,7 +236,7 @@ function renderEmpresaData(empresa) {
     
     // Banner
     if (empresa.bannerUrl) {
-        profissionalBanner.innerHTML = `<img src="${empresa.bannerUrl}" alt="Banner de ${empresa.nome}">`;
+        setHTML(profissionalBanner, `<img src="${empresa.bannerUrl}" alt="Banner de ${empresa.nome}">`);
     } else {
         const initial = (empresa.nome || 'P')[0].toUpperCase();
         bannerInitial.textContent = initial;
@@ -386,11 +387,11 @@ function renderHistorico() {
         .sort((a, b) => new Date(b.inicio) - new Date(a.inicio)); // Most recent first
     
     if (historico.length === 0) {
-        historicoLista.innerHTML = '<p class="historico-vazio">Nenhum agendamento no histórico.</p>';
+        setHTML(historicoLista, '<p class="historico-vazio">Nenhum agendamento no histórico.</p>');
         return;
     }
     
-    historicoLista.innerHTML = historico.map(ag => `
+    setHTML(historicoLista, historico.map(ag => `
         <div class="historico-item">
             <div class="historico-info">
                 <p class="historico-data">${formatDateTime(ag.inicio)}</p>
@@ -400,7 +401,7 @@ function renderHistorico() {
                 ${getStatusText(ag.status)}
             </span>
         </div>
-    `).join('');
+    `).join(''));
 }
 
 // ============================================================
@@ -418,7 +419,7 @@ function abrirModalTroca() {
     
     trocaAtual.textContent = formatDateTime(agendamentoSelecionado.inicio);
     trocaData.value = '';
-    trocaHora.innerHTML = '<option value="">Selecione uma data primeiro</option>';
+    setHTML(trocaHora, '<option value="">Selecione uma data primeiro</option>');
     trocaHora.disabled = true;
     trocaMotivo.value = '';
     
@@ -481,14 +482,14 @@ async function carregarDatasDisponiveis() {
         }
         
         // Populate date select
-        trocaData.innerHTML = dates.map(d => {
+        setHTML(trocaData, dates.map(d => {
             const displayDate = new Date(d).toLocaleDateString('pt-BR', {
                 weekday: 'short',
                 day: 'numeric',
                 month: 'short'
             });
             return `<option value="${d}">${displayDate}</option>`;
-        }).join('');
+        }).join(''));
         
     } catch (error) {
         console.error('Erro ao carregar datas:', error);
@@ -503,7 +504,7 @@ async function carregarHorariosDisponiveis() {
     const dataSelecionada = trocaData.value;
     
     if (!dataSelecionada || !empresaId) {
-        trocaHora.innerHTML = '<option value="">Selecione uma data primeiro</option>';
+        setHTML(trocaHora, '<option value="">Selecione uma data primeiro</option>');
         trocaHora.disabled = true;
         return;
     }
@@ -512,20 +513,20 @@ async function carregarHorariosDisponiveis() {
         const slots = await getAgendaSlotsComCache(empresaId, dataSelecionada);
         
         if (slots.length === 0) {
-            trocaHora.innerHTML = '<option value="">Nenhum horário disponível</option>';
+            setHTML(trocaHora, '<option value="">Nenhum horário disponível</option>');
             return;
         }
         
-        trocaHora.innerHTML = slots.map(slot => {
+        setHTML(trocaHora, slots.map(slot => {
             const time = formatTime(slot.inicioISO);
             return `<option value="${slot.inicioISO}">${time}</option>`;
-        }).join('');
+        }).join(''));
         
         trocaHora.disabled = false;
         
     } catch (error) {
         console.error('Erro ao carregar horários:', error);
-        trocaHora.innerHTML = '<option value="">Erro ao carregar horários</option>';
+        setHTML(trocaHora, '<option value="">Erro ao carregar horários</option>');
     }
 }
 

@@ -28,6 +28,7 @@ import {
 import { obterUsuarioAtual, logout } from '../modules/auth.js';
 import { obterPlano, temFeature } from '../modules/permissions.js';
 import { applyTheme, getTheme, setTheme } from '../modules/theme.js';
+import { setHTML } from '../modules/security.js';
 
 /**
  * ============================================
@@ -283,16 +284,16 @@ async function renderizarAgendaHoje(empresaId) {
     if (!container) return;
     
     if (agendaHoje.length === 0) {
-        container.innerHTML = `
+        setHTML(container, `
             <div class="empty-state">
                 <p>📅 Nenhum agendamento para hoje</p>
                 <p class="hint">Que tal divulgar seus serviços para novos clientes?</p>
             </div>
-        `;
+        `);
         return;
     }
     
-    container.innerHTML = agendaHoje.map(ag => `
+    setHTML(container, agendaHoje.map(ag => `
         <div class="agendamento-card" data-id="${ag.id}">
             <div class="ag-time">${formatarHora(ag.inicio)}</div>
             <div class="ag-info">
@@ -303,7 +304,7 @@ async function renderizarAgendaHoje(empresaId) {
                 ${ag.status || 'pendente'}
             </div>
         </div>
-    `).join('');
+    `).join(''));
 }
 
 /**
@@ -314,15 +315,15 @@ async function renderizarProximosAtendimentos(empresaId) {
     if (!container) return;
     
     if (proximosAgendamentos.length === 0) {
-        container.innerHTML = `
+        setHTML(container, `
             <div class="empty-state small">
                 <p>📅 Nenhum agendamento futuro</p>
             </div>
-        `;
+        `);
         return;
     }
     
-    container.innerHTML = proximosAgendamentos.map(ag => `
+    setHTML(container, proximosAgendamentos.map(ag => `
         <div class="proximo-card">
             <div class="pc-date">${formatarDataProxima(ag.inicio)}</div>
             <div class="pc-info">
@@ -330,7 +331,7 @@ async function renderizarProximosAtendimentos(empresaId) {
                 <span>${ag.servico || 'Serviço'}</span>
             </div>
         </div>
-    `).join('');
+    `).join(''));
 }
 
 /**
@@ -380,20 +381,20 @@ async function renderizarAlertas(empresaId) {
     }
     
     if (alertas.length === 0) {
-        container.innerHTML = `
+        setHTML(container, `
             <div class="empty-state small">
                 <p>✅ Tudo em dia!</p>
             </div>
-        `;
+        `);
         return;
     }
     
-    container.innerHTML = alertas.map(a => `
+    setHTML(container, alertas.map(a => `
         <div class="alerta-card ${a.tipo}">
             <span class="alerta-icon">${a.icon}</span>
             <span class="alerta-mensagem">${a.mensagem}</span>
         </div>
-    `).join('');
+    `).join(''));
 }
 
 /**
@@ -420,7 +421,7 @@ function renderizarModuloCursos(temCursos) {
     if (!container) return;
     
     if (temCursos) {
-        container.innerHTML = `
+        setHTML(container, `
             <div class="modulo-card premium">
                 <div class="modulo-header">
                     <span class="modulo-icon">📚</span>
@@ -430,9 +431,9 @@ function renderizarModuloCursos(temCursos) {
                 <p>Gerencie seus cursos e formações</p>
                 <a href="/cursos" class="btn-modulo">Acessar Cursos</a>
             </div>
-        `;
+        `);
     } else {
-        container.innerHTML = `
+        setHTML(container, `
             <div class="modulo-card locked">
                 <div class="modulo-header">
                     <span class="modulo-icon">📚</span>
@@ -444,7 +445,7 @@ function renderizarModuloCursos(temCursos) {
                     fazer Upgrade
                 </button>
             </div>
-        `;
+        `);
     }
 }
 
@@ -458,7 +459,7 @@ function renderizarModuloPersonalizacao(features, plano) {
     const temPersonalizacao = features.customTheme || features.backgroundImage;
     
     if (plano === 'premium' || temPersonalizacao) {
-        container.innerHTML = `
+        setHTML(container, `
             <div class="modulo-card premium">
                 <div class="modulo-header">
                     <span class="modulo-icon">🎨</span>
@@ -468,9 +469,9 @@ function renderizarModuloPersonalizacao(features, plano) {
                 <p>Personalize cores, imagens e sua página pública</p>
                 <a href="/personalizacao" class="btn-modulo">Personalizar</a>
             </div>
-        `;
+        `);
     } else {
-        container.innerHTML = `
+        setHTML(container, `
             <div class="modulo-card locked">
                 <div class="modulo-header">
                     <span class="modulo-icon">🎨</span>
@@ -482,7 +483,7 @@ function renderizarModuloPersonalizacao(features, plano) {
                     fazer Upgrade
                 </button>
             </div>
-        `;
+        `);
     }
 }
 
@@ -502,7 +503,7 @@ function renderizarModuloMonetizacao(plano) {
         recursosBloqueados.push('Integração com Calendários');
     }
     
-    container.innerHTML = `
+    setHTML(container, `
         <div class="modulo-card monetizacao">
             <div class="modulo-header">
                 <span class="modulo-icon">💰</span>
@@ -526,7 +527,7 @@ function renderizarModuloMonetizacao(plano) {
                 ` : ''}
             ` : ''}
         </div>
-    `;
+    `);
 }
 
 /**
@@ -536,7 +537,7 @@ function renderizarModuloConfiguracoes() {
     const container = document.getElementById('modulo-configuracoes');
     if (!container) return;
     
-    container.innerHTML = `
+    setHTML(container, `
         <div class="modulo-card configuracoes">
             <div class="modulo-header">
                 <span class="modulo-icon">⚙️</span>
@@ -561,7 +562,7 @@ function renderizarModuloConfiguracoes() {
                 </a>
             </div>
         </div>
-    `;
+    `);
 }
 
 /**
@@ -590,7 +591,7 @@ function renderizarLinkPublico(dados) {
     const slug = dados.slug || dados.empresaId || 'sem-slug';
     const linkCompleto = `https://agendaestetica.app/p/${slug}`;
     
-    container.innerHTML = `
+    setHTML(container, `
         <div class="link-publico-card">
             <div class="modulo-header">
                 <span class="modulo-icon">🔗</span>
@@ -610,7 +611,7 @@ function renderizarLinkPublico(dados) {
                 </a>
             </div>
         </div>
-    `;
+    `);
 }
 
 /**
@@ -786,13 +787,13 @@ function formatarDataProxima(isoString) {
 function mostrarErro(mensagem) {
     const container = document.getElementById('main-content');
     if (container) {
-        container.innerHTML = `
+        setHTML(container, `
             <div class="error-state">
                 <h2>😕 Ocorreu um erro</h2>
                 <p>${mensagem}</p>
                 <button onclick="window.location.reload()">Tentar novamente</button>
             </div>
-        `;
+        `);
     }
 }
 

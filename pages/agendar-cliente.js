@@ -8,6 +8,7 @@ import { solicitarAgendamento } from '../modules/agendamentos.js';
 import { notifyInApp, sendWebhook } from '../modules/notifications.js';
 import { findOrCreateClienteByEmail } from '../modules/clientes.js';
 import { getFirebaseDB, doc, getDoc } from '../modules/firebase.js';
+import { setHTML } from '../modules/security.js';
 
 function getProfissionalIdFromPath(){
     const parts = window.location.pathname.split('/').filter(Boolean);
@@ -48,7 +49,7 @@ async function carregarProfissional(){
         profInfoEl.textContent = `Profissão: ${data.profissao || '—'} • Plano: ${data.plano || 'free'}`;
 
         const services = data.servicos || [];
-        servicoSelect.innerHTML = '';
+        setHTML(servicoSelect, '');
         if(services.length === 0){
             const opt = document.createElement('option');
             opt.value='';
@@ -71,14 +72,14 @@ async function carregarProfissional(){
 
 async function gerarSlots(){
     clearMsg();
-    slotsList.innerHTML = '';
+    setHTML(slotsList, '');
     const date = dateSelect.value;
     if(!date){ showMsg('Selecione uma data', 'error'); return; }
     
     try{
         const slots = await getAgendaSlotsComCache(profissionalId, date);
         if(!slots.length){ 
-            slotsList.innerHTML = '<p class="text-secondary">Nenhum slot disponível</p>'; 
+            setHTML(slotsList, '<p class="text-secondary">Nenhum slot disponível</p>'); 
             return; 
         }
 

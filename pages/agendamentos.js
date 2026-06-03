@@ -8,6 +8,7 @@ import { obterUsuarioAtual } from '../modules/auth.js';
 import { listAgendamentosEmpresa, confirmarAgendamento, cancelarAgendamento } from '../modules/agendamentos.js';
 import { notifyInApp } from '../modules/notifications.js';
 import { showToast } from '../modules/feedback.js';
+import { setHTML } from '../modules/security.js';
 
 const lista = document.getElementById('lista-agendamentos');
 const btnFilter = document.getElementById('btn-filter');
@@ -68,7 +69,7 @@ function formatDateChart(iso) {
 function buildCard(item) {
     const div = document.createElement('div');
     div.className = 'agendamento-card';
-    div.innerHTML = `
+    setHTML(div, `
         <div class="ag-header">
             <div class="ag-cliente">
                 <strong>${item.nomeCliente || item.clienteUid || 'Cliente'}</strong>
@@ -87,7 +88,7 @@ function buildCard(item) {
             ${item.status === 'solicitado' ? '<button class="btn-confirm">✅ Confirmar</button>' : ''}
             ${item.status !== 'cancelado' ? '<button class="btn-cancel">❌ Cancelar</button>' : ''}
         </div>
-    `;
+    `);
 
     // Confirm handler
     if (item.status === 'solicitado') {
@@ -147,7 +148,7 @@ function buildCard(item) {
  * Carregar lista de agendamentos
  */
 async function carregarLista() {
-    lista.innerHTML = '<div class="loading-state">Carregando agendamentos...</div>';
+    setHTML(lista, '<div class="loading-state">Carregando agendamentos...</div>');
     
     try {
         const usuario = obterUsuarioAtual();
@@ -171,7 +172,7 @@ async function carregarLista() {
         
     } catch (err) {
         console.error('Erro carregar agendamentos', err);
-        lista.innerHTML = '<div class="error-state">Erro ao carregar agendamentos</div>';
+        setHTML(lista, '<div class="error-state">Erro ao carregar agendamentos</div>');
     }
 }
 
@@ -213,12 +214,12 @@ function renderizarLista() {
  * Renderizar lista filtrada
  */
 function renderizarListaFiltrada(items) {
-    lista.innerHTML = '';
+    setHTML(lista, '');
     
     countDisplay.textContent = `${items.length} agendamento${items.length !== 1 ? 's' : ''}`;
     
     if (!items.length) {
-        lista.innerHTML = '<div class="empty-state">Nenhum agendamento encontrado</div>';
+        setHTML(lista, '<div class="empty-state">Nenhum agendamento encontrado</div>');
         return;
     }
 

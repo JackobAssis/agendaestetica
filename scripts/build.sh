@@ -43,6 +43,10 @@ cp "$PROJECT_DIR/_redirects" "$PROJECT_DIR/public/" 2>/dev/null || true
 echo "📁 Copiando módulos..."
 cp -r "$PROJECT_DIR/modules" "$PROJECT_DIR/public/" 2>/dev/null || true
 
+# Copy pages/ to public/ (override src/pages/ versions)
+echo "📁 Copiando páginas..."
+cp -r "$PROJECT_DIR/pages" "$PROJECT_DIR/public/" 2>/dev/null || true
+
 # Copy styles/ to public/
 echo "📁 Copiando estilos..."
 cp -r "$PROJECT_DIR/styles" "$PROJECT_DIR/public/" 2>/dev/null || true

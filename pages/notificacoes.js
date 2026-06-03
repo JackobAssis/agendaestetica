@@ -13,6 +13,7 @@
 import { notifyInApp } from '../modules/notifications.js';
 import { obterUsuarioAtual } from '../modules/auth.js';
 import { 
+import { setHTML } from '../modules/security.js';
     getFirebaseDB, 
     doc, 
     getDoc, 
@@ -328,18 +329,18 @@ async function carregarNotificacoes() {
         empresaId = usuario.empresaId;
     }
 
-    listaNotificacoes.innerHTML = '<div class="loading">Carregando notificações...</div>';
+    setHTML(listaNotificacoes, '<div class="loading">Carregando notificações...</div>');
 
     try {
         if (!empresaId) {
-            listaNotificacoes.innerHTML = `
+            setHTML(listaNotificacoes, `
                 <div class="empty-state">
                     <div class="empty-icon">🔔</div>
                     <h3>Sem notificações</h3>
                     <p>As notificações aparecerão aqui quando houver atualizações sobre seus agendamentos.</p>
                     <a href="/" class="btn-primary">Ver Profissionais</a>
                 </div>
-            `;
+            `);
             return;
         }
 
@@ -357,7 +358,7 @@ async function carregarNotificacoes() {
         atualizarBadgeContagem();
     } catch (error) {
         console.error('Erro ao carregar notificações:', error);
-        listaNotificacoes.innerHTML = '<div class="error-state">Erro ao carregar notificações.</div>';
+        setHTML(listaNotificacoes, '<div class="error-state">Erro ao carregar notificações.</div>');
     }
 }
 
@@ -388,7 +389,7 @@ function renderNotificacoes() {
 
     if (filtradas.length === 0) {
         const icon = filtroAtual === 'nao-lidas' ? '✅' : '🔔';
-        listaNotificacoes.innerHTML = `
+        setHTML(listaNotificacoes, `
             <div class="empty-state">
                 <div class="empty-icon">${icon}</div>
                 <h3>${filtroAtual === 'nao-lidas' ? 'Tudo certo!' : 'Sem notificações'}</h3>
@@ -396,11 +397,11 @@ function renderNotificacoes() {
                     ? 'Você não tem notificações não lidas.' 
                     : 'Você não tem notificações ainda.'}</p>
             </div>
-        `;
+        `);
         return;
     }
 
-    listaNotificacoes.innerHTML = filtradas.map(notif => `
+    setHTML(listaNotificacoes, filtradas.map(notif => `
         <div class="notificacao-card ${notif.read ? '' : 'unread'}" data-id="${notif.id}">
             <div class="notificacao-icon">${getIconForType(notif.tipo)}</div>
             <div class="notificacao-content">
@@ -414,7 +415,7 @@ function renderNotificacoes() {
                 ${!notif.read ? '<span class="badge badge-warning">Nova</span>' : ''}
             </div>
         </div>
-    `).join('');
+    `).join(''));
 
     // Add click handlers
     document.querySelectorAll('.notificacao-card').forEach(card => {
@@ -433,12 +434,13 @@ function mostrarDetalhes(notif) {
     notifSelecionada = notif;
 
     document.getElementById('modal-titulo').textContent = notif.title || 'Notificação';
-    document.getElementById('modal-corpo').innerHTML = `
+    const modalCorpo = document.getElementById('modal-corpo');
+    setHTML(modalCorpo, `
         <div class="notif-detalhes">
             <p>${notif.body || ''}</p>
             <p class="notif-tempo">Recebida em ${new Date(notif.createdAt).toLocaleString('pt-BR')}</p>
         </div>
-    `;
+    `);
 
     const btnVer = document.getElementById('btn-ver-agendamento');
     if (notif.meta && notif.meta.agendamentoId) {

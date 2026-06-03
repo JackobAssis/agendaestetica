@@ -1,5 +1,6 @@
 import { obterUsuarioAtual } from '../modules/auth.js';
 import { saveAgendaConfig, createBlock, generateSlotsForDate } from '../modules/agenda.js';
+import { setHTML } from '../modules/security.js';
 
 const form = document.getElementById('form-agenda');
 const msg = document.getElementById('agenda-mensagem');
@@ -70,7 +71,7 @@ formBloq.addEventListener('submit', async (e)=>{
 
 btnGerar.addEventListener('click', async ()=>{
   clearMsg(slotsContainer);
-  slotsContainer.innerHTML = '';
+  setHTML(slotsContainer, '');
   const date = datePreview.value;
   if(!date){ showMsg(slotsContainer, 'Selecione uma data', 'error'); return; }
 
@@ -82,7 +83,7 @@ btnGerar.addEventListener('click', async ()=>{
     const slots = await generateSlotsForDate(usuario.empresaId, date);
     btnGerar.disabled = false; btnGerar.textContent = 'Gerar Slots Disponíveis';
 
-    if(!slots.length){ slotsContainer.innerHTML = '<p class="text-secondary">Nenhum slot disponível nesta data</p>'; return; }
+    if(!slots.length){ setHTML(slotsContainer, '<p class="text-secondary">Nenhum slot disponível nesta data</p>'); return; }
 
     const list = document.createElement('ul');
     list.className = 'slots-list';

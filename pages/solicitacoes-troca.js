@@ -5,6 +5,7 @@
 
 import { listAgendamentosEmpresa, buscarRemarcacaoPendente, aceitarRemarcacao, rejeitarRemarcacao } from '../modules/agendamentos.js';
 import { obterUsuarioAtual } from '../modules/auth.js';
+import { setHTML } from '../modules/security.js';
 
 // DOM Elements
 const listaSolicitacoes = document.getElementById('lista-solicitacoes');
@@ -50,7 +51,7 @@ async function carregarSolicitacoes() {
         return;
     }
 
-    listaSolicitacoes.innerHTML = '<div class="loading">Carregando solicitações...</div>';
+    setHTML(listaSolicitacoes, '<div class="loading">Carregando solicitações...</div>');
 
     try {
         // Carregar todos os agendamentos
@@ -62,7 +63,7 @@ async function carregarSolicitacoes() {
         renderSolicitacoes();
     } catch (error) {
         console.error('Erro ao carregar solicitações:', error);
-        listaSolicitacoes.innerHTML = '<div class="error-state">Erro ao carregar solicitações. Tente novamente.</div>';
+        setHTML(listaSolicitacoes, '<div class="error-state">Erro ao carregar solicitações. Tente novamente.</div>');
     }
 }
 
@@ -72,19 +73,19 @@ function renderSolicitacoes() {
         : solicitacoes;
 
     if (filtradas.length === 0) {
-        listaSolicitacoes.innerHTML = `
+        setHTML(listaSolicitacoes, `
             <div class="empty-state">
                 <p>${filtroAtual === 'pendentes' 
                     ? 'Não há solicitações de troca pendentes.' 
                     : 'Nenhuma solicitação encontrada.'}</p>
             </div>
-        `;
+        `);
         return;
     }
 
     // Para cada agendamento com troca, precisamos buscar as sub-coleções
     // Isso é uma simplificação - em produção usaria Cloud Function
-    listaSolicitacoes.innerHTML = filtradas.map(agendamento => `
+    setHTML(listaSolicitacoes, filtradas.map(agendamento => `
         <div class="solicitacao-card" data-id="${agendamento.id}">
             <div class="solicitacao-header">
                 <span class="badge badge-warning">Troca Pendente</span>
@@ -97,7 +98,7 @@ function renderSolicitacoes() {
             </div>
             <button class="btn-details" onclick="window.mostrarDetalhes('${agendamento.id}')">Ver Detalhes</button>
         </div>
-    `).join('');
+    `).join(''));
 }
 
 window.mostrarDetalhes = async function(agendamentoId) {
@@ -165,12 +166,13 @@ window.mostrarDetalhes = async function(agendamentoId) {
         </section>
     `;
 
-    document.getElementById('detalhes-conteudo').innerHTML = conteudo;
+    setHTML(document.getElementById('detalhes-conteudo'), conteudo);
     
-    document.getElementById('modal-actions').innerHTML = `
+    const modalAcoes = document.getElementById('modal-actions');
+    setHTML(modalAcoes, `
         <button class="btn-secondary" onclick="window.rejeitarSolicitacao('${agendamento.id}')">Rejeitar</button>
         <button class="btn-primary" onclick="window.aceitarSolicitacao('${agendamento.id}')">Aceitar</button>
-    `;
+    `);
 
     modalDetalhes.classList.remove('hidden');
 };

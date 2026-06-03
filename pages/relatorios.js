@@ -6,6 +6,7 @@
 import { listAgendamentosEmpresa } from '../modules/agendamentos.js';
 import { listClientesEmpresa } from '../modules/clientes.js';
 import { obterUsuarioAtual } from '../modules/auth.js';
+import { setHTML } from '../modules/security.js';
 
 // DOM Elements
 const relatorioResultado = document.getElementById('relatorio-resultado');
@@ -57,7 +58,7 @@ async function gerarRelatorioPeriodo() {
         return;
     }
 
-    relatorioResultado.innerHTML = '<div class="loading">Gerando relatório...</div>';
+    setHTML(relatorioResultado, '<div class="loading">Gerando relatório...</div>');
 
     try {
         const inicio = new Date(dataInicio);
@@ -150,16 +151,16 @@ async function gerarRelatorioPeriodo() {
             html = '<div class="empty-state"><p>Nenhum agendamento encontrado no período selecionado.</p></div>';
         }
 
-        relatorioResultado.innerHTML = html;
+        setHTML(relatorioResultado, html);
 
     } catch (error) {
         console.error('Erro ao gerar relatório:', error);
-        relatorioResultado.innerHTML = '<div class="error-state">Erro ao gerar relatório.</div>';
+        setHTML(relatorioResultado, '<div class="error-state">Erro ao gerar relatório.</div>');
     }
 }
 
 async function gerarRelatorioClientes() {
-    clientesResultado.innerHTML = '<div class="loading">Gerando relatório...</div>';
+    setHTML(clientesResultado, '<div class="loading">Gerando relatório...</div>');
 
     try {
         // Contar agendamentos por cliente
@@ -213,11 +214,11 @@ async function gerarRelatorioClientes() {
             `;
         }
 
-        clientesResultado.innerHTML = html;
+        setHTML(clientesResultado, html);
 
     } catch (error) {
         console.error('Erro ao gerar relatório de clientes:', error);
-        clientesResultado.innerHTML = '<div class="error-state">Erro ao gerar relatório.</div>';
+        setHTML(clientesResultado, '<div class="error-state">Erro ao gerar relatório.</div>');
     }
 }
 
