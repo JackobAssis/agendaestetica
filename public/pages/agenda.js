@@ -1,5 +1,6 @@
 import { obterUsuarioAtual } from '../modules/auth.js';
 import { saveAgendaConfig, createBlock, generateSlotsForDate } from '../modules/agenda.js';
+import { setHTML } from '../modules/security.js';
 
 const form = document.getElementById('form-agenda');
 const msg = document.getElementById('agenda-mensagem');
@@ -10,26 +11,11 @@ const datePreview = document.getElementById('date-preview');
 const slotsContainer = document.getElementById('slots-container');
 
 function showMsg(element, text, type='success'){
-  element.className = 'message-box';
-  element.classList.remove('hidden', 'success-message', 'error-message');
-  if(type === 'success'){
-    element.classList.add('success-message');
-  } else if(type === 'error'){
-    element.classList.add('error-message');
-  }
+  element.className = type==='success' ? 'success-message' : 'error-message';
   element.textContent = text;
+  element.classList.remove('hidden');
 }
-function clearMsg(element){
-  element.classList.add('hidden');
-  element.textContent = '';
-  element.classList.remove('success-message', 'error-message');
-}
-function showSlotsMessage(text, type='info'){
-  slotsContainer.innerHTML = `<div class="message-box${type === 'error' ? ' error-message' : type === 'success' ? ' success-message' : ''}">${text}</div>`;
-}
-function clearSlots(){
-  slotsContainer.innerHTML = '';
-}
+function clearMsg(element){ element.classList.add('hidden'); }
 
 form.addEventListener('submit', async (e)=>{
   e.preventDefault();
@@ -84,9 +70,10 @@ formBloq.addEventListener('submit', async (e)=>{
 });
 
 btnGerar.addEventListener('click', async ()=>{
-  clearSlots();
+  clearMsg(slotsContainer);
+  setHTML(slotsContainer, '');
   const date = datePreview.value;
-  if(!date){ showSlotsMessage('Selecione uma data', 'error'); return; }
+  if(!date){ showMsg(slotsContainer, 'Selecione uma data', 'error'); return; }
 
   try{
     const usuario = obterUsuarioAtual();
@@ -96,21 +83,20 @@ btnGerar.addEventListener('click', async ()=>{
     const slots = await generateSlotsForDate(usuario.empresaId, date);
     btnGerar.disabled = false; btnGerar.textContent = 'Gerar Slots Disponíveis';
 
-    if(!slots.length){ showSlotsMessage('Nenhum slot disponível nesta data'); return; }
+    if(!slots.length){ setHTML(slotsContainer, '<p class="text-secondary">Nenhum slot disponível nesta data</p>'); return; }
 
     const list = document.createElement('ul');
     list.className = 'slots-list';
     slots.forEach(s => {
       const li = document.createElement('li');
       const dtStart = new Date(s.inicioISO);
-      const dtEnd = new Date(s.fimISO);
-      li.textContent = `${dtStart.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - ${dtEnd.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+      li.textContent = `${dtStart.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - ${new Date(s.fimISO).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
       list.appendChild(li);
     });
     slotsContainer.appendChild(list);
   }catch(err){
     console.error('Erro gerar slots', err);
-    showSlotsMessage(err.message || 'Erro ao gerar slots', 'error');
+    showMsg(slotsContainer, err.message || 'Erro ao gerar slots', 'error');
     btnGerar.disabled = false; btnGerar.textContent = 'Gerar Slots Disponíveis';
   }
 });

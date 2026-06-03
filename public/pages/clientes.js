@@ -1,5 +1,6 @@
 import { obterUsuarioAtual } from '../modules/auth.js';
 import { addCliente, listClientesEmpresa, getCliente, addObservacao, getHistorico } from '../modules/clientes.js';
+import { setHTML } from '../modules/security.js';
 
 const listaEl = document.getElementById('lista-clientes');
 const form = document.getElementById('form-add-client');
@@ -16,20 +17,20 @@ function formatDate(iso){ if(!iso) return ''; const d = new Date(iso); return `$
 
 function buildClientCard(c){
   const d = document.createElement('div'); d.className = 'client-card';
-  d.innerHTML = `<strong>${c.nome}</strong> <div class="meta">${c.email||''} ${c.telefone||''}</div> <div class="actions"><button class="btn-view">Ver</button></div>`;
+  setHTML(d, `<strong>${c.nome}</strong> <div class="meta">${c.email||''} ${c.telefone||''}</div> <div class="actions"><button class="btn-view">Ver</button></div>`);
   d.querySelector('.btn-view').addEventListener('click', ()=> showDetails(c));
   return d;
 }
 
 async function carregarLista(){
-  listaEl.innerHTML = '';
+  setHTML(listaEl, '');
   try{
     const usuario = obterUsuarioAtual();
     if(!usuario || !usuario.empresaId){ window.location.href = '/login'; return; }
     const clients = await listClientesEmpresa(usuario.empresaId);
-    if(!clients.length){ listaEl.innerHTML = '<p class="text-secondary">Nenhum cliente cadastrado</p>'; return; }
+    if(!clients.length){ setHTML(listaEl, '<p class="text-secondary">Nenhum cliente cadastrado</p>'); return; }
     clients.forEach(c => listaEl.appendChild(buildClientCard(c)));
-  }catch(err){ console.error('Erro carregar clientes', err); listaEl.innerHTML = '<p class="error-message">Erro ao carregar clientes</p>'; }
+  }catch(err){ console.error('Erro carregar clientes', err); setHTML(listaEl, '<p class="error-message">Erro ao carregar clientes</p>'); }
 }
 
 async function onAddClient(e){
@@ -50,16 +51,16 @@ async function onAddClient(e){
 async function showDetails(cliente){
   currentCliente = cliente;
   detalhesSec.classList.remove('hidden');
-  detalhesContent.innerHTML = `<p><strong>${cliente.nome}</strong></p><p>${cliente.email||''} • ${cliente.telefone||''}</p>`;
+  setHTML(detalhesContent, `<p><strong>${cliente.nome}</strong></p><p>${cliente.email||''} • ${cliente.telefone||''}</p>`);
   obsText.value = '';
   // Load historico
   try{
     const usuario = obterUsuarioAtual();
     const hist = await getHistorico(usuario.empresaId, cliente.id);
-    historicoEl.innerHTML = '';
-    if(!hist.length) historicoEl.innerHTML = '<p class="text-secondary">Nenhum histórico</p>';
-    hist.forEach(h=>{ const div = document.createElement('div'); div.className='hist-item'; div.innerHTML=`${formatDate(h.inicio)} — ${h.servico || ''} — <strong>${h.status}</strong>`; historicoEl.appendChild(div); });
-  }catch(err){ console.error('Erro historico', err); historicoEl.innerHTML = '<p class="error-message">Erro ao carregar histórico</p>'; }
+    setHTML(historicoEl, '');
+    if(!hist.length) setHTML(historicoEl, '<p class="text-secondary">Nenhum histórico</p>');
+    hist.forEach(h=>{ const div = document.createElement('div'); div.className='hist-item'; setHTML(div, `${formatDate(h.inicio)} — ${h.servico || ''} — <strong>${h.status}</strong>`); historicoEl.appendChild(div); });
+  }catch(err){ console.error('Erro historico', err); setHTML(historicoEl, '<p class="error-message">Erro ao carregar histórico</p>'); }
 }
 
 btnAddObs.addEventListener('click', async ()=>{

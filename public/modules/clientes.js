@@ -106,14 +106,12 @@ export async function getHistorico(empresaId, clienteId) {
     if (!empresaId || !clienteId) throw new Error('empresaId e clienteId obrigatórios');
     const db = getFirebaseDB();  // ✅ v9+
     
-    // Use collectionGroup query
     const q = query(
-        collection(db, 'agendamentos'),
+        collection(db, 'empresas', empresaId, 'agendamentos'),
         where('clienteUid', '==', clienteId),
         orderBy('inicio', 'desc')
     );
     
-    // Note: collectionGroup queries require indexes
     const snap = await getDocs(q);
     return snap.docs.map(d => ({ id: d.id, ...d.data() }));
 }

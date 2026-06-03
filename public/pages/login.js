@@ -1,6 +1,8 @@
 /**
  * Login Page Logic
  * Reference: PLANO-MESTRE-TECNICO.md > Seção 8 Fluxo 1 (Login e Cadastro)
+ * 
+ * Suporte a Email ou Telefone para login/cadastro
  */
 
 import { 
@@ -9,6 +11,7 @@ import {
     cadastroProfissional, 
     cadastroCliente 
 } from '../modules/auth.js';
+import { setHTML } from '../modules/security.js';
 
 // ============================================================
 // Estado da Página
@@ -17,13 +20,79 @@ import {
 let modoAtual = 'login'; // 'login' ou 'cadastro'
 let roleAtual = 'profissional'; // 'profissional' ou 'cliente'
 
+// Rate limiting
+let loginAttempts = 0;
+const MAX_ATTEMPTS = 5;
+const LOCKOUT_TIME = 15 * 60 * 1000; // 15 minutos
+let lockoutUntil = 0;
+
 // ============================================================
-// DOM Elements - Buscar imediatamente
+// Rate Limiting
+// ============================================================
+
+function isRateLimited() {
+    const now = Date.now();
+    if (now < lockoutUntil) {
+        const remaining = Math.ceil((lockoutUntil - now) / 60000);
+        showMessage(`Muitas tentativas. Tente novamente em ${remaining} minutos.`, 'error');
+        return true;
+    }
+    return false;
+}
+
+function recordFailedAttempt() {
+    loginAttempts++;
+    if (loginAttempts >= MAX_ATTEMPTS) {
+        lockoutUntil = Date.now() + LOCKOUT_TIME;
+        showMessage('Conta temporariamente bloqueada devido a muitas tentativas falhidas.', 'error');
+    }
+}
+
+function recordSuccessfulLogin() {
+    loginAttempts = 0;
+    lockoutUntil = 0;
+}
+
+// ============================================================
+// Acessibilidade
+// ============================================================
+
+function setupAccessibility() {
+    // Adicionar tabindex e aria-pressed aos botões toggle
+    const toggleButtons = document.querySelectorAll('.toggle-btn');
+    toggleButtons.forEach(btn => {
+        if (!btn.hasAttribute('tabindex')) {
+            btn.setAttribute('tabindex', '0');
+        }
+        if (!btn.hasAttribute('aria-pressed')) {
+            btn.setAttribute('aria-pressed', btn.classList.contains('active') ? 'true' : 'false');
+        }
+    });
+
+    // Focar no primeiro campo interagível
+    const firstInput = document.querySelector('input:not([type="hidden"])');
+    if (firstInput) {
+        setTimeout(() => firstInput.focus(), 100);
+    }
+
+    // Adicionar suporte a Enter/Space nos toggles
+    toggleButtons.forEach(btn => {
+        btn.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                btn.click();
+            }
+        });
+    });
+}
+
+// ============================================================
+// DOM Elements
 // ============================================================
 
 const formLogin = document.getElementById('form-login');
 const formCadastro = document.getElementById('form-cadastro');
-const toggleButtons = document.querySelectorAll('[data-mode]');
+const toggleButtons = document.querySelectorAll('.toggle-buttons');
 const roleBtnsProfissional = document.querySelectorAll('[data-role="profissional"]');
 const roleBtnsCliente = document.querySelectorAll('[data-role="cliente"]');
 const grupoProfissao = document.getElementById('grupo-profissao');
@@ -34,30 +103,53 @@ const mensagemDiv = document.getElementById('mensagem');
 const linkEsqueciSenha = document.getElementById('link-esqueci-senha');
 
 // ============================================================
-// Inicialização - Executar imediatamente quando o módulo carrega
+// Event Listeners
 // ============================================================
 
-if (formLogin || formCadastro) {
-    init();
-}
-
-function init() {
+document.addEventListener('DOMContentLoaded', () => {
     setupToggleButtons();
     setupFormListeners();
     setupRoleButtons();
-    atualizarUIRole();
-    console.log('✅ Login page initialized');
-}
+    setupAccessibility();
+    
+    // Setup input listeners para detectar email vs telefone
+    setupInputDetection();
+});
 
-// ============================================================
-// Event Listeners
-// ============================================================
+/**
+ * Detectar se input é email ou telefone para ajustar UI
+ */
+function setupInputDetection() {
+    const loginEmail = document.getElementById('login-email');
+    const cadastroEmail = document.getElementById('cadastro-email');
+    
+    const handleInput = (e) => {
+        const valor = e.target.value.trim();
+        
+        if (isEmail(valor)) {
+            // É email - mostrar senha
+            if (grupoSenhaLogin) grupoSenhaLogin.style.display = 'block';
+            if (grupoSenhaCadastro) grupoSenhaCadastro.style.display = 'block';
+            if (grupoSenhaConfirma) grupoSenhaConfirma.style.display = 'block';
+        } else if (isPhone(valor)) {
+            // É telefone - esconder senha
+            if (grupoSenhaLogin) grupoSenhaLogin.style.display = 'none';
+            if (grupoSenhaCadastro) grupoSenhaCadastro.style.display = 'none';
+            if (grupoSenhaConfirma) grupoSenhaConfirma.style.display = 'none';
+        }
+    };
+    
+    if (loginEmail) loginEmail.addEventListener('input', handleInput);
+    if (cadastroEmail) cadastroEmail.addEventListener('input', handleInput);
+}
 
 /**
  * Setup toggle entre Login e Cadastro
  */
 function setupToggleButtons() {
-    toggleButtons.forEach(btn => {
+    const toggleBtns = document.querySelectorAll('[data-mode]');
+    
+    toggleBtns.forEach(btn => {
         btn.addEventListener('click', (e) => {
             e.preventDefault();
             
@@ -65,16 +157,16 @@ function setupToggleButtons() {
             modoAtual = modo;
             
             // Atualizar UI
-            toggleButtons.forEach(b => b.classList.remove('active'));
+            toggleBtns.forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
             
             // Mostrar/Esconder forms
             if (modo === 'login') {
-                formLogin.style.display = 'block';
-                formCadastro.style.display = 'none';
+                formLogin.classList.remove('d-none');
+                formCadastro.classList.add('d-none');
             } else {
-                formLogin.style.display = 'none';
-                formCadastro.style.display = 'block';
+                formLogin.classList.add('d-none');
+                formCadastro.classList.remove('d-none');
             }
             
             // Limpar mensagens
@@ -131,15 +223,10 @@ function atualizarUIRole() {
         if (grupoSenhaConfirma) grupoSenhaConfirma.style.display = 'block';
         
         // Validações
-        const profissaoInput = document.getElementById('cadastro-profissao');
-        const senhaLogin = document.getElementById('login-senha');
-        const senhaCadastro = document.getElementById('cadastro-senha');
-        const senhaConfirma = document.getElementById('cadastro-senha-confirma');
-        
-        if (profissaoInput) profissaoInput.required = true;
-        if (senhaLogin) senhaLogin.required = true;
-        if (senhaCadastro) senhaCadastro.required = true;
-        if (senhaConfirma) senhaConfirma.required = true;
+        document.getElementById('cadastro-profissao').required = true;
+        document.getElementById('cadastro-senha').required = true;
+        document.getElementById('cadastro-senha-confirma').required = true;
+        document.getElementById('login-senha').required = true;
         
     } else { // cliente
         if (grupoProfissao) grupoProfissao.style.display = 'none';
@@ -148,15 +235,10 @@ function atualizarUIRole() {
         if (grupoSenhaConfirma) grupoSenhaConfirma.style.display = 'none';
         
         // Remover validações
-        const profissaoInput = document.getElementById('cadastro-profissao');
-        const senhaLogin = document.getElementById('login-senha');
-        const senhaCadastro = document.getElementById('cadastro-senha');
-        const senhaConfirma = document.getElementById('cadastro-senha-confirma');
-        
-        if (profissaoInput) profissaoInput.required = false;
-        if (senhaLogin) senhaLogin.required = false;
-        if (senhaCadastro) senhaCadastro.required = false;
-        if (senhaConfirma) senhaConfirma.required = false;
+        document.getElementById('cadastro-profissao').required = false;
+        document.getElementById('cadastro-senha').required = false;
+        document.getElementById('cadastro-senha-confirma').required = false;
+        document.getElementById('login-senha').required = false;
     }
 }
 
@@ -165,20 +247,16 @@ function atualizarUIRole() {
  */
 function setupFormListeners() {
     // Login form
-    if (formLogin) {
-        formLogin.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            await handleLogin();
-        });
-    }
+    formLogin.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        await handleLogin();
+    });
     
     // Cadastro form
-    if (formCadastro) {
-        formCadastro.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            await handleCadastro();
-        });
-    }
+    formCadastro.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        await handleCadastro();
+    });
     
     // Esqueci senha
     if (linkEsqueciSenha) {
@@ -190,35 +268,45 @@ function setupFormListeners() {
 }
 
 /**
- * Handle Login
+ * Handle Login - Suporta Email ou Telefone
  */
 async function handleLogin() {
+    // Verificar rate limiting
+    if (isRateLimited()) {
+        return;
+    }
+    
     try {
-        const email = document.getElementById('login-email').value.trim();
+        const emailOuTelefone = document.getElementById('login-email').value.trim();
         
-        if (!email) {
-            mostrarErro('Email é obrigatório');
+        if (!emailOuTelefone) {
+            mostrarErro('Email ou telefone é obrigatório');
             return;
         }
         
         // Disable button
         const btn = formLogin.querySelector('.submit-btn');
         btn.disabled = true;
-        btn.innerHTML = '<span class="loading-spinner"></span>Entrando...';
+        setHTML(btn, '<span class="loading-spinner"></span>Entrando...');
         
         if (roleAtual === 'profissional') {
-            const senha = document.getElementById('login-senha').value;
+            let senha = null;
             
-            if (!senha) {
-                mostrarErro('Senha é obrigatória para profissionais');
-                btn.disabled = false;
-                btn.innerHTML = '<span id="login-btn-texto">Entrar</span>';
-                return;
+            // Se for email, senha é obrigatória
+            if (isEmail(emailOuTelefone)) {
+                senha = document.getElementById('login-senha').value;
+                if (!senha) {
+                    mostrarErro('Senha é obrigatória para login por email');
+                    btn.disabled = false;
+                    setHTML(btn, '<span id="login-btn-texto">Entrar</span>');
+                    return;
+                }
             }
             
-            // Login profissional
-            await loginProfissional(email, senha);
+            // Login profissional (email ou telefone)
+            await loginProfissional(emailOuTelefone, senha);
             mostrarSucesso('Login realizado! Redirecionando...');
+            recordSuccessfulLogin();
             
             // Pequeno delay para mostrar mensagem
             setTimeout(() => {
@@ -226,9 +314,10 @@ async function handleLogin() {
             }, 1000);
             
         } else {
-            // Login cliente (por email)
-            await loginCliente(email);
+            // Login cliente (por email ou telefone)
+            await loginCliente(emailOuTelefone);
             mostrarSucesso('Bem-vindo! Redirecionando...');
+            recordSuccessfulLogin();
             
             setTimeout(() => {
                 window.location.href = '/confirmacao';
@@ -237,60 +326,67 @@ async function handleLogin() {
         
     } catch (error) {
         mostrarErro(error.message);
+        recordFailedAttempt();
         
         const btn = formLogin.querySelector('.submit-btn');
         btn.disabled = false;
-        btn.innerHTML = '<span id="login-btn-texto">Entrar</span>';
+        setHTML(btn, '<span id="login-btn-texto">Entrar</span>');
     }
 }
 
 /**
- * Handle Cadastro
+ * Handle Cadastro - Suporta Email ou Telefone
  */
 async function handleCadastro() {
     try {
         const nome = document.getElementById('cadastro-nome').value.trim();
-        const email = document.getElementById('cadastro-email').value.trim();
+        const emailOuTelefone = document.getElementById('cadastro-email').value.trim();
         
-        if (!nome || !email) {
-            mostrarErro('Nome e email são obrigatórios');
+        if (!nome || !emailOuTelefone) {
+            mostrarErro('Nome e email/telefone são obrigatórios');
             return;
         }
         
         // Disable button
         const btn = formCadastro.querySelector('.submit-btn');
         btn.disabled = true;
-        btn.innerHTML = '<span class="loading-spinner"></span>Criando conta...';
+        setHTML(btn, '<span class="loading-spinner"></span>Criando conta...');
         
         if (roleAtual === 'profissional') {
             const profissao = document.getElementById('cadastro-profissao').value;
-            const senha = document.getElementById('cadastro-senha').value;
-            const senhaConfirma = document.getElementById('cadastro-senha-confirma').value;
+            let senha = null;
+            let senhaConfirma = null;
             
-            // Validações
-            if (!profissao) {
-                mostrarErro('Profissão é obrigatória');
-                btn.disabled = false;
-                btn.innerHTML = '<span id="cadastro-btn-texto">Criar Conta</span>';
-                return;
-            }
-            
-            if (!senha || !senhaConfirma) {
-                mostrarErro('Senha e confirmação são obrigatórias');
-                btn.disabled = false;
-                btn.innerHTML = '<span id="cadastro-btn-texto">Criar Conta</span>';
-                return;
-            }
-            
-            if (senha !== senhaConfirma) {
-                mostrarErro('As senhas não coincidem');
-                btn.disabled = false;
-                btn.innerHTML = '<span id="cadastro-btn-texto">Criar Conta</span>';
-                return;
+            // Se for email, senha é obrigatória
+            if (isEmail(emailOuTelefone)) {
+                senha = document.getElementById('cadastro-senha').value;
+                senhaConfirma = document.getElementById('cadastro-senha-confirma').value;
+                
+                // Validações
+                if (!profissao) {
+                    mostrarErro('Profissão é obrigatória');
+                    btn.disabled = false;
+                    setHTML(btn, '<span id="cadastro-btn-texto">Criar Conta</span>');
+                    return;
+                }
+                
+                if (!senha || !senhaConfirma) {
+                    mostrarErro('Senha e confirmação são obrigatórias para cadastro por email');
+                    btn.disabled = false;
+                    setHTML(btn, '<span id="cadastro-btn-texto">Criar Conta</span>');
+                    return;
+                }
+                
+                if (senha !== senhaConfirma) {
+                    mostrarErro('As senhas não coincidem');
+                    btn.disabled = false;
+                    setHTML(btn, '<span id="cadastro-btn-texto">Criar Conta</span>');
+                    return;
+                }
             }
             
             // Cadastro profissional
-            await cadastroProfissional(email, senha, nome, profissao);
+            await cadastroProfissional(emailOuTelefone, senha, nome, profissao);
             mostrarSucesso('Cadastro realizado! Redirecionando para onboarding...');
             
             setTimeout(() => {
@@ -299,7 +395,7 @@ async function handleCadastro() {
             
         } else {
             // Cadastro cliente
-            await cadastroCliente(email, nome);
+            await cadastroCliente(emailOuTelefone, nome);
             mostrarSucesso('Cadastro realizado! Você será redirecionado...');
             
             setTimeout(() => {
@@ -312,7 +408,7 @@ async function handleCadastro() {
         
         const btn = formCadastro.querySelector('.submit-btn');
         btn.disabled = false;
-        btn.innerHTML = '<span id="cadastro-btn-texto">Criar Conta</span>';
+        setHTML(btn, '<span id="cadastro-btn-texto">Criar Conta</span>');
     }
 }
 
@@ -320,11 +416,8 @@ async function handleCadastro() {
  * Mostrar modo de recuperar senha
  */
 function mostraModoRecuperarSenha() {
-    const email = prompt('Digite seu email:');
-    if (!email) return;
-    
-    // TODO: Implementar em FASE 2+
-    mostrarSucesso('Um email de recuperação foi enviado. Verifique sua caixa de entrada.');
+    // Navegar para pagina de recuperacao de senha
+    window.location.href = '/recuperar-senha';
 }
 
 // ============================================================
@@ -335,27 +428,40 @@ function mostraModoRecuperarSenha() {
  * Mostrar erro
  */
 function mostrarErro(mensagem) {
-    if (!mensagemDiv) return;
-    mensagemDiv.className = 'error-message';
-    mensagemDiv.textContent = '❌ ' + mensagem;
-    mensagemDiv.classList.remove('hidden');
+    mensagemDiv.className = 'alert alert--danger';
+    setHTML(mensagemDiv, `
+        <svg class="alert__icon" width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+        </svg>
+        <div class="alert__content">
+            <p class="alert__message">${mensagem}</p>
+        </div>
+    `);
+    mensagemDiv.classList.remove('d-none');
 }
 
 /**
  * Mostrar sucesso
  */
 function mostrarSucesso(mensagem) {
-    if (!mensagemDiv) return;
-    mensagemDiv.className = 'success-message';
-    mensagemDiv.textContent = '✅ ' + mensagem;
-    mensagemDiv.classList.remove('hidden');
+    mensagemDiv.className = 'alert alert--success';
+    setHTML(mensagemDiv, `
+        <svg class="alert__icon" width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+        </svg>
+        <div class="alert__content">
+            <p class="alert__message">${mensagem}</p>
+        </div>
+    `);
+    mensagemDiv.classList.remove('d-none');
 }
 
 /**
  * Limpar mensagem
  */
 function limparMensagem() {
-    if (!mensagemDiv) return;
-    mensagemDiv.classList.add('hidden');
+    mensagemDiv.classList.add('d-none');
 }
 
+// Inicializar UI do role
+atualizarUIRole();

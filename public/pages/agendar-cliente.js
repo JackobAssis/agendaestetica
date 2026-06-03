@@ -1,44 +1,18 @@
 /**
- * Agendar Cliente Page - Firebase v9+ Modular SDK
+ * Página de Agendamento do Cliente - Firebase v9+ Modular SDK
+ * CORRIGIDO para Firebase v9+ modular
  */
 
-import { generateSlotsForDate } from '../modules/agenda.js';
+import { getAgendaSlotsComCache } from '../modules/agenda.js';
 import { solicitarAgendamento } from '../modules/agendamentos.js';
 import { notifyInApp, sendWebhook } from '../modules/notifications.js';
 import { findOrCreateClienteByEmail } from '../modules/clientes.js';
+import { getFirebaseDB, doc, getDoc } from '../modules/firebase.js';
+import { setHTML } from '../modules/security.js';
 
-// ============================================================
-// Firebase v9+ Modular SDK Imports
-// ============================================================
-
-import { 
-    getFirestore, 
-    doc, 
-    getDoc 
-} from 'https://www.gstatic.com/firebasejs/10.5.0/firebase-firestore.js';
-
-// ============================================================
-// Firebase Instance Factory
-// ============================================================
-
-/**
- * Obter instância do Firestore - USA a instância global do index.html
- */
-function getFirebaseDB() {
-    if (typeof window !== 'undefined' && window.firebaseApp) {
-        return getFirestore(window.firebaseApp);
-    }
-    throw new Error('Firebase Firestore não inicializado. Verifique index.html');
-}
-
-// ============================================================
-// Agendar Cliente Functions
-// ============================================================
-
-// Extract profissionalId from path /agendar/:profissionalId
-function getProfissionalIdFromPath() {
+function getProfissionalIdFromPath(){
     const parts = window.location.pathname.split('/').filter(Boolean);
-    return parts[1] || null; // ['', 'agendar', ':id'] -> index 1 is id
+    return parts[1] || null;
 }
 
 const profissionalId = getProfissionalIdFromPath();
@@ -53,71 +27,60 @@ const emailInput = document.getElementById('cliente-email');
 const telInput = document.getElementById('cliente-telefone');
 const msg = document.getElementById('agendar-mensagem');
 
-function showMsg(text, type = 'success') {
+function showMsg(text, type='success'){
     msg.className = type === 'success' ? 'success-message' : 'error-message';
     msg.textContent = text;
     msg.classList.remove('hidden');
 }
+function clearMsg(){ msg.classList.add('hidden'); }
 
-function clearMsg() {
-    msg.classList.add('hidden');
-}
-
-async function carregarProfissional() {
-    try {
-        if (!profissionalId) throw new Error('ID do profissional não encontrado na URL');
+async function carregarProfissional(){
+    try{
+        if(!profissionalId) throw new Error('ID do profissional não encontrado na URL');
         
-        const db = getFirebaseDB();
+        const db = getFirebaseDB();  // ✅ v9+
         const docRef = doc(db, 'empresas', profissionalId);
-        const snap = await getDoc(docRef);
+        const empresaDoc = await getDoc(docRef);  // ✅ v9+
         
-        if (!snap.exists()) throw new Error('Profissional não encontrado');
-        
-        const data = snap.data();
+        if(!empresaDoc.exists()) throw new Error('Profissional não encontrado');
+        const data = empresaDoc.data();
 
         profNomeEl.textContent = data.nome || 'Profissional';
         profInfoEl.textContent = `Profissão: ${data.profissao || '—'} • Plano: ${data.plano || 'free'}`;
 
-        // Populate services
         const services = data.servicos || [];
-        servicoSelect.innerHTML = '';
-        
-        if (services.length === 0) {
+        setHTML(servicoSelect, '');
+        if(services.length === 0){
             const opt = document.createElement('option');
-            opt.value = '';
-            opt.textContent = 'Nenhum serviço cadastrado';
+            opt.value='';
+            opt.textContent='Nenhum serviço cadastrado';
             servicoSelect.appendChild(opt);
         } else {
-            services.forEach(s => {
+            services.forEach(s=>{
                 const opt = document.createElement('option');
                 opt.value = s;
                 opt.textContent = s;
                 servicoSelect.appendChild(opt);
             });
         }
-    } catch (err) {
+    }catch(err){
         console.error('Erro carregar profissional', err);
         profNomeEl.textContent = 'Profissional não encontrado';
         profInfoEl.textContent = '';
     }
 }
 
-async function gerarSlots() {
+async function gerarSlots(){
     clearMsg();
-    slotsList.innerHTML = '';
-    
+    setHTML(slotsList, '');
     const date = dateSelect.value;
-    if (!date) {
-        showMsg('Selecione uma data', 'error');
-        return;
-    }
+    if(!date){ showMsg('Selecione uma data', 'error'); return; }
     
-    try {
-        const slots = await generateSlotsForDate(profissionalId, date);
-        
-        if (!slots.length) {
-            slotsList.innerHTML = '<p class="text-secondary">Nenhum slot disponível</p>';
-            return;
+    try{
+        const slots = await getAgendaSlotsComCache(profissionalId, date);
+        if(!slots.length){ 
+            setHTML(slotsList, '<p class="text-secondary">Nenhum slot disponível</p>'); 
+            return; 
         }
 
         slots.forEach(s => {
@@ -125,55 +88,56 @@ async function gerarSlots() {
             btn.className = 'slot-btn';
             const dtStart = new Date(s.inicioISO);
             const dtEnd = new Date(s.fimISO);
-            btn.textContent = `${dtStart.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - ${dtEnd.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
-            btn.addEventListener('click', () => solicitarSlot(s));
+            btn.textContent = `${dtStart.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})} - ${dtEnd.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}`;
+            btn.addEventListener('click', ()=> solicitarSlot(s));
             slotsList.appendChild(btn);
         });
-    } catch (err) {
-        console.error('Erro gerar slots', err);
-        showMsg(err.message || 'Erro ao gerar slots', 'error');
+    }catch(err){ 
+        console.error('Erro gerar slots', err); 
+        showMsg(err.message || 'Erro ao gerar slots', 'error'); 
     }
 }
 
-async function solicitarSlot(slot) {
+async function solicitarSlot(slot){
     clearMsg();
-    
     const nome = nomeInput.value.trim();
     const email = emailInput.value.trim();
     const tel = telInput.value.trim();
     const servico = servicoSelect.value;
 
-    if (!nome || !email) {
-        showMsg('Nome e email são obrigatórios', 'error');
-        return;
-    }
+    if(!nome || !email){ showMsg('Nome e email são obrigatórios', 'error'); return; }
 
-    try {
-        // Ensure cliente exists and get clienteId - prefer Cloud Function if configured
+    try{
         let cliente = null;
-        
-        try {
+        try{
             const createClienteUrl = window.APP_CONFIG && window.APP_CONFIG.createClienteFunctionUrl;
             if (createClienteUrl) {
+                // Obter token reCAPTCHA se disponível
+                let recaptchaToken = null;
+                if (window.grecaptcha) {
+                    try {
+                        recaptchaToken = await window.grecaptcha.execute('6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI', { action: 'createCliente' });
+                    } catch (e) {
+                        console.warn('reCAPTCHA failed', e);
+                    }
+                }
+                
                 const resp = await fetch(createClienteUrl, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ empresaId: profissionalId, nome, email, telefone: tel })
+                    body: JSON.stringify({ empresaId: profissionalId, nome, email, telefone: tel, recaptchaToken })
                 });
                 const body = await resp.json();
                 if (!resp.ok) throw new Error(body.error || 'Erro ao criar cliente via função');
                 cliente = body.cliente || body;
             } else {
-                // fallback to client-side creation (uses Firestore rules / SDK)
-                try {
-                    cliente = await findOrCreateClienteByEmail(profissionalId, email, nome, tel);
-                } catch (e) {
-                    console.warn('findOrCreateCliente failed', e);
+                try{ 
+                    cliente = await findOrCreateClienteByEmail(profissionalId, email, nome, tel); 
+                }catch(e){ 
+                    console.warn('findOrCreateCliente failed', e); 
                 }
             }
-        } catch (e) {
-            console.warn('createCliente flow failed', e);
-        }
+        }catch(e){ console.warn('createCliente flow failed', e); }
 
         const payload = { 
             inicioISO: slot.inicioISO, 
@@ -185,43 +149,34 @@ async function solicitarSlot(slot) {
         };
         
         const res = await solicitarAgendamento(profissionalId, payload);
-
-        // Notify profissional (in-app)
         await notifyProfissionalOnNewRequest(profissionalId, res);
 
         showMsg('Solicitação enviada! Aguarde confirmação.', 'success');
-    } catch (err) {
-        console.error('Erro solicitar agendamento', err);
-        showMsg(err.message || 'Erro ao solicitar agendamento', 'error');
+    }catch(err){ 
+        console.error('Erro solicitar agendamento', err); 
+        showMsg(err.message || 'Erro ao solicitar agendamento', 'error'); 
     }
 }
 
-async function notifyProfissionalOnNewRequest(empresaId, agendamento) {
-    // In-app notification
+async function notifyProfissionalOnNewRequest(empresaId, agendamento){
     await notifyInApp({
         targetEmpresaId: empresaId,
         title: 'Novo pedido de agendamento',
         body: `Pedido para ${agendamento.servico || 'serviço'} em ${new Date(agendamento.inicioISO).toLocaleString()}`
     });
 
-    // Webhook placeholder (if empresa tem webhook configurado)
-    try {
-        const db = getFirebaseDB();
+    try{
+        const db = getFirebaseDB();  // ✅ v9+
         const docRef = doc(db, 'empresas', empresaId);
-        const snap = await getDoc(docRef);
-        const data = snap.data();
+        const empresaDoc = await getDoc(docRef);  // ✅ v9+
+        const data = empresaDoc.data();
         
-        if (data && data.webhookUrl) {
+        if(data && data.webhookUrl){
             await sendWebhook(data.webhookUrl, { event: 'novo_agendamento', agendamento });
         }
-    } catch (e) {
-        console.warn('Webhook falhou', e);
-    }
+    }catch(e){ console.warn('Webhook falhou', e); }
 }
 
-// Events
-if (btnGerar) {
-    btnGerar.addEventListener('click', gerarSlots);
-}
+btnGerar.addEventListener('click', gerarSlots);
 document.addEventListener('DOMContentLoaded', carregarProfissional);
 

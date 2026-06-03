@@ -13,6 +13,7 @@ import { listAgendamentosCliente } from '../modules/agendamentos.js';
 import { solicitarRemarcacao } from '../modules/agendamentos.js';
 import { obterUsuarioAtual } from '../modules/auth.js';
 import { generateSlotsForDate } from '../modules/agenda.js';
+import { setHTML } from '../modules/security.js';
 
 // DOM Elements
 const listaFuturos = document.getElementById('lista-futuros');
@@ -80,8 +81,8 @@ async function carregarAgendamentos() {
         return;
     }
 
-    listaFuturos.innerHTML = '<div class="loading">Carregando...</div>';
-    listaHistorico.innerHTML = '';
+    setHTML(listaFuturos, '<div class="loading">Carregando...</div>');
+    setHTML(listaHistorico, '');
 
     try {
         agendamentos = await listAgendamentosCliente(usuario.uid);
@@ -92,21 +93,21 @@ async function carregarAgendamentos() {
 
         // Render futuros
         if (futuros.length === 0) {
-            listaFuturos.innerHTML = '<div class="empty-state"><p>Você não tem agendamentos próximos.</p><a href="/" class="btn-primary">Ver Profissionais</a></div>';
+            setHTML(listaFuturos, '<div class="empty-state"><p>Você não tem agendamentos próximos.</p><a href="/" class="btn-primary">Ver Profissionais</a></div>');
         } else {
-            listaFuturos.innerHTML = futuros.map(renderAgendamento).join('');
+            setHTML(listaFuturos, futuros.map(renderAgendamento).join(''));
         }
 
         // Render histórico
         if (historico.length === 0) {
-            listaHistorico.innerHTML = '<div class="empty-state"><p>Nenhum histórico de agendamentos.</p></div>';
+            setHTML(listaHistorico, '<div class="empty-state"><p>Nenhum histórico de agendamentos.</p></div>');
         } else {
-            listaHistorico.innerHTML = historico.map(renderAgendamento).join('');
+            setHTML(listaHistorico, historico.map(renderAgendamento).join(''));
         }
 
     } catch (error) {
         console.error('Erro ao carregar agendamentos:', error);
-        listaFuturos.innerHTML = '<div class="error-state">Erro ao carregar agendamentos. Tente novamente.</div>';
+        setHTML(listaFuturos, '<div class="error-state">Erro ao carregar agendamentos. Tente novamente.</div>');
     }
 }
 
@@ -150,7 +151,7 @@ window.mostrarDetalhes = function(agendamentoId) {
         </div>
     `;
 
-    document.getElementById('detalhes-conteudo').innerHTML = conteudo;
+    setHTML(document.getElementById('detalhes-conteudo'), conteudo);
     modalDetalhes.classList.remove('hidden');
 
     // Mostrar/esconder botões baseado no status
@@ -198,7 +199,7 @@ async function carregarSlotsTroca() {
     const horaSelect = document.getElementById('troca-hora');
     
     if (!data) {
-        horaSelect.innerHTML = '<option value="">Selecione uma data primeiro</option>';
+        setHTML(horaSelect, '<option value="">Selecione uma data primeiro</option>');
         return;
     }
 
@@ -212,19 +213,18 @@ async function carregarSlotsTroca() {
         const slots = await generateSlotsForDate(usuario.empresaId, data);
         
         if (slots.length === 0) {
-            horaSelect.innerHTML = '<option value="">Nenhum horário disponível</option>';
+            setHTML(horaSelect, '<option value="">Nenhum horário disponível</option>');
             return;
         }
 
-        horaSelect.innerHTML = slots.map(slot => {
-            const dt = new Date(slot.inicioISO);
-            const hora = dt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        setHTML(horaSelect, slots.map(slot => {
+            const hora = new Date(slot.inicioISO).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
             return `<option value="${slot.inicioISO}">${hora}</option>`;
-        }).join('');
+        }).join(''));
         
     } catch (error) {
         console.error('Erro ao carregar slots:', error);
-        horaSelect.innerHTML = '<option value="">Erro ao carregar horários</option>';
+        setHTML(horaSelect, '<option value="">Erro ao carregar horários</option>');
     }
 }
 

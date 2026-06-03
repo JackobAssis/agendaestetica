@@ -35,7 +35,8 @@ const {
     confirmPasswordReset,
     verifyPasswordResetCode,
     checkActionCode,
-    applyActionCode
+    applyActionCode,
+    signInAnonymously
 } = firebaseAuthModule;
 
 const {
@@ -133,6 +134,7 @@ export {
     startAfter,
     Timestamp,
     serverTimestamp,
+    runTransaction,
     createUserWithEmailAndPassword,
     signInWithEmailAndPassword,
     signOut,
@@ -143,6 +145,7 @@ export {
     confirmPasswordReset,
     verifyPasswordResetCode,
     checkActionCode,
-    applyActionCode
+    applyActionCode,
+    signInAnonymously
 };
 

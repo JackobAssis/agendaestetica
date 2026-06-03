@@ -38,6 +38,9 @@ cp "$PROJECT_DIR/index.html" "$PROJECT_DIR/public/" 2>/dev/null || true
 cp "$PROJECT_DIR/config.js" "$PROJECT_DIR/public/" 2>/dev/null || true
 cp "$PROJECT_DIR/router.js" "$PROJECT_DIR/public/" 2>/dev/null || true
 cp "$PROJECT_DIR/_redirects" "$PROJECT_DIR/public/" 2>/dev/null || true
+cp "$PROJECT_DIR/manifest.json" "$PROJECT_DIR/public/" 2>/dev/null || true
+cp "$PROJECT_DIR/sw.js" "$PROJECT_DIR/public/" 2>/dev/null || true
+cp -r "$PROJECT_DIR/assets" "$PROJECT_DIR/public/" 2>/dev/null || true
 
 # Copy modules/ to public/ (needed for SPA)
 echo "📁 Copiando módulos..."

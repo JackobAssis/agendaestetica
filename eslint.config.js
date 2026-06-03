@@ -8,19 +8,16 @@ export default [
             import: importPlugin
         },
         rules: {
-            // Regras básicas
             'no-unused-vars': 'error',
             'no-console': 'warn',
             'prefer-const': 'error',
             'no-var': 'error',
 
-            // Import rules
             'import/no-unresolved': 'error',
             'import/named': 'error',
             'import/default': 'error',
             'import/namespace': 'error',
 
-            // Segurança
             'no-eval': 'error',
             'no-implied-eval': 'error',
             'no-new-func': 'error'
@@ -36,7 +33,13 @@ export default [
                 setTimeout: 'readonly',
                 clearTimeout: 'readonly',
                 localStorage: 'readonly',
-                sessionStorage: 'readonly'
+                sessionStorage: 'readonly',
+                self: 'readonly',
+                caches: 'readonly',
+                ServiceWorker: 'readonly',
+                Cache: 'readonly',
+                CacheStorage: 'readonly',
+                navigator: 'readonly'
             }
         }
     }

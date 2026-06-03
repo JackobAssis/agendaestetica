@@ -297,6 +297,38 @@ export function showEmptyState(containerId, icon, title, message, actionText, ac
     }
 }
 
+/**
+ * Show skeleton loading for an element
+ */
+export function showSkeleton(element, type = 'card') {
+    if (!element) return;
+
+    element.classList.add('skeleton-loading');
+    element.setAttribute('aria-busy', 'true');
+
+    if (type !== 'text') {
+        const overlay = document.createElement('div');
+        overlay.className = 'skeleton-overlay';
+        overlay.innerHTML = '<div class="skeleton-shimmer"></div>';
+        element.appendChild(overlay);
+    }
+}
+
+/**
+ * Hide skeleton loading
+ */
+export function hideSkeleton(element) {
+    if (!element) return;
+
+    element.classList.remove('skeleton-loading');
+    element.removeAttribute('aria-busy');
+
+    const overlay = element.querySelector('.skeleton-overlay');
+    if (overlay) {
+        overlay.remove();
+    }
+}
+
 export default {
     showSuccess,
     showError,
@@ -310,6 +342,8 @@ export default {
     showAlert,
     showBadge,
     hideBadge,
-    showEmptyState
+    showEmptyState,
+    showSkeleton,
+    hideSkeleton
 };
 
