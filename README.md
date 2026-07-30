@@ -349,88 +349,71 @@ Estrutura Firestore (isolamento garantido):
 
 ```
 agendaestetica/
-├── src/                          # Código fonte principal
-│   ├── index.html                # Landing + escolha de perfil
-│   ├── login.html                # Tela unificada de autenticação
-│   ├── onboarding.html           # Setup inicial obrigatório
-│   ├── dashboard.html           # Resumo do dia (profissional)
-│   ├── agenda.html              # Calendário 3 visualizações
-│   ├── agendamentos.html        # Gestão + ações
-│   ├── clientes.html            # Lista + perfil individual
-│   ├── configuracoes.html       # Settings completos
-│   ├── public.html              # Página pública (cliente)
-│   ├── notificacoes.html        # Centro de notificações
-│   ├── relatorios.html          # Relatórios e estatísticas
-│   ├── meus-agendamentos.html  # Portal do cliente
-│   ├── solicitacoes-troca.html  # Gestão de trocas
-│   │
-│   ├── css/                     # Estilos modulares
-│   │   ├── main.css             # Reset, tipografia, base
-│   │   ├── variables.css        # CSS Variables (temas)
-│   │   ├── responsive.css      # Mobile-first breakpoints
-│   │   ├── components.css       # Botões, cards, modais
-│   │   ├── forms.css           # Inputs, validações
-│   │   ├── animations.css       # Transições, loaders
-│   │   └── pages/              # Estilos específicos
-│   │
-│   ├── js/                      # Lógica modular ES6+
-│   │   ├── config.js            # Firebase + constantes
-│   │   ├── app.js              # Bootstrap/inicialização
-│   │   ├── auth.js             # Login, logout, sessão
-│   │   ├── firestore.js        # CRUD genérico + queries
-│   │   ├── permissoes.js       # Verificação de acesso
-│   │   ├── agenda.js           # Lógica de horários
-│   │   ├── agendamentos.js     # Gestão de agendamentos
-│   │   ├── clientes.js         # CRM básico
-│   │   ├── tema.js             # CSS dinâmicas
-│   │   ├── notificacoes.js     # Sistema de notif.
-│   │   ├── relatorios.js       # Agregação de dados
-│   │   ├── router.js           # Navegação SPA
-│   │   └── utils.js            # Helpers genéricos
-│   │
-│   └── assets/                  # Recursos estáticos
-│       ├── icons/              # SVG icons (otimizados)
-│       ├── images/             # Imagens estáticas
-│       └── fonts/              # Fontes customizadas
+├── index.html                   # Entry point SPA (Firebase init + router)
+├── config.js                    # Firebase configuration
+├── router.js                    # Client-side SPA router (16 rotas)
 │
-├── public/                      # Build de produção (copia src)
-│   ├── index.html
-│   ├── config.js
-│   ├── modules/
-│   ├── pages/
-│   └── styles/
+├── pages/                       # 16 páginas (HTML + JS module)
+│   ├── login.html/js
+│   ├── dashboard.html/js
+│   ├── agenda.html/js
+│   ├── agendamentos.html/js
+│   ├── clientes.html/js
+│   ├── perfil.html/js
+│   ├── onboarding.html/js
+│   ├── notificacoes.html/js
+│   ├── relatorios.html/js
+│   ├── meus-agendamentos.html/js
+│   ├── pagina-cliente.html/js
+│   ├── pagina-publica.html/js
+│   ├── agendar-cliente.html/js
+│   ├── confirmacao.html/js
+│   ├── solicitacoes-troca.html/js
+│   └── recuperar-senha.html/js
 │
-├── functions/                   # Firebase Cloud Functions
-│   ├── index.js                # Entry point
+├── modules/                     # 12 módulos JS
+│   ├── firebase.js              # Firebase v9+ factory (instância única)
+│   ├── auth.js                  # Auth (login, cadastro, sessão)
+│   ├── agenda.js                # Agenda (config, slots, bloqueios)
+│   ├── agendamentos.js          # CRUD + remarcações
+│   ├── clientes.js              # CRM de clientes
+│   ├── permissions.js           # Controle de acesso
+│   ├── security.js              # Sanitização (DOMPurify)
+│   ├── theme.js                 # Temas visuais (4 temas)
+│   ├── notifications.js         # Notificações
+│   ├── feedback.js              # Toast, loading, modais
+│   ├── monetization.js          # Planos Free/Premium
+│   └── utils.js                 # Helpers
+│
+├── styles/                      # CSS
+│   ├── main.css                 # Entry point (importa v2/)
+│   ├── v2/                      # Design system v2
+│   │   ├── reset.css
+│   │   ├── tokens.css           # Design tokens + 4 temas
+│   │   ├── base.css
+│   │   ├── layout.css
+│   │   ├── components.css
+│   │   └── utilities.css
+│   └── *.css                    # Estilos específicos de página
+│
+├── functions/                   # Firebase Cloud Functions (3 funções)
+│   ├── index.js                # loginWithRateLimit, confirmAgendamento, createCliente
 │   └── package.json
 │
-├── tests/                       # Testes automatizados
+├── tests/                       # Testes (Mocha + Puppeteer + Cypress)
+│   ├── auth.test.js
 │   ├── agenda.test.js
 │   ├── agendamentos.test.js
-│   ├── auth.test.js
-│   └── emulator-sanity.test.js
+│   ├── emulator-sanity.test.js
+│   └── e2e/
 │
-├── scripts/                     # Scripts de automação
-│   ├── build.js                # Build de produção
-│   ├── deploy-firebase.sh       # Deploy Firebase
-│   ├── deploy-prod.sh          # Deploy produção
-│   ├── run-local.sh            # Servidor local
-│   └── setup-env.sh            # Configuração de ambiente
-│
-├── docs/                        # Documentação técnica
-│   ├── FIRESTORE-SCHEMA.md
-│   ├── REGRAS-SEGURANCA.md
-│   ├── API-FUNCOES.md
-│   └── GUIA-TESTES.md
-│
-├── .env.example                 # Template de variáveis
+├── docs/                        # Documentação
+├── vercel.json
+├── firestore.rules              # Regras de segurança multi-tenant
+├── firestore.indexes.json       # 4 índices configurados
+├── .env.example
 ├── .gitignore
-├── vercel.json                 # Config Vercel
-├── firebase.json               # Config Firebase
-├── firestore.rules             # Regras de segurança
-├── firestore.indexes.json      # Índices Firestore
-├── package.json
-└── README.md                   # Este arquivo
+└── package.json
 ```
 
 ---

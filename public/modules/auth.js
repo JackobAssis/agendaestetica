@@ -453,7 +453,7 @@ export async function loginProfissional(emailOuTelefone, senha) {
             throw new Error('Profissional não encontrado com este telefone');
         }
         const userData = querySnapshot.docs[0].data();
-        await signInAnonymously();
+        await signInAnonymously(auth);
         return {
             uid: userData.uid,
             email: userData.email,
