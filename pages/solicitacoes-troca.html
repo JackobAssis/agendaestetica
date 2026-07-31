@@ -3,47 +3,53 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="AgendaEstética - Solicitações de Troca">
+  <meta name="theme-color" content="#2d9482">
   <title>AgendaEstética - Solicitações de Troca</title>
-    <!-- CSS Principal (Design System v2) -->
-    <link rel="stylesheet" href="/styles/main.css">
+  <link rel="stylesheet" href="/styles/main.css">
 </head>
 <body>
-  <main class="solicitacoes-container">
-    <header class="page-header">
-      <a href="/dashboard" class="back-link">← Voltar ao Dashboard</a>
-      <h1>Solicitações de Troca</h1>
+  <div class="app">
+    <header class="app-header">
+      <div class="app-header__inner">
+        <div class="app-header__logo">✨ AgendaEstética</div>
+      </div>
     </header>
 
-    <section class="filtros">
-      <button class="filter-btn active" data-filter="pendentes">Pendentes</button>
-      <button class="filter-btn" data-filter="todas">Todas</button>
-    </section>
+    <main class="app-main page-enter">
+      <div class="page">
+        <header class="page-header">
+          <a href="/dashboard" class="btn btn--ghost mb-2">← Voltar ao Dashboard</a>
+          <h1 class="page-header__title">Solicitações de Troca</h1>
+          <p class="page-header__subtitle">Gerencie pedidos de reagendamento dos seus clientes</p>
+        </header>
 
-    <section class="solicitacoes-list" id="lista-solicitacoes">
-      <div class="loading">Carregando solicitações...</div>
-    </section>
+        <div class="tabs mb-4">
+          <button class="tab tab--active" data-filter="pendentes">Pendentes</button>
+          <button class="tab" data-filter="todas">Todas</button>
+        </div>
 
-    <!-- Modal de Detalhes -->
-    <div id="modal-detalhes" class="modal hidden">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h2>Detalhes da Solicitação</h2>
-          <button class="modal-close" id="fechar-modal">&times;</button>
+        <section id="lista-solicitacoes">
+          <div class="loading-state"><p>Carregando solicitações...</p></div>
+        </section>
+      </div>
+    </main>
+
+    <!-- Modal -->
+    <div id="modal-detalhes" class="modal-overlay">
+      <div class="modal modal--active" style="max-width:500px;">
+        <div class="modal__header">
+          <h3 class="modal__title">Detalhes da Solicitação</h3>
+          <button class="modal__close" id="fechar-modal">&times;</button>
         </div>
-        <div class="modal-body" id="detalhes-conteudo">
-          <!-- Conteúdo dinâmico -->
-        </div>
-        <div class="modal-footer" id="modal-actions">
-          <!-- Botões de ação -->
-        </div>
+        <div class="modal__body" id="detalhes-conteudo"></div>
+        <div class="modal__footer" id="modal-actions"></div>
       </div>
     </div>
 
-    <!-- Mensagens -->
-    <div id="mensagem" class="message hidden"></div>
-  </main>
+    <div id="mensagem" class="d-none"></div>
+  </div>
 
   <script type="module" src="/pages/solicitacoes-troca.js"></script>
 </body>
 </html>
-

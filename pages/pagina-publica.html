@@ -1,15 +1,30 @@
-<div class="page-container">
-  <header class="header"><h1 id="public-nome">Profissional</h1><p id="public-desc"></p></header>
+<div class="page-container animate-fade-in">
+  <div class="profissional-header">
+    <div class="profissional-banner">
+      <span class="profissional-banner__placeholder" id="public-iniciais">P</span>
+    </div>
+    <h1 class="profissional-nome" id="public-nome">Profissional</h1>
+    <p class="profissional-profissao" id="public-desc"></p>
+  </div>
 
-  <section class="card">
-    <h2>Serviços</h2>
-    <ul id="public-servicos"></ul>
-  </section>
+  <div class="page">
+    <section class="card mb-4">
+      <div class="card__header">
+        <h3 class="card__title">💇 Serviços</h3>
+      </div>
+      <div class="card__body">
+        <ul id="public-servicos" class="list" style="list-style:none;padding:0;"></ul>
+      </div>
+    </section>
 
-  <section class="card">
-    <h2>Agendamento Rápido</h2>
-    <p>Acesse a página de agendamento público para escolher horário.</p>
-    <a href="/agendar/" id="link-agendar" class="btn">Agendar</a>
-  </section>
-
+    <section class="card mb-4">
+      <div class="card__header">
+        <h3 class="card__title">📅 Agendamento Rápido</h3>
+      </div>
+      <div class="card__body">
+        <p class="text-secondary mb-4">Acesse a página de agendamento público para escolher horário.</p>
+        <a href="/agendar/" id="link-agendar" class="btn btn--primary w-full">Agendar</a>
+      </div>
+    </section>
+  </div>
 </div>

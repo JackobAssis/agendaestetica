@@ -285,7 +285,7 @@ async function handleLogin() {
         }
         
         // Disable button
-        const btn = formLogin.querySelector('.submit-btn');
+        const btn = formLogin.querySelector('.btn--primary');
         btn.disabled = true;
         setHTML(btn, '<span class="loading-spinner"></span>Entrando...');
         
@@ -328,7 +328,7 @@ async function handleLogin() {
         mostrarErro(error.message);
         recordFailedAttempt();
         
-        const btn = formLogin.querySelector('.submit-btn');
+        const btn = formLogin.querySelector('.btn--primary');
         btn.disabled = false;
         setHTML(btn, '<span id="login-btn-texto">Entrar</span>');
     }
@@ -348,7 +348,7 @@ async function handleCadastro() {
         }
         
         // Disable button
-        const btn = formCadastro.querySelector('.submit-btn');
+        const btn = formCadastro.querySelector('.btn--primary');
         btn.disabled = true;
         setHTML(btn, '<span class="loading-spinner"></span>Criando conta...');
         
@@ -406,7 +406,7 @@ async function handleCadastro() {
     } catch (error) {
         mostrarErro(error.message);
         
-        const btn = formCadastro.querySelector('.submit-btn');
+        const btn = formCadastro.querySelector('.btn--primary');
         btn.disabled = false;
         setHTML(btn, '<span id="cadastro-btn-texto">Criar Conta</span>');
     }

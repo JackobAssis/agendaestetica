@@ -93,7 +93,7 @@ async function carregarAgendamentos() {
 
         // Render futuros
         if (futuros.length === 0) {
-            setHTML(listaFuturos, '<div class="empty-state"><p>Você não tem agendamentos próximos.</p><a href="/" class="btn-primary">Ver Profissionais</a></div>');
+            setHTML(listaFuturos, '<div class="empty-state"><p>Você não tem agendamentos próximos.</p><a href="/" class="btn btn--primary">Ver Profissionais</a></div>');
         } else {
             setHTML(listaFuturos, futuros.map(renderAgendamento).join(''));
         }

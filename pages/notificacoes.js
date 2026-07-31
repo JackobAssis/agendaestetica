@@ -338,7 +338,7 @@ async function carregarNotificacoes() {
                     <div class="empty-icon">🔔</div>
                     <h3>Sem notificações</h3>
                     <p>As notificações aparecerão aqui quando houver atualizações sobre seus agendamentos.</p>
-                    <a href="/" class="btn-primary">Ver Profissionais</a>
+                    <a href="/" class="btn btn--primary">Ver Profissionais</a>
                 </div>
             `);
             return;

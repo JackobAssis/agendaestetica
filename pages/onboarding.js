@@ -1,8 +1,3 @@
-/**
- * Onboarding Page Logic
- * CORRIGIDO para Firebase v9+ modular
- */
-
 import { obterUsuarioAtual } from '../modules/auth.js';
 import { getFirebaseDB, doc, updateDoc } from '../modules/firebase.js';
 
@@ -10,29 +5,24 @@ const form = document.getElementById('form-onboarding');
 const mensagemDiv = document.getElementById('onboarding-mensagem');
 
 function mostrarMensagem(text, tipo='success'){
-  mensagemDiv.className = tipo === 'success' ? 'success-message' : 'error-message';
+  mensagemDiv.className = `alert alert--${tipo === 'success' ? 'success' : 'danger'}`;
   mensagemDiv.textContent = text;
-  mensagemDiv.classList.remove('hidden');
+  mensagemDiv.classList.remove('d-none');
 }
 
 function limparMensagem(){
-  mensagemDiv.classList.add('hidden');
+  mensagemDiv.classList.add('d-none');
 }
 
 function coletarDadosDoFormulario(){
   const empresaNome = document.getElementById('empresa-nome').value.trim();
   const telefone = document.getElementById('telefone').value.trim();
   const servicosRaw = document.getElementById('servicos').value.trim();
-    const servicos = servicosRaw
-      ? servicosRaw
-          .split(',')
-          .map(s => s.trim())
-          .filter(Boolean)
-          .map(nome => ({ nome, preco: 0, duracao: 0 }))
-      : [];
+  const servicos = servicosRaw
+    ? servicosRaw.split(',').map(s => s.trim()).filter(Boolean).map(nome => ({ nome, preco: 0, duracao: 0 }))
+    : [];
   const diasNodes = Array.from(document.querySelectorAll('input[name="dias"]:checked'));
   const dias = diasNodes.map(n => n.value);
-
   const horaInicio = document.getElementById('hora-inicio').value;
   const horaFim = document.getElementById('hora-fim').value;
   const duracaoSlot = parseInt(document.getElementById('duracao-slot').value, 10);
@@ -52,7 +42,7 @@ async function salvarConfiguracao(dados){
   if(!usuario || !usuario.empresaId) throw new Error('Usuário não autenticado ou sem empresaId');
 
   const empresaId = usuario.empresaId;
-  const db = getFirebaseDB();  // ✅ v9+
+  const db = getFirebaseDB();
 
   const payload = {
     nome: dados.empresaNome,
@@ -68,7 +58,6 @@ async function salvarConfiguracao(dados){
     atualizadoEm: new Date().toISOString(),
   };
 
-  // ✅ Firebase v9+: updateDoc(doc(db, collection, id), data)
   await updateDoc(doc(db, 'empresas', empresaId), payload);
 }
 
@@ -76,7 +65,7 @@ form.addEventListener('submit', async (e)=>{
   e.preventDefault();
   limparMensagem();
 
-  const btn = form.querySelector('.submit-btn');
+  const btn = form.querySelector('.btn--primary');
   btn.disabled = true;
   btn.textContent = 'Salvando...';
 
@@ -100,4 +89,3 @@ document.addEventListener('DOMContentLoaded', ()=>{
     window.location.href = '/login';
   }
 });
-

@@ -4,52 +4,50 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="AgendaEstética - Dashboard">
-    <meta name="theme-color" content="#8b5cf6">
-    
+    <meta name="theme-color" content="#2d9482">
+
     <title>AgendaEstética - Dashboard</title>
-    
-    <!-- CSS Principal (Design System v2) -->
+
     <link rel="stylesheet" href="/styles/main.css">
-    <link rel="stylesheet" href="/styles/dashboard.css">
 </head>
 <body>
     <div id="app" class="app">
-        
-        <!-- HEADER FIXO -->
+
+        <!-- HEADER -->
         <header class="app-header">
             <button id="mobile-menu-toggle" class="btn btn--ghost btn--icon" aria-label="Menu">
                 <span>☰</span>
             </button>
-            <div class="header-title">
-                <h1 class="app-header__logo">📅 AgendaEstética</h1>
-            </div>
-            <div class="app-header__actions">
-                <button id="btn-logout" class="btn btn--ghost btn--icon" title="Logout" aria-label="Sair">
-                    <span>🚪</span>
-                </button>
+            <div class="app-header__inner">
+                <div class="app-header__logo">✨ AgendaEstética</div>
+                <div class="app-header__actions">
+                    <button id="btn-logout" class="btn btn--ghost btn--icon" title="Sair" aria-label="Sair">
+                        <span>🚪</span>
+                    </button>
+                </div>
             </div>
         </header>
-        
-        <!-- CONTEÚDO PRINCIPAL -->
-        <main class="app-main">
-            
-            <!-- Welcome Card -->
+
+        <!-- CONTEÚDO -->
+        <main class="app-main page-enter">
+
+            <!-- Welcome -->
             <section class="card card--elevated mb-4">
                 <div class="card__body">
-                    <div class="flex items-center justify-between">
+                    <div class="flex items-center justify-between flex-wrap" style="gap: 12px;">
                         <div>
                             <h2 id="welcome-message" class="text-xl font-semibold mb-1">Carregando...</h2>
                             <p class="text-secondary text-sm">Aqui está o resumo do seu dia profissional</p>
                         </div>
                         <a href="/agendar-cliente" class="btn btn--primary">
-                            ➕ Novo Agendamento
+                            ✨ Novo Agendamento
                         </a>
                     </div>
                 </div>
             </section>
-            
-            <!-- Stats Grid -->
-            <div class="grid grid--cols-2-md-down gap-4 mb-6">
+
+            <!-- Stats -->
+            <div class="grid grid--cols-2-md-down gap-4 mb-6 stagger" id="stats-grid">
                 <div class="stat-card">
                     <div class="stat-card__icon">📅</div>
                     <div class="stat-card__info">
@@ -79,153 +77,136 @@
                     </div>
                 </div>
             </div>
-            
-            <!-- AGENDA DE HOJE -->
+
+            <!-- Agenda Hoje -->
             <section class="card mb-4">
                 <div class="card__header">
                     <h3 class="card__title">📅 Agenda de Hoje</h3>
                     <a href="/agenda" class="section__link">Ver todos →</a>
                 </div>
                 <div id="agenda-hoje-container" class="card__body">
-                    <div class="state-loading">
-                        <p>Carregando...</p>
-                    </div>
+                    <div class="loading-state"><p>Carregando...</p></div>
                 </div>
             </section>
-            
-            <!-- PRÓXIMOS ATENDIMENTOS -->
+
+            <!-- Próximos -->
             <section class="card mb-4">
                 <div class="card__header">
                     <h3 class="card__title">📆 Próximos</h3>
                     <a href="/agendamentos" class="section__link">Ver todos →</a>
                 </div>
                 <div id="proximos-container" class="card__body">
-                    <div class="state-loading">
-                        <p>Carregando...</p>
-                    </div>
+                    <div class="loading-state"><p>Carregando...</p></div>
                 </div>
             </section>
-            
-            <!-- ALERTAS -->
+
+            <!-- Alertas -->
             <section class="card mb-4">
                 <div class="card__header">
                     <h3 class="card__title">⚠️ Alertas</h3>
                 </div>
                 <div id="alertas-container" class="card__body">
-                    <div class="state-loading">
-                        <p>Carregando...</p>
-                    </div>
+                    <div class="loading-state"><p>Carregando...</p></div>
                 </div>
             </section>
-            
-            <!-- LINK PÚBLICO -->
+
+            <!-- Link Público -->
             <section class="card mb-4">
                 <div class="card__header">
                     <h3 class="card__title">🔗 Seu Link Público</h3>
                 </div>
                 <div id="link-publico-container" class="card__body">
-                    <div class="state-loading">
-                        <p>Carregando...</p>
-                    </div>
+                    <div class="loading-state"><p>Carregando...</p></div>
                 </div>
             </section>
-            
-            <!-- AÇÕES RÁPIDAS -->
+
+            <!-- Ações Rápidas -->
             <section class="card mb-4">
                 <div class="card__header">
                     <h3 class="card__title">⚡ Ações Rápidas</h3>
                 </div>
                 <div class="card__body">
                     <div class="grid grid--cols-2-md-down gap-3 mb-4">
-                        <a href="/agenda" class="btn btn--light">
-                            <span>📅</span> Agenda
-                        </a>
-                        <a href="/clientes" class="btn btn--light">
-                            <span>👥</span> Clientes
-                        </a>
-                        <a href="/relatorios" class="btn btn--light">
-                            <span>📈</span> Relatórios
-                        </a>
-                        <a href="/perfil" class="btn btn--light">
-                            <span>⚙️</span> Perfil
-                        </a>
+                        <a href="/agenda" class="btn btn--light">📅 Agenda</a>
+                        <a href="/clientes" class="btn btn--light">👥 Clientes</a>
+                        <a href="/relatorios" class="btn btn--light">📈 Relatórios</a>
+                        <a href="/perfil" class="btn btn--light">⚙️ Perfil</a>
                     </div>
-                    
+
                     <div class="form-group mb-0">
                         <label for="theme-select" class="form-label">🎨 Tema:</label>
                         <select id="theme-select" class="form-input form-select">
-                            <option value="neo">Neo Clinic (Padrão)</option>
+                            <option value="beauty">Beleza & Bem-Estar</option>
+                            <option value="neo">Neo Clinic</option>
                             <option value="premium">Premium</option>
+                            <option value="wood">Natural</option>
+                            <option value="dark">Escuro</option>
                         </select>
                     </div>
                 </div>
             </section>
-            
-            <!-- MÓDULOS CONDIÇÃOIS -->
+
+            <!-- Módulos -->
             <div class="grid grid--cols-1-sm-down gap-4 mb-4">
-                <section id="modulo-cursos" class="card"></section>
-                <section id="modulo-personalizacao" class="card"></section>
-                <section id="modulo-monetizacao" class="card"></section>
+                <section id="modulo-cursos" class="card card--flat"></section>
+                <section id="modulo-personalizacao" class="card card--flat"></section>
+                <section id="modulo-monetizacao" class="card card--flat"></section>
             </div>
-            
-            <!-- CONFIGURAÇÕES -->
+
             <section id="modulo-configuracoes" class="card mb-4">
                 <div class="card__header">
                     <h3 class="card__title">⚙️ Configurações</h3>
                 </div>
                 <div class="card__body"></div>
             </section>
-            
-            <!-- INFO DO PLANO -->
+
             <div class="card card--primary mb-4">
                 <div class="card__body">
-                    <div class="flex items-center justify-between">
+                    <div class="flex items-center justify-between flex-wrap" style="gap: 12px;">
                         <div>
                             <span id="plano-atual" class="badge badge--primary">Free</span>
                             <p class="text-sm text-secondary mt-2" id="plano-descricao">Plano gratuito</p>
                         </div>
-                        <a href="/perfil?upgrade=true" class="btn btn--secondary">
-                            ⭐ Upgrade
-                        </a>
+                        <a href="/perfil?upgrade=true" class="btn btn--secondary">⭐ Upgrade</a>
                     </div>
                 </div>
             </div>
-            
+
             <p id="usuario-info" class="text-center text-sm text-secondary"></p>
-            
+
         </main>
-        
-        <!-- NAVEGAÇÃO INFERIOR -->
+
+        <!-- NAVEGAÇÃO -->
         <nav class="app-nav" role="navigation" aria-label="Navegação principal">
             <a href="/dashboard" class="app-nav__item app-nav__item--active">
                 <span class="app-nav__icon">🏠</span>
-                <span class="app-nav__label">Dashboard</span>
+                <span>Dashboard</span>
             </a>
             <a href="/agenda" class="app-nav__item">
                 <span class="app-nav__icon">📅</span>
-                <span class="app-nav__label">Agenda</span>
+                <span>Agenda</span>
             </a>
             <a href="/agendamentos" class="app-nav__item">
                 <span class="app-nav__icon">📋</span>
-                <span class="app-nav__label">Agendamentos</span>
+                <span>Agendamentos</span>
             </a>
             <a href="/clientes" class="app-nav__item">
                 <span class="app-nav__icon">👥</span>
-                <span class="app-nav__label">Clientes</span>
+                <span>Clientes</span>
             </a>
-            <a href="/notificacoes" class="app-nav__item notification-badge">
+            <a href="/notificacoes" class="app-nav__item">
                 <span class="app-nav__icon">🔔</span>
-                <span class="app-nav__label">Notificações</span>
+                <span>Notificações</span>
                 <span id="nav-notif-badge" class="app-nav__badge" style="display: none;">0</span>
             </a>
             <a href="/perfil" class="app-nav__item">
                 <span class="app-nav__icon">⚙️</span>
-                <span class="app-nav__label">Perfil</span>
+                <span>Perfil</span>
             </a>
         </nav>
-        
+
     </div>
-    
+
     <script type="module" src="/pages/dashboard.js"></script>
 </body>
 </html>

@@ -294,7 +294,7 @@ async function renderizarAgendaHoje(empresaId) {
     }
     
     setHTML(container, agendaHoje.map(ag => `
-        <div class="agendamento-card" data-id="${ag.id}">
+        <div class="agendamento-card-dash" data-id="${ag.id}">
             <div class="ag-time">${formatarHora(ag.inicio)}</div>
             <div class="ag-info">
                 <strong>${ag.clienteNome || 'Cliente não identificado'}</strong>
@@ -687,7 +687,7 @@ async function setupThemeListener(empresaId) {
     const allowAdvanced = await temFeature('tema_avancado');
     
     if (!allowAdvanced && themeSelect.value === 'premium') {
-        themeSelect.value = 'free';
+        themeSelect.value = 'beauty';
     }
     
     // Desabilitar opção premium se não tiver permissão

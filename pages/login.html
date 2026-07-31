@@ -3,116 +3,252 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="AgendaEstética - Login ou Cadastro">
-    <meta name="theme-color" content="#8b5cf6">
-    
+    <meta name="description" content="AgendaEstética - Plataforma de Agenda Online para Profissionais de Beleza e Bem-Estar">
+    <meta name="theme-color" content="#2d9482">
+
     <title>AgendaEstética - Login</title>
-    
-    <!-- Favicon -->
+
     <link rel="icon" type="image/svg+xml" href="/assets/images/favicon.svg">
     <link rel="apple-touch-icon" href="/assets/images/favicon.svg">
-    
-    <!-- CSS Principal (Design System v2) -->
+    <link rel="manifest" href="/manifest.json">
+
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="AgendaEstética">
+    <meta name="mobile-web-app-capable" content="yes">
+
     <link rel="stylesheet" href="/styles/main.css">
+
+    <style>
+        .login-decoration {
+            display: none;
+        }
+
+        @media (min-width: 1024px) {
+            .auth-page {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                padding: 0;
+            }
+
+            .login-decoration {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                background: linear-gradient(135deg, var(--color-primary-600) 0%, var(--color-primary) 50%, var(--color-primary-400) 100%);
+                padding: var(--spacing-8);
+                position: relative;
+                overflow: hidden;
+                min-height: 100vh;
+            }
+
+            .login-decoration::before {
+                content: '';
+                position: absolute;
+                top: -50%;
+                right: -30%;
+                width: 80%;
+                height: 80%;
+                background: radial-gradient(circle, rgba(255,255,255,0.06) 0%, transparent 70%);
+                border-radius: 50%;
+            }
+
+            .login-decoration::after {
+                content: '';
+                position: absolute;
+                bottom: -30%;
+                left: -20%;
+                width: 60%;
+                height: 60%;
+                background: radial-gradient(circle, rgba(219,164,43,0.08) 0%, transparent 70%);
+                border-radius: 50%;
+            }
+
+            .login-decoration-content {
+                position: relative;
+                z-index: 1;
+                text-align: center;
+                color: white;
+                max-width: 420px;
+            }
+
+            .login-decoration-content h1 {
+                font-family: var(--font-display);
+                font-size: 2.5rem;
+                color: white;
+                margin-bottom: var(--spacing-4);
+                line-height: 1.2;
+            }
+
+            .login-decoration-content p {
+                color: rgba(255,255,255,0.85);
+                font-size: var(--text-lg);
+                line-height: 1.6;
+                margin-bottom: var(--spacing-8);
+            }
+
+            .login-decoration-icon {
+                width: 96px;
+                height: 96px;
+                margin: 0 auto var(--spacing-6);
+                background: rgba(255,255,255,0.12);
+                border-radius: var(--radius-3xl);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 3rem;
+                backdrop-filter: blur(8px);
+                border: 1px solid rgba(255,255,255,0.15);
+            }
+
+            .login-decoration-features {
+                display: flex;
+                flex-direction: column;
+                gap: var(--spacing-4);
+                text-align: left;
+            }
+
+            .login-decoration-feature {
+                display: flex;
+                align-items: center;
+                gap: var(--spacing-3);
+                color: rgba(255,255,255,0.8);
+                font-size: var(--text-sm);
+            }
+
+            .login-decoration-feature span:first-child {
+                width: 32px;
+                height: 32px;
+                background: rgba(255,255,255,0.1);
+                border-radius: var(--radius-md);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                flex-shrink: 0;
+            }
+
+            .auth-card {
+                margin: 0 auto;
+                border: none;
+                box-shadow: none;
+                border-radius: 0;
+                max-width: 440px;
+                padding: var(--spacing-12) var(--spacing-8);
+            }
+        }
+    </style>
 </head>
 <body>
     <div class="auth-page">
+        <!-- Decoração para desktop -->
+        <div class="login-decoration">
+            <div class="login-decoration-content">
+                <div class="login-decoration-icon">✨</div>
+                <h1>AgendaEstética</h1>
+                <p>A plataforma completa para profissionais de beleza e bem-estar gerenciarem sua agenda online.</p>
+
+                <div class="login-decoration-features">
+                    <div class="login-decoration-feature">
+                        <span>📅</span>
+                        <span>Agenda online inteligente</span>
+                    </div>
+                    <div class="login-decoration-feature">
+                        <span>👥</span>
+                        <span>Gestão de clientes</span>
+                    </div>
+                    <div class="login-decoration-feature">
+                        <span>🔗</span>
+                        <span>Página pública para agendamentos</span>
+                    </div>
+                    <div class="login-decoration-feature">
+                        <span>📊</span>
+                        <span>Relatórios e métricas</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card de Login -->
         <div class="auth-card">
-            
-            <!-- Header -->
             <header class="auth-card__header">
-                <div class="auth-card__logo">📅</div>
+                <div class="auth-card__logo">✨</div>
                 <h1 class="auth-card__title">AgendaEstética</h1>
-                <p class="text-secondary">Gerencie sua agenda online</p>
+                <p class="auth-card__subtitle">Gerencie sua agenda online</p>
             </header>
-            
-            <!-- Toggle entre Login e Cadastro -->
+
             <div class="btn-group mb-4">
                 <button class="toggle-btn active" data-mode="login" tabindex="0" aria-pressed="true">Login</button>
                 <button class="toggle-btn" data-mode="cadastro" tabindex="0" aria-pressed="false">Cadastro</button>
             </div>
-            
-            <!-- Mensagens de Erro/Sucesso -->
+
             <div id="mensagem" class="alert d-none" role="alert"></div>
-            
-            <!-- FORMULÁRIO LOGIN -->
+
+            <!-- LOGIN -->
             <form id="form-login" class="auth-form">
-                
-                <!-- Toggle Profissional vs Cliente -->
                 <div class="btn-group mb-4">
                     <button type="button" class="toggle-btn active" data-role="profissional">Profissional</button>
                     <button type="button" class="toggle-btn" data-role="cliente">Cliente</button>
                 </div>
-                
-                <!-- Email ou Telefone -->
+
                 <div class="form-group">
                     <label for="login-email" class="form-label">Email ou Telefone</label>
-                    <input 
-                        type="text" 
-                        id="login-email" 
+                    <input
+                        type="text"
+                        id="login-email"
                         name="email"
                         class="form-input"
                         placeholder="seu@email.com ou (11) 99999-9999"
                         required
                         aria-describedby="login-email-hint"
                     />
-                    <small id="login-email-hint" class="form-hint">
-                        Informe email ou telefone com DDD
-                    </small>
+                    <small id="login-email-hint" class="form-hint">Informe email ou telefone com DDD</small>
                 </div>
-                
-                <!-- Senha -->
+
                 <div class="form-group" id="grupo-senha-login">
                     <label for="login-senha" class="form-label">Senha</label>
-                    <input 
-                        type="password" 
-                        id="login-senha" 
+                    <input
+                        type="password"
+                        id="login-senha"
                         name="senha"
                         class="form-input"
                         placeholder="Mínimo 6 caracteres"
                     />
                 </div>
-                
-                <!-- Botão Login -->
-                <button type="submit" class="btn btn--primary w-full">
+
+                <button type="submit" class="btn btn--primary w-full btn--lg">
                     <span id="login-btn-texto">Entrar</span>
                 </button>
-                
-                <!-- Link Esqueci Senha -->
+
                 <div class="auth-card__footer">
                     <a href="/recuperar-senha" id="link-esqueci-senha" class="btn btn--ghost">Esqueci minha senha</a>
                 </div>
-                
             </form>
-            
-            <!-- FORMULÁRIO CADASTRO -->
+
+            <!-- CADASTRO -->
             <form id="form-cadastro" class="auth-form d-none">
-                
-                <!-- Toggle Profissional vs Cliente -->
                 <div class="btn-group mb-4">
                     <button type="button" class="toggle-btn active" data-role="profissional">Profissional</button>
                     <button type="button" class="toggle-btn" data-role="cliente">Cliente</button>
                 </div>
-                
-                <!-- Nome -->
+
                 <div class="form-group">
                     <label for="cadastro-nome" class="form-label">Nome Completo</label>
-                    <input 
-                        type="text" 
-                        id="cadastro-nome" 
+                    <input
+                        type="text"
+                        id="cadastro-nome"
                         name="nome"
                         class="form-input"
                         placeholder="Seu nome"
                         required
                     />
                 </div>
-                
-                <!-- Email ou Telefone -->
+
                 <div class="form-group">
                     <label for="cadastro-email" class="form-label">Email ou Telefone</label>
-                    <input 
-                        type="text" 
-                        id="cadastro-email" 
+                    <input
+                        type="text"
+                        id="cadastro-email"
                         name="email"
                         class="form-input"
                         placeholder="seu@email.com ou (11) 99999-9999"
@@ -120,53 +256,51 @@
                     />
                     <small class="form-hint">Informe email ou telefone com DDD</small>
                 </div>
-                
-                <!-- Profissão (visível apenas para profissional) -->
+
                 <div class="form-group" id="grupo-profissao">
                     <label for="cadastro-profissao" class="form-label form-label--required">Profissão</label>
                     <select id="cadastro-profissao" name="profissao" class="form-input form-select" required>
                         <option value="">Selecione sua profissão</option>
-                        <option value="cabeleireira">Cabeleireira</option>
+                        <option value="cabeleireira">Cabeleireira(o)</option>
                         <option value="esteticista">Esteticista</option>
                         <option value="barbeiro">Barbeiro</option>
                         <option value="massoterapeuta">Massoterapeuta</option>
                         <option value="manicure">Manicure</option>
                         <option value="pedicure">Pedicure</option>
+                        <option value="maquiador">Maquiador(a)</option>
+                        <option value="depilador">Depilador(a)</option>
                         <option value="outro">Outro</option>
                     </select>
                 </div>
-                
-                <!-- Senha -->
+
                 <div class="form-group" id="grupo-senha-cadastro">
                     <label for="cadastro-senha" class="form-label form-label--required">Senha</label>
-                    <input 
-                        type="password" 
-                        id="cadastro-senha" 
+                    <input
+                        type="password"
+                        id="cadastro-senha"
                         name="senha"
                         class="form-input"
                         placeholder="Mínimo 6 caracteres"
                     />
                     <small class="form-hint">Obrigatório apenas para cadastro por email</small>
                 </div>
-                
-                <!-- Confirmar Senha -->
+
                 <div class="form-group" id="grupo-senha-confirma">
                     <label for="cadastro-senha-confirma" class="form-label form-label--required">Confirmar Senha</label>
-                    <input 
-                        type="password" 
-                        id="cadastro-senha-confirma" 
+                    <input
+                        type="password"
+                        id="cadastro-senha-confirma"
                         name="senhaConfirma"
                         class="form-input"
                         placeholder="Confirme a senha"
                     />
                 </div>
-                
-                <!-- Termos -->
+
                 <div class="form-group mt-4">
                     <label class="form-check">
-                        <input 
-                            type="checkbox" 
-                            id="termos" 
+                        <input
+                            type="checkbox"
+                            id="termos"
                             name="termos"
                             class="form-check-input"
                             required
@@ -176,17 +310,14 @@
                         </span>
                     </label>
                 </div>
-                
-                <!-- Botão Cadastro -->
-                <button type="submit" class="btn btn--primary w-full">
+
+                <button type="submit" class="btn btn--primary w-full btn--lg">
                     <span id="cadastro-btn-texto">Criar Conta</span>
                 </button>
-                
             </form>
-            
         </div>
     </div>
-    
+
     <script type="module" src="/pages/login.js"></script>
 </body>
 </html>

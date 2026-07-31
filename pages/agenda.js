@@ -20,7 +20,7 @@ function clearMsg(element){ element.classList.add('hidden'); }
 form.addEventListener('submit', async (e)=>{
   e.preventDefault();
   clearMsg(msg);
-  const btn = form.querySelector('.submit-btn');
+  const btn = form.querySelector('.btn--primary');
   btn.disabled = true; btn.textContent = 'Salvando...';
 
   try{

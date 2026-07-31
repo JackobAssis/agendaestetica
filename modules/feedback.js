@@ -181,7 +181,7 @@ export async function showConfirm(title, message, confirmText = 'Confirmar', can
         const footer = document.createElement('div');
         footer.className = 'modal-footer';
         const cancelBtn = document.createElement('button');
-        cancelBtn.className = 'btn btn-secondary';
+        cancelBtn.className = 'btn btn--secondary';
         cancelBtn.id = 'modal-cancel';
         cancelBtn.textContent = cancelText;
         footer.appendChild(cancelBtn);

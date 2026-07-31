@@ -3,51 +3,73 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="AgendaEstética - Relatórios">
+  <meta name="theme-color" content="#2d9482">
   <title>AgendaEstética - Relatórios</title>
-  <!-- CSS Principal (Design System v2) -->
   <link rel="stylesheet" href="/styles/main.css">
 </head>
 <body>
-  <main class="relatorios-container">
-    <header class="page-header">
-      <a href="/dashboard" class="back-link">← Voltar ao Dashboard</a>
-      <h1>Relatórios</h1>
+  <div class="app">
+    <header class="app-header">
+      <div class="app-header__inner">
+        <div class="app-header__logo">✨ AgendaEstética</div>
+      </div>
     </header>
 
-    <section class="relatorio-section">
-      <h2>Atendimentos por Período</h2>
-      
-      <div class="filtros-row">
-        <div class="form-group">
-          <label for="relatorio-inicio">De</label>
-          <input type="date" id="relatorio-inicio" />
-        </div>
-        <div class="form-group">
-          <label for="relatorio-fim">Até</label>
-          <input type="date" id="relatorio-fim" />
-        </div>
-        <button id="btn-gerar-relatorio" class="btn-primary">Gerar</button>
+    <main class="app-main page-enter">
+      <div class="page">
+        <header class="page-header">
+          <a href="/dashboard" class="btn btn--ghost mb-2">← Voltar ao Dashboard</a>
+          <h1 class="page-header__title">Relatórios</h1>
+          <p class="page-header__subtitle">Visualize métricas e desempenho do seu negócio</p>
+        </header>
+
+        <section class="card mb-4">
+          <div class="card__header">
+            <h3 class="card__title">📊 Atendimentos por Período</h3>
+          </div>
+          <div class="card__body">
+            <div class="filters-grid mb-4">
+              <div class="form-group">
+                <label for="relatorio-inicio" class="form-label">De</label>
+                <input type="date" id="relatorio-inicio" class="form-input" />
+              </div>
+              <div class="form-group">
+                <label for="relatorio-fim" class="form-label">Até</label>
+                <input type="date" id="relatorio-fim" class="form-input" />
+              </div>
+              <div class="form-group" style="display:flex;align-items:flex-end;">
+                <button id="btn-gerar-relatorio" class="btn btn--primary w-full">Gerar</button>
+              </div>
+            </div>
+
+            <div id="relatorio-resultado">
+              <div class="empty-state">
+                <p class="text-secondary">Selecione um período e clique em "Gerar"</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="card mb-4">
+          <div class="card__header">
+            <h3 class="card__title">👥 Clientes Recorrentes</h3>
+          </div>
+          <div class="card__body">
+            <button id="btn-clientes-recorrentes" class="btn btn--primary mb-4">Ver Clientes Recorrentes</button>
+            <div id="clientes-resultado">
+              <div class="empty-state">
+                <p class="text-secondary">Clique no botão acima para ver clientes recorrentes</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <div id="mensagem" class="d-none"></div>
       </div>
-
-      <div id="relatorio-resultado" class="relatorio-resultado">
-        <p class="text-secondary">Selecione um período e clique em "Gerar"</p>
-      </div>
-    </section>
-
-    <section class="relatorio-section">
-      <h2>Clientes Recorrentes</h2>
-      
-      <button id="btn-clientes-recorrentes" class="btn-primary">Ver Clientes Recorrentes</button>
-
-      <div id="clientes-resultado" class="relatorio-resultado">
-        <!-- Resultados aqui -->
-      </div>
-    </section>
-
-    <div id="mensagem" class="message hidden"></div>
-  </main>
+    </main>
+  </div>
 
   <script type="module" src="/pages/relatorios.js"></script>
 </body>
 </html>
-

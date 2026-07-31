@@ -3,35 +3,88 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="AgendaEstética - Perfil">
+  <meta name="theme-color" content="#2d9482">
   <title>AgendaEstética - Perfil</title>
-    <!-- CSS Principal (Design System v2) -->
-    <link rel="stylesheet" href="/styles/main.css">
+  <link rel="stylesheet" href="/styles/main.css">
 </head>
 <body>
-  <main class="perfil-container">
-    <header class="page-header">
-      <h1>Perfil</h1>
+  <div class="app">
+    <header class="app-header">
+      <div class="app-header__inner">
+        <div class="app-header__logo">✨ AgendaEstética</div>
+        <div class="app-header__actions">
+          <a href="/dashboard" class="btn btn--ghost">← Voltar</a>
+        </div>
+      </div>
     </header>
 
-    <section class="card">
-      <h2>Informações</h2>
-      <p id="perfil-nome"></p>
-      <p id="perfil-email"></p>
-    </section>
+    <main class="app-main page-enter">
+      <div class="page">
+        <header class="page-header">
+          <h1 class="page-header__title">Perfil</h1>
+          <p class="page-header__subtitle">Gerencie suas informações e plano</p>
+        </header>
 
-    <section class="card">
-      <h2>Plano</h2>
-      <p>Plano atual: <strong id="plano-atual-text">Free</strong></p>
-      <label for="plano-select">Alterar Plano</label>
-      <select id="plano-select">
-        <option value="free">Free</option>
-        <option value="premium">Premium</option>
-      </select>
-      <div style="margin-top:12px;"><button id="btn-change-plan" class="btn">Salvar Plano</button></div>
-    </section>
-  </main>
+        <section class="card mb-4">
+          <div class="card__header">
+            <h3 class="card__title">👤 Informações</h3>
+          </div>
+          <div class="card__body">
+            <div class="perfil-item">
+              <span class="perfil-label">Nome</span>
+              <span class="perfil-valor" id="perfil-nome">—</span>
+            </div>
+            <div class="perfil-item">
+              <span class="perfil-label">Email</span>
+              <span class="perfil-valor" id="perfil-email">—</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="card mb-4">
+          <div class="card__header">
+            <h3 class="card__title">⭐ Plano</h3>
+          </div>
+          <div class="card__body">
+            <p class="mb-4">Plano atual: <strong id="plano-atual-text" class="badge badge--primary">Free</strong></p>
+            <div class="form-group">
+              <label for="plano-select" class="form-label">Alterar Plano</label>
+              <select id="plano-select" class="form-input form-select">
+                <option value="free">Free</option>
+                <option value="premium">Premium</option>
+              </select>
+            </div>
+            <button id="btn-change-plan" class="btn btn--primary">Salvar Plano</button>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <nav class="app-nav" role="navigation" aria-label="Navegação principal">
+      <a href="/dashboard" class="app-nav__item">
+        <span class="app-nav__icon">🏠</span>
+        <span>Dashboard</span>
+      </a>
+      <a href="/agenda" class="app-nav__item">
+        <span class="app-nav__icon">📅</span>
+        <span>Agenda</span>
+      </a>
+      <a href="/agendamentos" class="app-nav__item">
+        <span class="app-nav__icon">📋</span>
+        <span>Agendamentos</span>
+      </a>
+      <a href="/clientes" class="app-nav__item">
+        <span class="app-nav__icon">👥</span>
+        <span>Clientes</span>
+      </a>
+      <a href="/perfil" class="app-nav__item app-nav__item--active">
+        <span class="app-nav__icon">⚙️</span>
+        <span>Perfil</span>
+      </a>
+    </nav>
+  </div>
 
   <script type="module" src="/pages/perfil.js"></script>
 </body>
 </html>
-

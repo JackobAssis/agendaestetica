@@ -16,17 +16,17 @@ export async function getTheme(empresaId){
         if(local) return local;
     }catch(e){}
 
-    if(!empresaId) return 'free';
+    if(!empresaId) return 'beauty';
     
     try{
-        const db = getFirebaseDB();  // ✅ v9+
+        const db = getFirebaseDB();
         const docRef = doc(db, 'empresas', empresaId);
-        const snap = await getDoc(docRef);  // ✅ v9+
+        const snap = await getDoc(docRef);
         
-        if(!snap.exists()) return 'free';
+        if(!snap.exists()) return 'beauty';
         const data = snap.data();
-        return data.theme || 'free';
-    }catch(e){ console.warn('getTheme error', e); return 'free'; }
+        return data.theme || 'beauty';
+    }catch(e){ console.warn('getTheme error', e); return 'beauty'; }
 }
 
 export async function setTheme(empresaId, themeName){
