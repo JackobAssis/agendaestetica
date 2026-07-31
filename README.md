@@ -580,11 +580,13 @@ service cloud.firestore {
 
 | Documento | Descrição |
 |-----------|-----------|
-| [PLANO-MESTRE-TECNICO.md](./PLANO-MESTRE-TECNICO.md) | Arquitetura completa, 50+ páginas |
-| [escopo-funcional-detalhado.md](./escopo-funcional-detalhado.md) | Features detalhadas |
-| [fluxo_usabilidade.md](./fluxo_usabilidade.md) | Jornadas de usuário |
-| [monetizacao.md](./monetizacao.md) | Modelo de negócio detalhado |
-| [TESTES-AUTOMATIZADOS.md](./TESTES-AUTOMATIZADOS.md) | Estratégia de testes |
+| [docs/checklist-projeto-completo.md](./docs/checklist-projeto-completo.md) | Status detalhado do projeto |
+| [docs/analise-completa.md](./docs/analise-completa.md) | Análise técnica completa |
+| [docs/analise-funcional.md](./docs/analise-funcional.md) | Análise funcional detalhada |
+| [docs/misc/monetizacao.md](./docs/misc/monetizacao.md) | Modelo de negócio detalhado |
+| [docs/misc/2.0.md](./docs/misc/2.0.md) | Correção de cadastro de cliente |
+| [docs/phases/FASE-5-AGENDAMENTOS.md](./docs/phases/FASE-5-AGENDAMENTOS.md) | Fase de agendamentos |
+| [docs/todo/TODO-IMPLEMENTACAO-2.0.md](./docs/todo/TODO-IMPLEMENTACAO-2.0.md) | TODO de implementação |
 
 ---
 

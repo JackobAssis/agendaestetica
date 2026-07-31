@@ -104,16 +104,17 @@ Esta pasta contém toda a documentação técnica e de usuário organizada por c
 | **Product Manager** | user-guide → scope/ → checklist-projeto-completo.md |
 | **Tech Lead** | checklist-projeto-completo.md → architecture → phases/ |
 
-## 🔍 Documentos Legados
+## 🔍 Documentos Históricos
 
-Alguns documentos antigos ainda existem na raiz do projeto para referência histórica:
+Documentos antigos foram consolidados nesta pasta `docs/`:
 
-- `PLANO-MESTRE-TECNICO.md` - Especificação técnica completa
-- `LEIA-PRIMEIRO.md` - Guia rápido antigo
-- `MANUAL-FLUXO-COMPLETO.md` - Testes manuais detalhados
-- `arquitetura-tecnica.md` - Arquitetura antiga
+- `misc/monetizacao.md` - Modelo de negócio detalhado
+- `misc/2.0.md` - Correção do cadastro de cliente
+- `misc/04-personalizacao-profissional-pos-mvp.md` - Personalização pós-MVP
+- `phases/FASE-5-AGENDAMENTOS.md` - Cronograma da fase de agendamentos
+- `todo/TODO-IMPLEMENTACAO-2.0.md` - Plano de implementação 2.0
 
-**Nota**: Estes documentos são mantidos para referência, mas a documentação atual e mantida está nesta pasta `docs/`.
+**Nota**: Arquivos legados na raiz (`PLANO-MESTRE-TECNICO.md`, `LEIA-PRIMEIRO.md`, `MANUAL-FLUXO-COMPLETO.md`, `arquitetura-tecnica.md`) foram removidos — o conteúdo foi migrado ou é mantido nos documentos acima.
 
 ## 📞 Suporte
 

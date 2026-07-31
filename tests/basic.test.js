@@ -9,10 +9,21 @@ import { generateSlotsForDate } from '../modules/agenda.js';
 // Teste 1: Feedback module
 console.log('🧪 Testando feedback.js...');
 try {
-    // Simular DOM
+    // Simular DOM (mock completo com classList/remove para evitar crashes)
+    const mockElement = () => ({
+        tagName: '',
+        className: '',
+        textContent: '',
+        dataset: {},
+        innerHTML: '',
+        classList: { add: () => {}, remove: () => {}, toggle: () => {}, contains: () => false },
+        appendChild: () => {},
+        remove: () => {},
+        onclick: null,
+    });
     global.document = {
-        createElement: (tag) => ({ tagName: tag, className: '', textContent: '', appendChild: () => {} }),
-        getElementById: () => ({ innerHTML: '', appendChild: () => {} }),
+        createElement: (tag) => { const el = mockElement(); el.tagName = tag; return el; },
+        getElementById: () => mockElement(),
         body: { appendChild: () => {} }
     };
     global.window = { setTimeout: (fn) => fn() };

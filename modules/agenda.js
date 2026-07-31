@@ -161,18 +161,66 @@ export async function generateSlotsForDate(empresaId, dateISO) {
     return slots;
 }
 
+const SLOTS_CACHE_TTL = 3600000; // 1 hora em ms
+
 /**
- * Generate slots for a given date with localStorage cache (TTL 1h)
+ * Read slots cache from Firestore empresa doc (server-side cache)
+ * Reference: FIX-ETAPAS.md > Etapa 5.2 - Cache server-side para slots
+ */
+async function getSlotsCacheFromFirestore(empresaId, dateISO) {
+    const db = getFirebaseDB();
+    const docSnap = await getDoc(doc(db, 'empresas', empresaId));
+    if (!docSnap.exists()) return null;
+
+    const slotsCache = docSnap.data().slotsCache;
+    if (!slotsCache || !slotsCache[dateISO]) return null;
+
+    const entry = slotsCache[dateISO];
+    if (!entry || !entry.slots || !entry.timestamp) return null;
+    if (Date.now() - entry.timestamp >= SLOTS_CACHE_TTL) return null;
+
+    return entry.slots;
+}
+
+/**
+ * Save slots cache to Firestore empresa doc (best-effort)
+ * Merge with existing entries, pruning stale ones.
+ */
+async function saveSlotsCacheToFirestore(empresaId, dateISO, slots) {
+    const db = getFirebaseDB();
+    const docRef = doc(db, 'empresas', empresaId);
+    const docSnap = await getDoc(docRef);
+
+    const now = Date.now();
+    let merged = {};
+    if (docSnap.exists() && docSnap.data().slotsCache) {
+        const existing = docSnap.data().slotsCache;
+        for (const [key, value] of Object.entries(existing)) {
+            if (value && now - value.timestamp < SLOTS_CACHE_TTL) {
+                merged[key] = value;
+            }
+        }
+    }
+    merged[dateISO] = { slots, timestamp: now };
+
+    await updateDoc(docRef, { slotsCache: merged });
+}
+
+/**
+ * Generate slots for a given date with layered cache:
+ * 1. localStorage (fast, per-device)
+ * 2. Firestore empresa doc slotsCache (shared, server-side)
+ * 3. Fresh generation
+ * Reference: FIX-ETAPAS.md > Etapa 5.2
  */
 export async function getAgendaSlotsComCache(empresaId, dateISO) {
     const cacheKey = `slots:${empresaId}:${dateISO}`;
-    const CACHE_TTL = 3600000; // 1 hora em ms
 
     try {
         const cached = localStorage.getItem(cacheKey);
         if (cached) {
             const { slots, timestamp } = JSON.parse(cached);
-            if (Date.now() - timestamp < CACHE_TTL) {
+            if (Date.now() - timestamp < SLOTS_CACHE_TTL) {
                 return slots; // Retorno instantâneo do cache
             }
         }
@@ -180,10 +228,27 @@ export async function getAgendaSlotsComCache(empresaId, dateISO) {
         // Ignorar erros de localStorage
     }
 
+    // Cache server-side (Firestore) - compartilhado entre dispositivos
+    try {
+        const firestoreCache = await getSlotsCacheFromFirestore(empresaId, dateISO);
+        if (firestoreCache) {
+            // Popular cache local
+            try {
+                localStorage.setItem(cacheKey, JSON.stringify({
+                    slots: firestoreCache,
+                    timestamp: Date.now()
+                }));
+            } catch (e) { /* Ignorar erros de localStorage */ }
+            return firestoreCache;
+        }
+    } catch (e) {
+        // Ignorar erros de Firestore (permissão, rede, etc.)
+    }
+
     // Buscar dados frescos
     const slots = await generateSlotsForDate(empresaId, dateISO);
 
-    // Salvar no cache
+    // Salvar no cache local
     try {
         localStorage.setItem(cacheKey, JSON.stringify({
             slots,
@@ -191,6 +256,13 @@ export async function getAgendaSlotsComCache(empresaId, dateISO) {
         }));
     } catch (e) {
         // Ignorar erros de localStorage (quota excedida, etc.)
+    }
+
+    // Salvar no cache server-side (best-effort)
+    try {
+        await saveSlotsCacheToFirestore(empresaId, dateISO, slots);
+    } catch (e) {
+        // Ignorar erros (usuário sem permissão de escrita, rede, etc.)
     }
 
     return slots;

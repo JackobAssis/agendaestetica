@@ -6,6 +6,7 @@
 import { describe, it, before, after, beforeEach } from 'mocha';
 import { expect } from 'chai';
 import admin from 'firebase-admin';
+import { cadastroProfissional } from '../modules/auth.js';
 
 // Configure Firebase Admin for tests
 const configureFirebase = () => {
@@ -86,18 +87,14 @@ describe('Auth Module', function() {
     });
 
     it('should validate required fields', async function() {
-      const testEmail = `test_${Date.now()}@example.com`;
-      const testUid = `test_uid_${Date.now()}`;
-
-      // Try to create user without required fields
+      // Validation happens locally before touching Firebase Auth/Firestore
+      // Reference: 2.0.md > Tarefa 2 - Validação local antes do signup
       try {
-        await db.collection('usuarios').doc(testUid).set({
-          uid: testUid,
-          // Missing email, nome, role
-        });
+        await cadastroProfissional('', '', '', '');
         throw new Error('Should have failed');
       } catch (error) {
         expect(error.message).to.not.equal('Should have failed');
+        expect(error.message).to.equal('Nome e profissão são obrigatórios');
       }
     });
   });

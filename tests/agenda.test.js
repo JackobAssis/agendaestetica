@@ -6,6 +6,7 @@
 import { describe, it, before, after } from 'mocha';
 import { expect } from 'chai';
 import admin from 'firebase-admin';
+import { saveAgendaConfig, createBlock } from '../modules/agenda.js';
 
 const configureFirebase = () => {
   process.env.GCLOUD_PROJECT = process.env.GCLOUD_PROJECT || 'demo-project';
@@ -106,13 +107,14 @@ describe('Agenda Module', function() {
 
     it('should reject invalid block (missing dates)', async function() {
       try {
-        await db.collection('empresas').doc(empresaId).collection('bloqueios').add({
+        await createBlock(empresaId, {
           motivo: 'Bloqueio inválido',
-          // Missing inicio and fim
+          // Missing inicioISO and fimISO
         });
         throw new Error('Should have failed');
       } catch (error) {
         expect(error.message).to.not.equal('Should have failed');
+        expect(error.message).to.equal('Block inválido');
       }
     });
   });
@@ -132,29 +134,28 @@ describe('Agenda Module', function() {
     it('should generate correct number of slots', async function() {
       // Config: 09:00 to 12:00, 60min slots, no interval
       // Expected: 3 slots (09:00, 10:00, 11:00)
-      
+      // Uses UTC to be timezone-independent
+
       const horaInicio = '09:00';
       const horaFim = '12:00';
       const duracaoSlot = 60; // minutes
-      
+
       const [hIni, mIni] = horaInicio.split(':').map(Number);
-      const [hFim, mFim] = horaFim.split(':').map(Number);
-      
-      const start = new Date();
-      start.setHours(hIni, mIni, 0, 0);
-      const end = new Date();
-      end.setHours(hFim, mFim, 0, 0);
-      
+      const [hFim] = horaFim.split(':').map(Number);
+
+      const start = new Date(Date.UTC(2026, 0, 1, hIni, mIni, 0, 0));
+      const end = new Date(Date.UTC(2026, 0, 1, hFim, mIni, 0, 0));
+
       const slots = [];
       let cursor = new Date(start);
-      
+
       while (cursor.getTime() + duracaoSlot * 60000 <= end.getTime()) {
         const slotStart = new Date(cursor);
         const slotEnd = new Date(cursor.getTime() + duracaoSlot * 60000);
         slots.push({ start: slotStart.toISOString(), end: slotEnd.toISOString() });
         cursor = new Date(slotEnd);
       }
-      
+
       expect(slots.length).to.equal(3);
       expect(slots[0].start).to.include('T09:00');
       expect(slots[1].start).to.include('T10:00');
