@@ -120,40 +120,77 @@ export async function checkConflict(empresaId, inicioISO, fimISO) {
 }
 
 /**
+ * Verifica em memória se [slotStart, slotEnd) cruza alguma ocupação.
+ */
+function isBlocked(ocupacoes, slotStart, slotEnd) {
+    return ocupacoes.some(o => {
+        const start = new Date(o.inicio);
+        const end = new Date(o.fim);
+        return start < slotEnd && end > slotStart;
+    });
+}
+
+/**
  * Generate slots for a given date (with localStorage cache)
+ * Otimizado: busca agendamentos + bloqueios do dia em 2 queries
+ * e resolve conflitos em memória (antes: 2 queries por slot).
+ *
+ * Sem índice composto:
+ *  - agendamentos: início dentro do dia (o modelo de dados garante início no dia)
+ *  - bloqueios: fim após o início do dia (cobre bloqueio de dia inteiro e multi-dia)
  */
 export async function generateSlotsForDate(empresaId, dateISO) {
     const config = await getAgendaConfig(empresaId);
     if (!config) throw new Error('Agenda não configurada');
 
-    const { horaInicio, horaFim, duracaoSlot, dias } = config;
+    const { horaInicio, horaFim, duracaoSlot } = config;
     
     const weekdayMap = {
         'seg': 'mon', 'ter': 'tue', 'qua': 'wed',
         'qui': 'thu', 'sex': 'fri', 'sáb': 'sat', 'dom': 'sun'
     };
 
-    const short = new Date(dateISO).toLocaleDateString('pt-BR', { weekday: 'short' }).toLowerCase();
+    const short = new Date(dateISO)
+        .toLocaleDateString('pt-BR', { weekday: 'short' })
+        .toLowerCase()
+        .replace(/\.$/, '');
     const mappedDay = weekdayMap[short] || short;
     if (!config.dias.includes(mappedDay)) return [];
-
-    const slots = [];
-    const [hIni, mIni] = horaInicio.split(':').map(Number);
-    const [hFim, mFim] = horaFim.split(':').map(Number);
 
     const start = new Date(`${dateISO}T${horaInicio}:00`);
     const end = new Date(`${dateISO}T${horaFim}:00`);
 
+    const dayStartISO = new Date(`${dateISO}T00:00:00`).toISOString();
+    const dayEndISO = new Date(`${dateISO}T23:59:59.999`).toISOString();
+
+    const db = getFirebaseDB();
+
+    const [agendamentos, bloqueios] = await Promise.all([
+        getDocs(query(
+            collection(db, 'empresas', empresaId, 'agendamentos'),
+            where('inicio', '>=', dayStartISO),
+            where('inicio', '<=', dayEndISO)
+        )).then(snap => snap.docs.map(d => ({ id: d.id, ...d.data() }))),
+        getDocs(query(
+            collection(db, 'empresas', empresaId, 'bloqueios'),
+            where('fim', '>', dayStartISO)
+        )).then(snap => snap.docs.map(d => ({ id: d.id, ...d.data() }))),
+    ]);
+
+    const ocupacoes = [
+        ...agendamentos.filter(a => a.status !== 'cancelado'),
+        ...bloqueios,
+    ];
+
+    const slots = [];
     let cursor = new Date(start);
     while (cursor.getTime() + duracaoSlot * 60000 <= end.getTime()) {
         const slotStart = new Date(cursor);
         const slotEnd = new Date(cursor.getTime() + duracaoSlot * 60000);
-        const inicioISO = slotStart.toISOString();
-        const fimISO = slotEnd.toISOString();
 
-         
-        const conflict = await checkConflict(empresaId, inicioISO, fimISO);
-        if (!conflict) slots.push({ inicioISO, fimISO });
+        if (!isBlocked(ocupacoes, slotStart, slotEnd)) {
+            slots.push({ inicioISO: slotStart.toISOString(), fimISO: slotEnd.toISOString() });
+        }
 
         cursor = new Date(slotEnd);
     }
